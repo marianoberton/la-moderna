@@ -1,21 +1,215 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&family=Roboto+Mono&family=Poppins:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Shadcn Variables */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
+
+    /* Custom Theme Variables */
+    --primary-custom: #212529;
+    --primary-light: #343a40;
+    --secondary-custom: #212529;
+    --accent-custom: #adb5bd;
+    --muted-custom: #6c757d;
+    --surface: #ffffff;
+    --surface-2: #f1f3f5;
+    --border-custom: #dee2e6;
+    --border-light: #e9ecef;
+    --shadow: rgba(0, 0, 0, 0.05);
+    --highlight: #e6e6e6;
+    --metallic: #adb5bd;
+  }
+ 
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+
+    /* Custom Dark Theme Variables */
+    --primary-custom: #d8d8d8;
+    --primary-light: #ced4da;
+    --secondary-custom: #e5383b;
+    --accent-custom: #dda15e;
+    --muted-custom: #adb5bd;
+    --surface: #1e1e1e;
+    --surface-2: #2c2c2c;
+    --border-custom: #333333;
+    --border-light: #444444;
+    --shadow: rgba(0, 0, 0, 0.2);
+    --highlight: #495057;
+    --metallic: #868e96;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Oswald', 'Impact', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+/* Clases de utilidad para fuentes */
+.logo-font {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.font-heading {
+  font-family: 'Oswald', 'Impact', sans-serif;
+  text-transform: uppercase;
+}
+
+.font-body {
+  font-family: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.font-mono {
+  font-family: 'Roboto Mono', 'Consolas', monospace;
+}
+
+/* Efectos metálicos */
+.text-metallic {
+  color: var(--metallic);
+  text-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.bg-metallic-gradient {
+  background: linear-gradient(135deg, var(--metallic) 0%, var(--highlight) 50%, var(--metallic) 100%);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 1s ease-in-out;
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.5s ease-out;
+}
+
+/* Scrollbar personalizado */
+@layer utilities {
+  .scrollbar-custom {
+    scrollbar-width: thin;
+    scrollbar-color: var(--muted-custom) var(--surface-2);
+  }
+
+  .scrollbar-custom::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-track {
+    background: var(--surface-2);
+    border-radius: 4px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    background: var(--muted-custom);
+    border-radius: 4px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-light);
+  }
+}
+
+/* Componentes personalizados */
+@layer components {
+  .btn-custom {
+    @apply px-4 py-2 rounded-md transition-all duration-300 font-medium;
+  }
+
+  .card-custom {
+    @apply bg-white border border-border-light rounded-lg shadow-soft transition-all duration-300 hover:shadow-md;
+  }
+
+  .category-item {
+    @apply flex flex-col items-center cursor-pointer transition-all duration-300;
+  }
+
+  .category-icon {
+    @apply bg-surface-2 rounded-lg p-4 mb-2 w-full flex justify-center shadow-soft border border-border-light transition-all duration-300;
+  }
+
+  .vehicle-price {
+    @apply bg-gradient-to-r from-primary-custom to-primary-light text-white px-4 py-2 rounded font-bold shadow-soft;
+  }
+
+  .vehicle-badge {
+    @apply bg-gradient-to-r from-accent-custom to-secondary-custom text-white px-3 py-1 rounded-full text-xs font-bold shadow-soft;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
