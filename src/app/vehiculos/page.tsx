@@ -8,7 +8,21 @@ import VehicleFilters from '../components/VehicleFilters';
 export default function VehiculosPage() {
   const [ordenar, setOrdenar] = useState('nuevos');
   const [filtros, setFiltros] = useState({});
-  const [vehiculosFiltrados, setVehiculosFiltrados] = useState([]);
+  // First, let's define an interface for the vehicle type
+  interface Vehiculo {
+    id: number;
+    marca: string;
+    modelo: string;
+    version: string;
+    precio: number;
+    año: number;
+    km: number;
+    transmision: string;
+    combustible: string;
+    imagen: string;
+    fotos: number;
+  }
+  const [vehiculosFiltrados, setVehiculosFiltrados] = useState<Vehiculo[]>([]);
   
   // Actualizar los vehículos con las imágenes nuevas
   const vehiculos = [
