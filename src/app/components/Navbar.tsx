@@ -12,8 +12,10 @@ import {
 import { Menu, X } from "lucide-react";
 import { Oswald } from 'next/font/google';
 import { cn } from "@/lib/utils";
-import { logoFont } from '../layout';
+// Remove this import line
+// import { logoFont } from '../layout';
 
+// Keep the existing logoFont definition
 const logoFont = Oswald({ subsets: ['latin'] });
 
 export default function Navbar() {
@@ -91,4 +93,4 @@ export default function Navbar() {
       </div>
     </nav>
   );
-} 
+}
