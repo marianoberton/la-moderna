@@ -22,6 +22,7 @@ export default function VehiculosPage() {
     imagen: string;
     fotos: number;
   }
+  // Update the useState definition with the proper type
   const [vehiculosFiltrados, setVehiculosFiltrados] = useState<Vehiculo[]>([]);
   
   // Actualizar los vehículos con las imágenes nuevas
