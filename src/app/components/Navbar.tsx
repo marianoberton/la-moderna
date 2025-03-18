@@ -3,17 +3,13 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import Image from 'next/image';
-import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Oswald } from 'next/font/google';
-import { cn } from "@/lib/utils";
-// Remove this import line
-// import { logoFont } from '../layout';
 
 // Keep the existing logoFont definition
 const logoFont = Oswald({ subsets: ['latin'] });
@@ -28,64 +24,56 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
+    <nav className="sticky top-0 z-50 w-full border-b border-primary/10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 md:h-20 items-center">
         <div className="flex w-full justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <span className={cn(
-              "text-2xl font-bold tracking-wider text-primary",
-              logoFont.className
-            )}>
-              LA MODERNA
-            </span>
+            <Image 
+              src="/images/logo_full.svg"
+              alt="La Moderna"
+              width={160}
+              height={40}
+              className="h-8 sm:h-9 md:h-10 w-auto dark:invert"
+              priority
+            />
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-8">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+                className="text-base font-medium uppercase text-foreground transition-colors hover:text-primary"
               >
                 {item.label}
               </Link>
             ))}
-            <Button asChild variant="default">
-              <Link href="/contacto">
-                Contactar
-              </Link>
-            </Button>
           </div>
 
           {/* Mobile Navigation */}
           <div className="md:hidden">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle menu</span>
-                </Button>
+                <button className="flex items-center justify-center h-10 w-10">
+                  <Menu className="h-7 w-7" />
+                  <span className="sr-only">Menu</span>
+                </button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[280px] sm:w-[350px]">
-                <nav className="flex flex-col gap-4">
+                <div className="mt-8 flex flex-col gap-6">
                   {navItems.map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
                       onClick={() => setIsOpen(false)}
-                      className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+                      className="text-lg font-medium uppercase text-foreground transition-colors hover:text-primary"
                     >
                       {item.label}
                     </Link>
                   ))}
-                  <Button asChild className="mt-2">
-                    <Link href="/contacto" onClick={() => setIsOpen(false)}>
-                      Contactar
-                    </Link>
-                  </Button>
-                </nav>
+                </div>
               </SheetContent>
             </Sheet>
           </div>

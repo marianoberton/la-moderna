@@ -2,50 +2,29 @@ import Hero from './components/Hero';
 import CarTypes from './components/CarTypes';
 import FeaturedNew from './components/FeaturedNew';
 import UsedCars from './components/UsedCars';
-import { Separator } from "@/components/ui/separator";
 
 export default function Home() {
   return (
     <div className="bg-background min-h-screen">
       <Hero />
-      <div className="py-16 container">
-        <div className="text-center space-y-4 mb-16">
-          <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary uppercase">
-            Nuestros Vehículos
-          </h2>
-          <Separator className="w-24 bg-accent/50 h-1 mx-auto" />
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Explora nuestra amplia selección de vehículos para todos los terrenos y necesidades.
-            Calidad y confianza garantizada.
-          </p>
-        </div>
+      <div className="py-4 container">
         <CarTypes />
       </div>
       
-      <div className="bg-muted/30 py-16">
-        <div className="container">
-          <div className="text-center space-y-4 mb-16">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary uppercase">
-              Vehículos Destacados
-            </h2>
-            <Separator className="w-24 bg-accent/50 h-1 mx-auto" />
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Los mejores vehículos seleccionados por nuestro equipo de expertos.
-            </p>
+      <div className="bg-muted/30 pt-4 pb-2">
+        <div className="text-center mb-4">
+          <div className="flex justify-center">
+            <div className="w-24 h-1 bg-primary rounded-full"></div>
           </div>
-          <FeaturedNew />
         </div>
+        <FeaturedNew />
       </div>
       
-      <div className="py-16 container">
-        <div className="text-center space-y-4 mb-16">
-          <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary uppercase">
-            Vehículos Usados
-          </h2>
-          <Separator className="w-24 bg-accent/50 h-1 mx-auto" />
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Vehículos usados en excelente estado, inspeccionados y con garantía.
-          </p>
+      <div className="pt-4 pb-8 container">
+        <div className="text-center mb-4">
+          <div className="flex justify-center">
+            <div className="w-24 h-1 bg-primary rounded-full"></div>
+          </div>
         </div>
         <UsedCars />
       </div>

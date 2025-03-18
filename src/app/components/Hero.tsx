@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/select";
 import { 
   Search, 
-  ChevronDown
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 // Datos de ejemplo para autocompletado
@@ -35,6 +36,13 @@ export default function Hero() {
   const [marca, setMarca] = useState("");
   const [filteredSuggestions, setFilteredSuggestions] = useState<typeof sugerencias>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  // Add state for advanced search
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  // Add states for advanced search filters
+  const [precio, setPrecio] = useState("");
+  const [anio, setAnio] = useState("");
+  const [tipo, setTipo] = useState("");
+  
   const searchRef = useRef<HTMLDivElement>(null);
 
   // Función para filtrar sugerencias
@@ -81,13 +89,11 @@ export default function Hero() {
             playsInline
             className="w-full h-full object-cover"
           >
-            <source src="/videos/AdobeStock_756455246_Video_HD_Preview.mov" type="video/quicktime" />
-            Tu navegador no soporta videos HTML5.
+            <source src="/videos/hero_video.mp4" type="video/mp4" />
           </video>
         </div>
-        {/* Capa de opacidad con textura */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70"></div>
-        <div className="absolute inset-0 bg-[url('/images/noise.png')] opacity-10"></div>
+        {/* Overlay with gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40"></div>
       </div>
 
       {/* Contenido principal */}
@@ -95,40 +101,40 @@ export default function Hero() {
         {/* Título principal */}
         <div className="text-center mb-8 md:mb-12 max-w-4xl animate-fadeIn">
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight font-heading">
-            Los mejores vehículos seleccionados para ti, 
-            <span className="text-primary"> con garantía certificada</span>
+            Tu próximo auto te espera 
+            <span className="text-[#FFD700]"> en La Moderna</span>
           </h1>
-          <p className="text-xl text-white/80 max-w-3xl mx-auto">
-            Encuentra el vehículo perfecto para tus necesidades con nuestra selección premium de autos nuevos y usados.
+          <p className="text-xl text-white/90 max-w-3xl mx-auto font-medium drop-shadow-md">
+            Encontra el vehículo perfecto con nuestra selección premium de autos nuevos y usados.
           </p>
         </div>
         
-        {/* Buscador principal */}
+        {/* Buscador principal - removed backdrop blur */}
         <div 
           ref={searchRef}
-          className="w-full max-w-4xl bg-card/95 backdrop-blur-sm rounded-xl shadow-xl p-6 md:p-8 animate-slideInUp"
+          className="w-full max-w-4xl bg-card/90 rounded-xl shadow-xl p-6 md:p-8 animate-slideInUp"
         >
           <div className="flex flex-col gap-6">
             {/* Botones de estado del vehículo */}
-            <div className="flex justify-center gap-2 md:gap-4">
+            <div className="flex justify-center gap-4 md:gap-6">
               <Button 
-                variant="ghost"
-                className={`flex-1 max-w-[150px] h-12 text-base font-medium transition-all duration-300 rounded-full ${
-                  condicion === "0km" 
-                    ? "bg-[#e63946] text-white hover:bg-[#e63946]/90" 
-                    : "hover:bg-[#e63946]/10 border-2 border-[#e63946]/20"
-                }`}
+                variant="outline"
+                className={`flex-1 max-w-[180px] h-12 text-base font-semibold rounded-full 
+                  ${condicion === "0km" 
+                    ? "bg-[#FFD700] text-black border-[#FFD700] border-2" 
+                    : "bg-white/90 text-black border-[#FFD700] border-2 hover:bg-[#FFD700] hover:text-black"
+                  }`}
                 onClick={() => setCondicion(condicion === "0km" ? "" : "0km")}
               >
                 0KM
               </Button>
               <Button 
-                variant="ghost"
-                className={`flex-1 max-w-[150px] h-12 text-base font-medium transition-all duration-300 rounded-full ${
-                  condicion === "usado" 
-                    ? "bg-[#457b9d] text-white hover:bg-[#457b9d]/90" 
-                    : "hover:bg-[#457b9d]/10 border-2 border-[#457b9d]/20"
-                }`}
+                variant="outline"
+                className={`flex-1 max-w-[180px] h-12 text-base font-semibold rounded-full 
+                  ${condicion === "usado" 
+                    ? "bg-[#FFD700] text-black border-[#FFD700] border-2" 
+                    : "bg-white/90 text-black border-white border-2 hover:bg-[#FFD700] hover:text-black hover:border-[#FFD700]"
+                  }`}
                 onClick={() => setCondicion(condicion === "usado" ? "" : "usado")}
               >
                 USADOS
@@ -190,7 +196,7 @@ export default function Hero() {
               
               <Button 
                 size="lg" 
-                className="h-12 px-8 text-base font-medium bg-primary hover:bg-primary/90"
+                className="h-12 px-8 text-base font-semibold bg-[#FFD700] text-black hover:bg-[#FFD700]/90 rounded-full"
                 onClick={handleSearch}
               >
                 <Search className="mr-2 h-5 w-5" />
@@ -198,23 +204,84 @@ export default function Hero() {
               </Button>
             </div>
             
+            {/* Advanced search toggle */}
             <div className="flex justify-between items-center text-sm">
               <span className="text-muted-foreground">
                 Más de 100 vehículos disponibles
               </span>
-              <Button variant="link" className="p-0 h-auto">
+              <Button 
+                variant="link" 
+                className="p-0 h-auto flex items-center gap-1"
+                onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+              >
                 Búsqueda avanzada
+                {showAdvancedSearch ? 
+                  <ChevronUp className="h-4 w-4" /> : 
+                  <ChevronDown className="h-4 w-4" />
+                }
               </Button>
             </div>
+            
+            {/* Advanced search options */}
+            {showAdvancedSearch && (
+              <div className="pt-2 border-t border-border animate-fadeIn">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                  <div>
+                    <Select value={precio} onValueChange={setPrecio}>
+                      <SelectTrigger className="h-12">
+                        <SelectValue placeholder="Rango de precio" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0-1000000">Hasta $1.000.000</SelectItem>
+                        <SelectItem value="1000000-2000000">$1.000.000 - $2.000.000</SelectItem>
+                        <SelectItem value="2000000-3000000">$2.000.000 - $3.000.000</SelectItem>
+                        <SelectItem value="3000000-5000000">$3.000.000 - $5.000.000</SelectItem>
+                        <SelectItem value="5000000+">Más de $5.000.000</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Select value={anio} onValueChange={setAnio}>
+                      <SelectTrigger className="h-12">
+                        <SelectValue placeholder="Año" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="2023+">2023 o posterior</SelectItem>
+                        <SelectItem value="2020-2022">2020 - 2022</SelectItem>
+                        <SelectItem value="2015-2019">2015 - 2019</SelectItem>
+                        <SelectItem value="2010-2014">2010 - 2014</SelectItem>
+                        <SelectItem value="2010-">Anterior a 2010</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Select value={tipo} onValueChange={setTipo}>
+                      <SelectTrigger className="h-12">
+                        <SelectValue placeholder="Tipo de vehículo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="sedan">Sedán</SelectItem>
+                        <SelectItem value="suv">SUV</SelectItem>
+                        <SelectItem value="pickup">Pickup</SelectItem>
+                        <SelectItem value="hatchback">Hatchback</SelectItem>
+                        <SelectItem value="deportivo">Deportivo</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
       
-      {/* Indicador de scroll */}
-      <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-bounce z-10">
-        <span className="text-white text-sm mb-1 font-medium">Descubre más</span>
-        <ChevronDown className="w-6 h-6 text-white" />
+      {/* Indicador de scroll - adjusted position and z-index */}
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-bounce z-30">
+        <span className="text-white text-sm mb-1 font-medium drop-shadow-lg">Descubre más</span>
+        <ChevronDown className="w-6 h-6 text-white drop-shadow-lg" />
       </div>
     </section>
   );
-} 
+}

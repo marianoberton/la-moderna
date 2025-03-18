@@ -4,7 +4,7 @@ import "./globals.css";
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ThemeProvider from './components/ThemeProvider';
-import ThemeToggle from './components/ThemeToggle';
+import WhatsAppButton from './components/WhatsAppButton';
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -47,6 +47,7 @@ export default function RootLayout({
           <Navbar />
           {children}
           <Footer />
+          <WhatsAppButton />
         </ThemeProvider>
       </body>
     </html>

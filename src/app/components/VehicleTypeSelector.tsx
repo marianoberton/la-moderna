@@ -1,77 +1,168 @@
 'use client';
 
+import { motion } from 'framer-motion';
+import { cn } from "@/lib/utils";
+
+interface VehicleType {
+  id: string;
+  nombre: string;
+  icono: JSX.Element;
+}
+
 interface VehicleTypeSelectorProps {
   tipoSeleccionado: string;
   onTipoChange: (tipo: string) => void;
+  className?: string;
 }
 
-export default function VehicleTypeSelector({ tipoSeleccionado, onTipoChange }: VehicleTypeSelectorProps) {
-  const tipos = [
-    { id: 'sedan', nombre: 'Sedán', icono: (
+const tipos: VehicleType[] = [
+  {
+    id: 'sedan',
+    nombre: 'Sedán',
+    icono: (
       <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3 8L5 4H19L21 8M3 8V16M3 8H21M21 8V16M3 16V19C3 19.5523 3.44772 20 4 20H6C6.55228 20 7 19.5523 7 19V18H17V19C17 19.5523 17.4477 20 18 20H20C20.5523 20 21 19.5523 21 19V16M3 16H21M7 14C7 14.5523 6.55228 15 6 15C5.44772 15 5 14.5523 5 14C5 13.4477 5.44772 13 6 13C6.55228 13 7 13.4477 7 14ZM19 14C19 14.5523 18.5523 15 18 15C17.4477 15 17 14.5523 17 14C17 13.4477 17.4477 13 18 13C18.5523 13 19 13.4477 19 14Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M2 12L4 8H20L22 12M2 12V16M2 12H22M22 12V16" stroke="currentColor" strokeWidth="2"/>
+        <path d="M4 8L6 5H18L20 8" stroke="currentColor" strokeWidth="2"/>
+        <path d="M7 15C7 15.5523 6.55228 16 6 16C5.44772 16 5 15.5523 5 15C5 14.4477 5.44772 14 6 14C6.55228 14 7 14.4477 7 15Z" fill="currentColor"/>
+        <path d="M19 15C19 15.5523 18.5523 16 18 16C17.4477 16 17 15.5523 17 15C17 14.4477 17.4477 14 18 14C18.5523 14 19 14.4477 19 15Z" fill="currentColor"/>
       </svg>
-    )},
-    { id: 'hatchback', nombre: 'Hatchback', icono: (
+    )
+  },
+  {
+    id: 'hatchback',
+    nombre: 'Hatchback',
+    icono: (
       <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3 8L5 4H16L19 8M3 8V16M3 8H19M19 8V16M3 16V19C3 19.5523 3.44772 20 4 20H6C6.55228 20 7 19.5523 7 19V18H15V19C15 19.5523 15.4477 20 16 20H18C18.5523 20 19 19.5523 19 19V16M3 16H19M7 14C7 14.5523 6.55228 15 6 15C5.44772 15 5 14.5523 5 14C5 13.4477 5.44772 13 6 13C6.55228 13 7 13.4477 7 14ZM17 14C17 14.5523 16.5523 15 16 15C15.4477 15 15 14.5523 15 14C15 13.4477 15.4477 13 16 13C16.5523 13 17 13.4477 17 14Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M3 12L5 8H15L18 12M3 12V16M3 12H18M18 12V16" stroke="currentColor" strokeWidth="2"/>
+        <path d="M15 8L18 12V16H3V12L5 8H15Z" stroke="currentColor" strokeWidth="2"/>
+        <path d="M15 8L15 5H5L5 8" stroke="currentColor" strokeWidth="2"/>
+        <circle cx="6" cy="15" r="1" fill="currentColor"/>
+        <circle cx="15" cy="15" r="1" fill="currentColor"/>
       </svg>
-    )},
-    { id: 'suv', nombre: 'SUV', icono: (
+    )
+  },
+  {
+    id: 'suv',
+    nombre: 'SUV',
+    icono: (
       <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3 8L5 4H19L21 8M3 8V16M3 8H21M21 8V16M3 16V19C3 19.5523 3.44772 20 4 20H6C6.55228 20 7 19.5523 7 19V18H17V19C17 19.5523 17.4477 20 18 20H20C20.5523 20 21 19.5523 21 19V16M3 16H21M7 14C7 14.5523 6.55228 15 6 15C5.44772 15 5 14.5523 5 14C5 13.4477 5.44772 13 6 13C6.55228 13 7 13.4477 7 14ZM19 14C19 14.5523 18.5523 15 18 15C17.4477 15 17 14.5523 17 14C17 13.4477 17.4477 13 18 13C18.5523 13 19 13.4477 19 14Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M3 13L5 6H19L21 13M3 13V16M3 13H21M21 13V16" stroke="currentColor" strokeWidth="2"/>
+        <path d="M5 6V3H19V6" stroke="currentColor" strokeWidth="2"/>
+        <path d="M3 16H21" stroke="currentColor" strokeWidth="2"/>
+        <circle cx="7" cy="16" r="2" stroke="currentColor" strokeWidth="2"/>
+        <circle cx="17" cy="16" r="2" stroke="currentColor" strokeWidth="2"/>
       </svg>
-    )},
-    { id: 'pickup', nombre: 'Pickup', icono: (
+    )
+  },
+  {
+    id: 'pickup',
+    nombre: 'Pickup',
+    icono: (
       <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3 8L5 4H14V16H3V8Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M14 8H21L19 16H14V8Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M5 19.5C5 18.6716 5.67157 18 6.5 18C7.32843 18 8 18.6716 8 19.5C8 20.3284 7.32843 21 6.5 21C5.67157 21 5 20.3284 5 19.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M16 19.5C16 18.6716 16.6716 18 17.5 18C18.3284 18 19 18.6716 19 19.5C19 20.3284 18.3284 21 17.5 21C16.6716 21 16 20.3284 16 19.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M2 12H12V16H2V12Z" stroke="currentColor" strokeWidth="2"/>
+        <path d="M12 12H22L20 16H12V12Z" stroke="currentColor" strokeWidth="2"/>
+        <path d="M12 12L14 8H20L22 12" stroke="currentColor" strokeWidth="2"/>
+        <circle cx="6" cy="16" r="2" stroke="currentColor" strokeWidth="2"/>
+        <circle cx="16" cy="16" r="2" stroke="currentColor" strokeWidth="2"/>
       </svg>
-    )},
-    { id: 'coupe', nombre: 'Coupé', icono: (
+    )
+  },
+  {
+    id: 'coupe',
+    nombre: 'Coupé',
+    icono: (
       <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3 8L6 4H18L21 8M3 8V16M3 8H21M21 8V16M3 16V19C3 19.5523 3.44772 20 4 20H6C6.55228 20 7 19.5523 7 19V18H17V19C17 19.5523 17.4477 20 18 20H20C20.5523 20 21 19.5523 21 19V16M3 16H21M7 14C7 14.5523 6.55228 15 6 15C5.44772 15 5 14.5523 5 14C5 13.4477 5.44772 13 6 13C6.55228 13 7 13.4477 7 14ZM19 14C19 14.5523 18.5523 15 18 15C17.4477 15 17 14.5523 17 14C17 13.4477 17.4477 13 18 13C18.5523 13 19 13.4477 19 14Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M2 12L6 6H16L20 9L22 12M2 12V16M2 12H22M22 12V16" stroke="currentColor" strokeWidth="2"/>
+        <path d="M16 6L20 9" stroke="currentColor" strokeWidth="2"/>
+        <circle cx="6" cy="16" r="2" stroke="currentColor" strokeWidth="2"/>
+        <circle cx="18" cy="16" r="2" stroke="currentColor" strokeWidth="2"/>
       </svg>
-    )},
-    { id: 'cabriolet', nombre: 'Cabriolet', icono: (
+    )
+  },
+  {
+    id: 'cabriolet',
+    nombre: 'Cabriolet',
+    icono: (
       <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3 10C3 9.44772 3.44772 9 4 9H20C20.5523 9 21 9.44772 21 10V16H3V10Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M7 6C7 4.89543 7.89543 4 9 4H15C16.1046 4 17 4.89543 17 6V9H7V6Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M4 16V19C4 19.5523 4.44772 20 5 20H7C7.55228 20 8 19.5523 8 19V18H16V19C16 19.5523 16.4477 20 17 20H19C19.5523 20 20 19.5523 20 19V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M7 14C7 14.5523 6.55228 15 6 15C5.44772 15 5 14.5523 5 14C5 13.4477 5.44772 13 6 13C6.55228 13 7 13.4477 7 14Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M19 14C19 14.5523 18.5523 15 18 15C17.4477 15 17 14.5523 17 14C17 13.4477 17.4477 13 18 13C18.5523 13 19 13.4477 19 14Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M2 12H22V16H2V12Z" stroke="currentColor" strokeWidth="2"/>
+        <path d="M4 12V9C4 7.89543 4.89543 7 6 7H18C19.1046 7 20 7.89543 20 9V12" stroke="currentColor" strokeWidth="2"/>
+        <path d="M8 7C8 7 10 4 12 4C14 4 16 7 16 7" stroke="currentColor" strokeWidth="2"/>
+        <circle cx="6" cy="16" r="2" stroke="currentColor" strokeWidth="2"/>
+        <circle cx="18" cy="16" r="2" stroke="currentColor" strokeWidth="2"/>
       </svg>
-    )}
-  ];
+    )
+  }
+];
 
+export default function VehicleTypeSelector({ 
+  tipoSeleccionado, 
+  onTipoChange,
+  className 
+}: VehicleTypeSelectorProps) {
   return (
-    <div className="bg-surface-2 rounded-xl shadow-md p-6">
-      <h2 className="text-xl font-heading font-bold text-primary mb-4 uppercase">Tipo de vehículo</h2>
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={cn(
+        "bg-surface-2 rounded-xl shadow-md p-6",
+        className
+      )}
+    >
+      <motion.h2 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="text-xl font-heading font-bold text-primary mb-4 uppercase"
+      >
+        Tipo de vehículo
+      </motion.h2>
       
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
-        {tipos.map((tipo) => (
-          <button
+        {tipos.map((tipo, index) => (
+          <motion.button
             key={tipo.id}
-            className={`flex flex-col items-center justify-center p-4 rounded-lg border transition-all duration-300 ${
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.1 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={cn(
+              "flex flex-col items-center justify-center p-4 rounded-lg border transition-all duration-300",
+              "focus:outline-none focus:ring-2 focus:ring-accent/30",
+              "disabled:opacity-50 disabled:cursor-not-allowed",
               tipoSeleccionado === tipo.id 
-                ? 'border-accent ring-2 ring-accent/30 bg-white shadow-md' 
-                : 'border-border-light bg-white hover:bg-surface hover:border-accent/30'
-            }`}
+                ? "border-accent ring-2 ring-accent/30 bg-white shadow-md" 
+                : "border-border-light bg-white hover:bg-surface hover:border-accent/30"
+            )}
             onClick={() => onTipoChange(tipoSeleccionado === tipo.id ? '' : tipo.id)}
+            aria-pressed={tipoSeleccionado === tipo.id}
+            aria-label={`Seleccionar tipo de vehículo ${tipo.nombre}`}
           >
-            <div className={`w-14 h-14 flex items-center justify-center rounded-full mb-2 ${
-              tipoSeleccionado === tipo.id ? 'text-accent' : 'text-primary'
-            }`}>
+            <motion.div 
+              className={cn(
+                "w-14 h-14 flex items-center justify-center rounded-full mb-2",
+                tipoSeleccionado === tipo.id ? "text-accent" : "text-primary"
+              )}
+              animate={{ 
+                scale: tipoSeleccionado === tipo.id ? 1.1 : 1,
+                color: tipoSeleccionado === tipo.id ? "var(--accent)" : "var(--primary)" 
+              }}
+            >
               {tipo.icono}
-            </div>
-            <h3 className={`text-sm font-medium ${tipoSeleccionado === tipo.id ? 'text-accent' : 'text-primary'}`}>
+            </motion.div>
+            <motion.h3 
+              className={cn(
+                "text-sm font-medium",
+                tipoSeleccionado === tipo.id ? "text-accent" : "text-primary"
+              )}
+              animate={{ 
+                color: tipoSeleccionado === tipo.id ? "var(--accent)" : "var(--primary)" 
+              }}
+            >
               {tipo.nombre}
-            </h3>
-          </button>
+            </motion.h3>
+          </motion.button>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 } 
