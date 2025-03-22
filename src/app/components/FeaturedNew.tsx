@@ -418,20 +418,32 @@ function VehicleCard({
           </div>
         </div>
         
-        {/* Características destacadas - visible solo en hover en desktop */}
-        <div className={`overflow-hidden transition-all duration-300 text-center ${
-          isHovered ? 'max-h-24 opacity-100 mb-4' : 
-          'sm:max-h-0 sm:opacity-0 max-h-24 opacity-100 mb-4'
-        }`}>
-          <p className="text-xs font-medium text-primary mb-2">Equipamiento destacado</p>
-          <ul className="flex flex-wrap gap-1 justify-center">
-            {car.highlights.slice(0, 3).map((highlight: string, i: number) => (
-              <li key={i} className="text-xs bg-muted px-2 py-0.5 rounded-full">
-                {highlight}
-              </li>
-            ))}
-          </ul>
-        </div>
+        {/* Características destacadas en desktop (hover) o como sección separada en móvil */}
+        {isMobile ? (
+          <div className="mt-1 mb-4 text-center border-t border-border pt-3">
+            <p className="text-xs font-medium text-primary mb-2">Equipamiento destacado</p>
+            <ul className="flex flex-wrap gap-1 justify-center">
+              {car.highlights.slice(0, 3).map((highlight: string, i: number) => (
+                <li key={i} className="text-xs bg-muted px-2 py-0.5 rounded-full">
+                  {highlight}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <div className={`overflow-hidden transition-all duration-300 text-center ${
+            isHovered ? 'max-h-24 opacity-100 mb-4' : 'max-h-0 opacity-0'
+          }`}>
+            <p className="text-xs font-medium text-primary mb-2">Equipamiento destacado</p>
+            <ul className="flex flex-wrap gap-1 justify-center">
+              {car.highlights.slice(0, 3).map((highlight: string, i: number) => (
+                <li key={i} className="text-xs bg-muted px-2 py-0.5 rounded-full">
+                  {highlight}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         
         {/* Botones de acción */}
         <div className="flex justify-between items-center mt-auto gap-2">

@@ -1,0 +1,61 @@
+# La Moderna Project Rules
+
+## Design Patterns
+
+### Styling Conventions
+- Use Tailwind CSS for all styling
+- Follow mobile-first approach (default styles for mobile, then use breakpoint utilities)
+- Maintain consistent padding and margin patterns:
+  - Container padding: `px-4 sm:px-6`
+  - Component spacing: `gap-4 sm:gap-6`
+  - Section spacing: `py-8 sm:py-12`
+
+### Component Structure
+- Each major feature should be in its own component file
+- Use 'use client' directive for components that use client-side functionality
+- Follow consistent import order: React/Next.js imports, then UI components, then utilities
+
+### Animation Patterns
+- Use Framer Motion for animations
+- Maintain consistent animation patterns:
+  - Initial state definitions
+  - Consistent transition properties (duration, ease)
+  - Use staggered delays for sequential animations
+
+### Responsive Design
+- Default layouts should be for mobile (vertical stacking)
+- Use flex-col for mobile, switching to flex-row for desktop
+- Use grid layouts with appropriate column counts for different screen sizes
+- Maintain consistent breakpoints:
+  - sm: 640px
+  - md: 768px
+  - lg: 1024px
+  - xl: 1280px
+
+## Naming Conventions
+- PascalCase for component names
+- camelCase for variables and functions
+- kebab-case for CSS class names
+- Use descriptive names that clearly indicate purpose
+
+## WhatsApp Integration
+- Use the standard WhatsApp URL format: `https://wa.me/{number}?text={encodedMessage}`
+- Always encode message text with `encodeURIComponent`
+- Use the WhatsApp brand color (#25D366) for WhatsApp-related UI elements
+
+## Project Organization
+- Keep all main page components in `app/` directory
+- Place shared UI components in `app/components/`
+- Place shadcn/ui components in `components/ui/`
+- Use appropriate icons from Lucide React library
+
+## Performance Guidelines
+- Optimize images before importing
+- Lazy load components when appropriate
+- Use proper semantic HTML for better accessibility
+- Keep animation complexity reasonable for mobile devices
+
+## Component Responsibilities
+- `FeaturedNew`: Showcase new vehicle inventory with carousel navigation
+- `UsedCars`: Display used vehicles with similar carousel structure
+- `CtaExchange`: Promote vehicle exchange service with WhatsApp integration 

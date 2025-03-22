@@ -2,6 +2,7 @@ import Hero from './components/Hero';
 import CarTypes from './components/CarTypes';
 import FeaturedNew from './components/FeaturedNew';
 import UsedCars from './components/UsedCars';
+import CtaExchange from './components/CtaExchange';
 
 export default function Home() {
   return (
@@ -28,6 +29,8 @@ export default function Home() {
         </div>
         <UsedCars />
       </div>
+
+      <CtaExchange />
     </div>
   );
 }
