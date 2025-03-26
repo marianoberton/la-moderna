@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import * as React from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -15,7 +16,7 @@ interface VehicleCarouselProps {
   viewAllLink: string
   viewAllText: string
   viewAllButtonClassName: string
-  renderVehicleCard: (props: any) => JSX.Element
+  renderVehicleCard: (props: any) => React.ReactNode
   maxDisplay?: number
 }
 
