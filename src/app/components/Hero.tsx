@@ -77,6 +77,15 @@ export default function Hero() {
     window.location.href = `/vehiculos/busqueda?${searchParams.toString()}`;
   };
 
+  // Manejadores optimizados para los botones de condición
+  const handleCondicion0km = () => {
+    setCondicion(prev => prev === "0km" ? "" : "0km");
+  };
+
+  const handleCondicionUsado = () => {
+    setCondicion(prev => prev === "usado" ? "" : "usado");
+  };
+
   return (
     <section className="relative min-h-screen overflow-hidden flex flex-col">
       {/* Video de fondo con overlay */}
@@ -115,27 +124,27 @@ export default function Hero() {
           className="w-full max-w-4xl bg-card/90 rounded-xl shadow-xl p-6 md:p-8 animate-slideInUp"
         >
           <div className="flex flex-col gap-6">
-            {/* Botones de estado del vehículo */}
+            {/* Botones de estado del vehículo - modificados para mejorar respuesta */}
             <div className="flex justify-center gap-4 md:gap-6">
               <Button 
-                variant="outline"
-                className={`flex-1 max-w-[180px] h-12 text-base font-semibold rounded-full transition-all duration-300
+                variant={condicion === "0km" ? "default" : "outline"}
+                className={`flex-1 max-w-[180px] h-12 text-base font-semibold rounded-full
                   ${condicion === "0km" 
-                    ? "bg-[var(--color-gold)] text-black border-[var(--color-gold)] shadow-md" 
+                    ? "bg-[var(--color-gold)] text-black border-[var(--color-gold)] shadow-md hover:bg-[var(--color-gold)] hover:text-black hover:border-[var(--color-gold)]" 
                     : "bg-white/90 text-black border-gray-300 hover:bg-[var(--color-gold)]/90 hover:text-black hover:border-[var(--color-gold)]"
                   }`}
-                onClick={() => setCondicion(condicion === "0km" ? "" : "0km")}
+                onClick={handleCondicion0km}
               >
                 0KM
               </Button>
               <Button 
-                variant="outline"
-                className={`flex-1 max-w-[180px] h-12 text-base font-semibold rounded-full transition-all duration-300
+                variant={condicion === "usado" ? "default" : "outline"}
+                className={`flex-1 max-w-[180px] h-12 text-base font-semibold rounded-full
                   ${condicion === "usado" 
-                    ? "bg-[var(--color-gold)] text-black border-[var(--color-gold)] shadow-md" 
+                    ? "bg-[var(--color-gold)] text-black border-[var(--color-gold)] shadow-md hover:bg-[var(--color-gold)] hover:text-black hover:border-[var(--color-gold)]" 
                     : "bg-white/90 text-black border-gray-300 hover:bg-[var(--color-gold)]/90 hover:text-black hover:border-[var(--color-gold)]"
                   }`}
-                onClick={() => setCondicion(condicion === "usado" ? "" : "usado")}
+                onClick={handleCondicionUsado}
               >
                 USADOS
               </Button>

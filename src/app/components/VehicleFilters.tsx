@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -43,6 +43,9 @@ import {
   SheetClose
 } from "@/components/ui/sheet";
 import { motion } from 'framer-motion';
+import { TabsTrigger, TabsList, Tabs } from "@/components/ui/tabs";
+import { Slider } from "@/components/ui/slider";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 
 // Definir el tipo de los filtros
 type VehicleFilters = {
@@ -54,13 +57,11 @@ type VehicleFilters = {
   kilometrajeRango: [number, number];
   combustible: string;
   transmision: string;
-  // Filtros adicionales
   financiacion: boolean;
   permuta: boolean;
   color: string;
   tipoVehiculo: string;
   condicion: string; // Todo, nuevo, usado
-  // Equipamiento como objeto para facilitar manejo de múltiples opciones
   equipamiento: {
     aireAcondicionado: boolean;
     direccionAsistida: boolean;
@@ -91,19 +92,31 @@ type VehicleFilters = {
 interface VehicleFiltersProps {
   onFiltersChange?: (filters: VehicleFilters) => void;
   initialFilters?: VehicleFilters;
+  marcasDisponibles?: string[];
+  modelosDisponibles?: string[];
 }
 
 export default function VehicleFilters({
   onFiltersChange,
-  initialFilters
+  initialFilters,
+  marcasDisponibles = [],
+  modelosDisponibles = []
 }: VehicleFiltersProps) {
+  // Estados internos UI
   const [isOpen, setIsOpen] = useState(false);
   const [isCompactModeOpen, setIsCompactModeOpen] = useState(false);
   const [showEquipamientoModal, setShowEquipamientoModal] = useState(false);
-  const [selectedTab, setSelectedTab] = useState<'todo' | 'nuevo' | 'usado'>('todo');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   
-  const [filters, setFilters] = useState<VehicleFilters>(initialFilters || {
+  // Estado para controlar la primera renderización
+  const firstRenderRef = useRef(true);
+  
+  // Estado para la pestaña seleccionada
+  const [selectedTab, setSelectedTab] = useState('todo');
+  
+  // Importante: No mantenemos un estado local de los filtros
+  // Simplemente usamos lo que recibimos del componente padre
+  const filters = initialFilters || {
     busqueda: '',
     marca: '',
     modelo: '',
@@ -142,35 +155,128 @@ export default function VehicleFilters({
       volanteCuero: false,
       climatizador: false
     }
-  });
+  };
 
+  // Efecto para actualizar la pestaña seleccionada basada en initialFilters
   useEffect(() => {
     if (initialFilters) {
-      setFilters(initialFilters);
+      if (initialFilters.condicion === '0km') {
+        setSelectedTab('nuevo');
+      } else if (initialFilters.condicion === 'usado') {
+        setSelectedTab('usado');
+      } else {
+        setSelectedTab('todo');
+      }
     }
-  }, [initialFilters]);
+  }, [initialFilters?.condicion]);
 
-  const handleFilterChange = (key: keyof VehicleFilters, value: any) => {
-    const newFilters = { ...filters, [key]: value };
-    setFilters(newFilters);
-    onFiltersChange?.(newFilters);
+  // Manejador para cambios en un filtro individual
+  const handleFilterChange = (key: string, value: any) => {
+    if (!onFiltersChange) return;
+    
+    // Crear una copia del objeto de filtros actual
+    const newFilters = { ...filters };
+    
+    // Actualizar el valor correspondiente
+    (newFilters as any)[key] = value;
+    
+    // Si se cambia la marca, resetear el modelo
+    if (key === 'marca' && newFilters.modelo) {
+      newFilters.modelo = '';
+    }
+    
+    // Notificar al componente padre
+    onFiltersChange(newFilters);
   };
 
+  // Manejador para cambios en el equipamiento
   const handleEquipamientoChange = (equipName: string, checked: boolean) => {
+    if (!onFiltersChange) return;
+    
+    // Crear una copia de los filtros actuales
     const newEquipamiento = { ...filters.equipamiento, [equipName]: checked };
     const newFilters = { ...filters, equipamiento: newEquipamiento };
-    setFilters(newFilters);
-    onFiltersChange?.(newFilters);
+    
+    // Notificar al componente padre
+    onFiltersChange(newFilters);
   };
 
-  const handleTabChange = (tab: 'todo' | 'nuevo' | 'usado') => {
-    setSelectedTab(tab);
-    // Aquí podrías aplicar filtros específicos basados en la pestaña seleccionada
-    onFiltersChange?.({...filters, condicion: tab === 'todo' ? '' : tab});
+  // Manejador para cambios de pestaña (todo/nuevo/usado)
+  const handleTabChange = (value: string) => {
+    if (value === selectedTab) return; // No hacer nada si el tab es el mismo
+    
+    // Actualizar el estado de la pestaña
+    setSelectedTab(value);
+    
+    if (!onFiltersChange) return;
+    
+    // Mapear el valor de la pestaña a la condición correspondiente
+    let condicion = 'todo';
+    if (value === 'nuevo') condicion = '0km';
+    if (value === 'usado') condicion = 'usado';
+    
+    // Notificar el cambio al componente padre
+    onFiltersChange({ ...filters, condicion });
+  };
+
+  // Función para resetear los filtros
+  const resetFilters = () => {
+    if (!onFiltersChange) return;
+    
+    // Mantener solo la condición actual basada en la pestaña seleccionada
+    const condicion = selectedTab === 'nuevo' ? '0km' : selectedTab === 'usado' ? 'usado' : 'todo';
+    
+    // Crear un objeto de filtros reseteado
+    const newFilters = {
+      busqueda: '',
+      marca: '',
+      modelo: '',
+      precioRango: [0, 100000000] as [number, number],
+      añoRango: [1990, 2025] as [number, number],
+      kilometrajeRango: [0, 300000] as [number, number],
+      combustible: '',
+      transmision: '',
+      financiacion: false,
+      permuta: false,
+      color: '',
+      tipoVehiculo: '',
+      condicion,
+      equipamiento: {
+        aireAcondicionado: false,
+        direccionAsistida: false,
+        vidriosElectricos: false,
+        tapiceriaCuero: false,
+        cierreCentralizado: false,
+        alarma: false,
+        airbags: false,
+        bluetooth: false,
+        controlCrucero: false,
+        techoSolar: false,
+        llantasAleacion: false,
+        traccion4x4: false,
+        abs: false,
+        esp: false,
+        asistenteFrenado: false,
+        camaraReversa: false,
+        sensorEstacionamiento: false,
+        navegacionGPS: false,
+        controlVoz: false,
+        asientosElectricos: false,
+        asientosCalefaccionados: false,
+        volanteCuero: false,
+        climatizador: false
+      }
+    };
+    
+    // Notificar al componente padre
+    onFiltersChange(newFilters);
+    
+    // Cerrar el modal si está abierto
+    setIsOpen(false);
   };
 
   // Número de filtros activos
-  const getActiveFiltersCount = () => {
+  const activeFiltersCount = (() => {
     let count = 0;
     if (filters.marca) count++;
     if (filters.modelo) count++;
@@ -190,111 +296,17 @@ export default function VehicleFilters({
     if (filters.añoRango[0] > 1990 || filters.añoRango[1] < 2025) count++;
     if (filters.kilometrajeRango[0] > 0 || filters.kilometrajeRango[1] < 300000) count++;
     return count;
-  };
+  })();
 
-  const activeFiltersCount = getActiveFiltersCount();
-
+  // Aplicar filtros (cerrando el diálogo)
   const applyFilters = () => {
-    onFiltersChange?.(filters);
     setIsOpen(false);
   };
 
-  const resetFilters = () => {
-    const resetEquipamiento = {
-      aireAcondicionado: false,
-      direccionAsistida: false,
-      vidriosElectricos: false,
-      tapiceriaCuero: false,
-      cierreCentralizado: false,
-      alarma: false,
-      airbags: false,
-      bluetooth: false,
-      controlCrucero: false,
-      techoSolar: false,
-      llantasAleacion: false,
-      traccion4x4: false,
-      abs: false,
-      esp: false,
-      asistenteFrenado: false,
-      camaraReversa: false,
-      sensorEstacionamiento: false,
-      navegacionGPS: false,
-      controlVoz: false,
-      asientosElectricos: false,
-      asientosCalefaccionados: false,
-      volanteCuero: false,
-      climatizador: false
-    };
-    
-    setFilters({
-      busqueda: '',
-      marca: '',
-      modelo: '',
-      precioRango: [0, 100000000],
-      añoRango: [1990, 2025],
-      kilometrajeRango: [0, 300000],
-      combustible: '',
-      transmision: '',
-      financiacion: false,
-      permuta: false,
-      color: '',
-      tipoVehiculo: '',
-      condicion: selectedTab === 'todo' ? '' : selectedTab,
-      equipamiento: resetEquipamiento
-    });
-    
-    onFiltersChange?.({
-      busqueda: '',
-      marca: '',
-      modelo: '',
-      precioRango: [0, 100000000],
-      añoRango: [1990, 2025],
-      kilometrajeRango: [0, 300000],
-      combustible: '',
-      transmision: '',
-      financiacion: false,
-      permuta: false,
-      color: '',
-      tipoVehiculo: '',
-      condicion: selectedTab === 'todo' ? '' : selectedTab,
-      equipamiento: resetEquipamiento
-    });
-    
-    setIsOpen(false);
-  };
-
-  // Opciones de marcas (normalmente vendrían de una API)
-  const marcas = ["Volkswagen", "Toyota", "Ford", "Chevrolet", "Renault", "Fiat", "Peugeot", "Audi", "BMW", "Mercedes Benz"];
-  
-  // Opciones de modelos basados en la marca seleccionada
-  const getModelos = () => {
-    switch (filters.marca.toLowerCase()) {
-      case 'volkswagen':
-        return ["Taos", "Nivus", "T-Cross", "Amarok", "Vento", "Polo", "Golf", "Tiguan"];
-      case 'toyota':
-        return ["Corolla", "Corolla Cross", "Hilux", "RAV4", "Yaris", "Camry", "SW4"];
-      case 'ford':
-        return ["Ranger", "F-150", "Maverick", "Territory", "Bronco", "Mustang"];
-      default:
-        return [];
-    }
-  };
-  
-  // Opciones de tipos de vehículos
-  const tiposVehiculos = ["SUV", "SEDÁN", "CAMIONETA", "HATCHBACK", "COUPÉ", "CONVERTIBLE"];
-  
-  // Opciones de combustible
-  const combustibles = ["Nafta", "Diesel", "Híbrido", "Eléctrico", "GNC"];
-  
-  // Opciones de transmisiones
-  const transmisiones = ["Manual", "Automática", "CVT", "Secuencial"];
-  
-  // Opciones de colores
-  const colores = ["Blanco", "Negro", "Gris", "Plateado", "Rojo", "Azul", "Verde", "Amarillo", "Marrón"];
-
+  // El resto del componente se mantiene igual...
   return (
     <div className="space-y-4">
-      {/* Filtros de tipo Tab para Todo/Nuevo/Usado */}
+      {/* Pestañas de filtro Todo/Nuevo/Usado */}
       <div className="w-full max-w-7xl mx-auto bg-gray-100 rounded-xl overflow-hidden">
         <div className="flex border-b border-gray-200">
           <button
@@ -305,7 +317,7 @@ export default function VehicleFilters({
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            Todo ({29}) {/* Número total de vehículos */}
+            Todo ({29})
           </button>
           <button
             onClick={() => handleTabChange('nuevo')}
@@ -315,7 +327,7 @@ export default function VehicleFilters({
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            Nuevo ({9}) {/* Número de vehículos nuevos */}
+            Nuevo ({9})
           </button>
           <button
             onClick={() => handleTabChange('usado')}
@@ -325,7 +337,7 @@ export default function VehicleFilters({
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            Usado ({20}) {/* Número de vehículos usados */}
+            Usado ({20})
           </button>
         </div>
       </div>
@@ -368,11 +380,9 @@ export default function VehicleFilters({
                         <SelectValue placeholder="Marca" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="volkswagen">Volkswagen</SelectItem>
-                        <SelectItem value="toyota">Toyota</SelectItem>
-                        <SelectItem value="chevrolet">Chevrolet</SelectItem>
-                        <SelectItem value="ford">Ford</SelectItem>
-                        <SelectItem value="renault">Renault</SelectItem>
+                        {marcasDisponibles.map(marca => (
+                          <SelectItem key={marca} value={marca}>{marca}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
 
@@ -385,7 +395,9 @@ export default function VehicleFilters({
                         <SelectValue placeholder="Modelo" />
                       </SelectTrigger>
                       <SelectContent>
-                        {/* Opciones dinámicas basadas en la marca */}
+                        {modelosDisponibles.map(modelo => (
+                          <SelectItem key={modelo} value={modelo}>{modelo}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -401,11 +413,11 @@ export default function VehicleFilters({
                       <SelectValue placeholder="Tipo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="hatchback">HATCHBACK</SelectItem>
-                      <SelectItem value="sedan">SEDAN</SelectItem>
+                      <SelectItem value="hatchback">Hatchback</SelectItem>
+                      <SelectItem value="sedan">Sedan</SelectItem>
                       <SelectItem value="suv">SUV</SelectItem>
-                      <SelectItem value="camioneta">CAMIONETA</SelectItem>
-                      <SelectItem value="coupe">COUPE</SelectItem>
+                      <SelectItem value="camioneta">Camioneta</SelectItem>
+                      <SelectItem value="coupe">Coupe</SelectItem>
                     </SelectContent>
                   </Select>
                   
@@ -546,11 +558,9 @@ export default function VehicleFilters({
                   <SelectValue placeholder="Marca" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="volkswagen">Volkswagen</SelectItem>
-                  <SelectItem value="toyota">Toyota</SelectItem>
-                  <SelectItem value="chevrolet">Chevrolet</SelectItem>
-                  <SelectItem value="ford">Ford</SelectItem>
-                  <SelectItem value="renault">Renault</SelectItem>
+                  {marcasDisponibles.map(marca => (
+                    <SelectItem key={marca} value={marca}>{marca}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
         </div>
@@ -573,11 +583,9 @@ export default function VehicleFilters({
                       <SelectValue placeholder="Marca" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="volkswagen">Volkswagen</SelectItem>
-                      <SelectItem value="toyota">Toyota</SelectItem>
-                      <SelectItem value="chevrolet">Chevrolet</SelectItem>
-                      <SelectItem value="ford">Ford</SelectItem>
-                      <SelectItem value="renault">Renault</SelectItem>
+                      {marcasDisponibles.map(marca => (
+                        <SelectItem key={marca} value={marca}>{marca}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -592,11 +600,13 @@ export default function VehicleFilters({
                   <SelectValue placeholder="Modelo" />
                 </SelectTrigger>
                 <SelectContent>
-                  {/* Opciones dinámicas basadas en la marca */}
+                  {modelosDisponibles.map(modelo => (
+                    <SelectItem key={modelo} value={modelo}>{modelo}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
                 </div>
-            </div>
+              </div>
 
               {/* Segunda fila de filtros en móvil */}
               <div className="grid grid-cols-2 gap-3 w-full">
@@ -607,13 +617,13 @@ export default function VehicleFilters({
               >
                     <SelectTrigger className="h-10 border border-gray-200 rounded-lg bg-white text-gray-700">
                       <SelectValue placeholder="Tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                      <SelectItem value="hatchback">HATCHBACK</SelectItem>
-                      <SelectItem value="sedan">SEDAN</SelectItem>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hatchback">Hatchback</SelectItem>
+                      <SelectItem value="sedan">Sedan</SelectItem>
                       <SelectItem value="suv">SUV</SelectItem>
-                      <SelectItem value="camioneta">CAMIONETA</SelectItem>
-                      <SelectItem value="coupe">COUPE</SelectItem>
+                      <SelectItem value="camioneta">Camioneta</SelectItem>
+                      <SelectItem value="coupe">Coupe</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -748,11 +758,9 @@ export default function VehicleFilters({
                       <SelectValue placeholder="Marca" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="volkswagen">Volkswagen</SelectItem>
-                      <SelectItem value="toyota">Toyota</SelectItem>
-                      <SelectItem value="chevrolet">Chevrolet</SelectItem>
-                      <SelectItem value="ford">Ford</SelectItem>
-                      <SelectItem value="renault">Renault</SelectItem>
+                      {marcasDisponibles.map(marca => (
+                        <SelectItem key={marca} value={marca}>{marca}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
             </div>
@@ -767,7 +775,9 @@ export default function VehicleFilters({
                       <SelectValue placeholder="Modelo" />
                     </SelectTrigger>
                     <SelectContent>
-                      {/* Opciones dinámicas basadas en la marca */}
+                      {modelosDisponibles.map(modelo => (
+                        <SelectItem key={modelo} value={modelo}>{modelo}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
           </div>
@@ -781,11 +791,11 @@ export default function VehicleFilters({
                       <SelectValue placeholder="Tipo de vehículo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="hatchback">HATCHBACK</SelectItem>
-                      <SelectItem value="sedan">SEDAN</SelectItem>
+                      <SelectItem value="hatchback">Hatchback</SelectItem>
+                      <SelectItem value="sedan">Sedan</SelectItem>
                       <SelectItem value="suv">SUV</SelectItem>
-                      <SelectItem value="camioneta">CAMIONETA</SelectItem>
-                      <SelectItem value="coupe">COUPE</SelectItem>
+                      <SelectItem value="camioneta">Camioneta</SelectItem>
+                      <SelectItem value="coupe">Coupe</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
