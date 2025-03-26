@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-type Theme = 'light' | 'dark';
+type Theme = 'light';
 
 interface ThemeContextType {
   theme: Theme;
@@ -24,37 +24,19 @@ export default function ThemeProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [theme, setTheme] = useState<Theme>('light');
+  const [theme] = useState<Theme>('light');
 
   useEffect(() => {
-    // Verificar si hay un tema guardado en localStorage
-    const storedTheme = localStorage.getItem('theme') as Theme | null;
+    localStorage.setItem('theme', 'light');
     
-    // Si hay un tema guardado, usarlo
-    if (storedTheme) {
-      setTheme(storedTheme);
-    } 
-    // Si no hay tema guardado, usar preferencia del sistema
-    else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(prefersDark ? 'dark' : 'light');
-    }
+    const root = document.documentElement;
+    root.removeAttribute('data-theme');
+    document.documentElement.classList.remove('dark');
   }, []);
 
-  useEffect(() => {
-    // Guardar el tema en localStorage
-    localStorage.setItem('theme', theme);
-    
-    // Aplicar el tema al documento
-    const root = document.documentElement;
-    if (theme === 'dark') {
-      root.setAttribute('data-theme', 'dark');
-      document.documentElement.classList.add('dark');
-    } else {
-      root.removeAttribute('data-theme');
-      document.documentElement.classList.remove('dark');
-    }
-  }, [theme]);
+  const setTheme = () => {
+    // No hacer nada - siempre mantenemos el tema claro
+  };
 
   const value = {
     theme,
