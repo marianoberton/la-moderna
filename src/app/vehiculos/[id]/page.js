@@ -1,15 +1,11 @@
-import React from 'react';
 import VehiculoDetalleClient from './VehiculoDetalleClient';
 
-// Este es el componente de página de servidor (Server Component)
-export default async function VehiculoDetallePage({ params }: { params: { id: string } }) {
-  // Este es un componente de servidor, por lo que aquí podrías:
-  // 1. Hacer consultas a la base de datos
-  // 2. Acceder a APIs externas
-  // 3. Leer archivos del sistema, etc.
+// Este es el componente de página de servidor (Server Component) - Usando JavaScript puro
+export default async function VehiculoDetallePage({ params }) {
+  const id = params.id;
 
   const vehiculo = {
-    id: Number(params.id) || 1,
+    id: Number(id) || 1,
     marca: 'Volkswagen',
     modelo: 'Amarok',
     version: 'AMAROK 2.0 HIGHLINE 4X4 AT',
@@ -63,4 +59,4 @@ export default async function VehiculoDetallePage({ params }: { params: { id: st
 
   // Renderiza el componente de cliente y pasa los datos como props
   return <VehiculoDetalleClient vehiculo={vehiculo} concesionarias={concesionarias} />;
-}
+} 
