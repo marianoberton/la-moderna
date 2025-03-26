@@ -37,13 +37,15 @@ const concesionarias = [
   }
 ];
 
-interface PageProps {
+type Props = {
   params: {
     id: string;
   };
 }
 
-export default function VehiculoDetalle({ params }: PageProps): React.ReactElement {
+export default function VehiculoDetalle({ params }: Props) {
+  // Extraer el ID del parámetro
+  const id = params.id;
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showAllPhotos, setShowAllPhotos] = useState(false);
   const [showConcesionarias, setShowConcesionarias] = useState(false);
