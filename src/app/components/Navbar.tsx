@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import {
   Sheet,
   SheetContent,
@@ -16,6 +17,11 @@ const logoFont = Oswald({ subsets: ['latin'] });
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [hasScrolled, setHasScrolled] = useState(false);
+  const pathname = usePathname();
+  
+  // Determinar si estamos en la página de inicio
+  const isHomePage = pathname === '/';
 
   const navItems = [
     { href: '/vehiculos', label: 'Vehículos' },
@@ -23,9 +29,62 @@ export default function Navbar() {
     { href: '/contacto', label: 'Contacto' },
   ];
 
+  // Efecto para detectar el scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      if (scrollPosition > 10) {
+        setHasScrolled(true);
+      } else {
+        setHasScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Función para determinar las clases de la navbar según la página y el scroll
+  const getNavbarClasses = () => {
+    // Si no estamos en la página principal, siempre mostramos un fondo sólido
+    if (!isHomePage) {
+      return 'bg-background shadow-md';
+    }
+    
+    // En la página principal, el comportamiento depende del scroll
+    return hasScrolled ? 'bg-white shadow-md' : 'bg-transparent';
+  };
+
+  // Función para determinar el color del texto según la página y el scroll
+  const getLinkClasses = () => {
+    // En la página principal, el texto depende del scroll
+    if (isHomePage) {
+      return hasScrolled ? 'text-black hover:text-[var(--color-dark-bg)]' : 'text-white hover:text-[var(--color-gold)]';
+    }
+    
+    // En otras páginas, usamos el color de texto por defecto
+    return 'text-foreground hover:text-primary';
+  };
+
+  // Función para determinar las clases del botón de menú
+  const getMenuButtonClasses = () => {
+    if (isHomePage) {
+      return hasScrolled ? 'text-black' : 'text-white';
+    }
+    return 'text-foreground';
+  };
+
+  // Función para determinar las clases del logo
+  const getLogoClasses = () => {
+    if (isHomePage) {
+      return hasScrolled ? 'h-8 sm:h-9 md:h-10 w-auto' : 'h-8 sm:h-9 md:h-10 w-auto filter brightness-0 invert';
+    }
+    return 'h-8 sm:h-9 md:h-10 w-auto dark:invert';
+  };
+
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-primary/10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 md:h-20 items-center">
+    <nav className={`fixed top-0 z-50 w-full transition-all duration-300 ${getNavbarClasses()}`}>
+      <div className="container flex h-16 md:h-20 items-center px-3 sm:px-6">
         <div className="flex w-full justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center">
@@ -34,7 +93,7 @@ export default function Navbar() {
               alt="La Moderna"
               width={160}
               height={40}
-              className="h-8 sm:h-9 md:h-10 w-auto dark:invert"
+              className={getLogoClasses()}
               priority
             />
           </Link>
@@ -45,7 +104,7 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-base font-medium uppercase text-foreground transition-colors hover:text-primary"
+                className={`text-base font-medium uppercase transition-colors ${getLinkClasses()}`}
               >
                 {item.label}
               </Link>
@@ -56,8 +115,8 @@ export default function Navbar() {
           <div className="md:hidden">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
-                <button className="flex items-center justify-center h-10 w-10">
-                  <Menu className="h-7 w-7" />
+                <button className={`flex items-center justify-center h-12 w-12 ${getMenuButtonClasses()}`}>
+                  <Menu className="h-8 w-8" />
                   <span className="sr-only">Menu</span>
                 </button>
               </SheetTrigger>

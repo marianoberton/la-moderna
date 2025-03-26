@@ -7,14 +7,14 @@ const concesionarias = [
   { 
     id: 1, 
     nombre: "La Moderna T. Lauquen", 
-    whatsapp: "5491123456789",
-    direccion: "Pasteur 1073, T. Lauquen"
+    whatsapp: "5491154645940",
+    direccion: "Av. Garcia Salinas 1163"
   },
   { 
     id: 2, 
     nombre: "La Moderna Pehuajo", 
-    whatsapp: "5491187654321",
-    direccion: "Ruta 5 Km 370, Pehuajo"
+    whatsapp: "5492396625108",
+    direccion: "Acceso Pres. Nestor C. Kirchner 1151"
   }
 ];
 

@@ -18,14 +18,14 @@ const concesionarias = [
   { 
     id: 1, 
     nombre: "La Moderna T. Lauquen", 
-    whatsapp: "5491123456789",
-    direccion: "Pasteur 1073, T. Lauquen"
+    whatsapp: "5491154645940",
+    direccion: "Av. Garcia Salinas 1163"
   },
   { 
     id: 2, 
     nombre: "La Moderna Pehuajo", 
-    whatsapp: "5491187654321",
-    direccion: "Ruta 5 Km 370, Pehuajo"
+    whatsapp: "5492396625108",
+    direccion: "Acceso Pres. Nestor C. Kirchner 1151"
   }
 ];
 
@@ -313,7 +313,7 @@ export default function FeaturedNew() {
             {Array.from({ length: totalPages }).map((_, i) => (
               <button 
                 key={i} 
-                className={`w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full transition-all duration-300 ${i === currentPage ? 'bg-primary w-6 sm:w-8' : 'bg-muted hover:bg-primary/50'}`}
+                className={`w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full transition-all duration-300 ${i === currentPage ? 'bg-[var(--color-dark-bg)] w-6 sm:w-8' : 'bg-muted hover:bg-[var(--color-dark-bg)]/50'}`}
                 aria-label={`Ir a página ${i + 1}`}
                 onClick={() => setActiveIndex(i * itemsPerPage)}
               />
@@ -324,7 +324,7 @@ export default function FeaturedNew() {
             <Button 
               asChild 
               variant="default"
-              className="rounded-full bg-[#FFD700] text-black hover:bg-[#FFD700]/90 px-8 py-3 font-semibold text-sm"
+              className="rounded-full bg-[var(--color-gold)] text-black hover:bg-[var(--color-gold-hover)] px-8 py-3 font-semibold text-sm"
             >
               <Link href="/vehiculos/0km" className="inline-flex items-center">
                 Ver todos los vehículos 0KM
@@ -386,7 +386,7 @@ function VehicleCard({
             e.currentTarget.src = "https://via.placeholder.com/320x208";
           }}
         />
-        <Badge className="absolute top-3 left-3 z-20 bg-[#FFD700] text-black font-semibold">
+        <Badge className="absolute top-3 left-3 z-20 bg-[var(--color-gold)] text-black font-semibold">
           0KM
         </Badge>
       </div>
@@ -398,51 +398,47 @@ function VehicleCard({
           onClick={onViewDetails}
         >
           <h3 className="text-lg sm:text-xl font-bold line-clamp-1">
-            {car.brand} <span className="text-primary">{car.model}</span>
+            {car.brand} <span className="text-[var(--color-dark-bg)]">{car.model}</span>
           </h3>
           <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">{car.version}</p>
         </div>
         
         {/* Especificaciones esenciales con iconos */}
-        <div className="grid grid-cols-2 gap-2 mb-3 sm:mb-4">
+        <div className="grid grid-cols-2 gap-2 mb-3">
           <div className="flex flex-col items-center text-center">
-            <Fuel className="h-4 w-4 text-primary mb-1" />
+            <Fuel className="h-4 w-4 text-[var(--color-dark-bg)] mb-1" />
             <span className="text-xs text-muted-foreground">Combustible</span>
             <span className="text-xs sm:text-sm font-medium">{car.fuel}</span>
           </div>
           
           <div className="flex flex-col items-center text-center">
-            <Cog className="h-4 w-4 text-primary mb-1" />
+            <img 
+              src="/manual-transmission.svg"
+              alt="Transmisión"
+              className="h-4 w-4 text-[var(--color-dark-bg)] mb-1"
+            />
             <span className="text-xs text-muted-foreground">Transmisión</span>
             <span className="text-xs sm:text-sm font-medium">{car.transmission}</span>
           </div>
         </div>
         
-        {/* Características destacadas en desktop (hover) o como sección separada en móvil */}
-        {isMobile ? (
-          <div className="mt-1 mb-4 text-center border-t border-border pt-3">
-            <p className="text-xs font-medium text-primary mb-2">Equipamiento destacado</p>
-            <ul className="flex flex-wrap gap-1 justify-center">
+        {/* Equipamiento destacado solo en hover para desktop */}
+        {!isMobile && car.highlights && car.highlights.length > 0 && isHovered && (
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            className="mb-3 text-center border-t border-border pt-2"
+          >
+            <p className="text-xs font-medium text-[var(--color-dark-bg)] mb-1">Equipamiento destacado</p>
+            <div className="flex flex-wrap gap-1 justify-center">
               {car.highlights.slice(0, 3).map((highlight: string, i: number) => (
-                <li key={i} className="text-xs bg-muted px-2 py-0.5 rounded-full">
+                <span key={i} className="text-xs bg-muted px-2 py-0.5 rounded-full">
                   {highlight}
-                </li>
+                </span>
               ))}
-            </ul>
-          </div>
-        ) : (
-          <div className={`overflow-hidden transition-all duration-300 text-center ${
-            isHovered ? 'max-h-24 opacity-100 mb-4' : 'max-h-0 opacity-0'
-          }`}>
-            <p className="text-xs font-medium text-primary mb-2">Equipamiento destacado</p>
-            <ul className="flex flex-wrap gap-1 justify-center">
-              {car.highlights.slice(0, 3).map((highlight: string, i: number) => (
-                <li key={i} className="text-xs bg-muted px-2 py-0.5 rounded-full">
-                  {highlight}
-                </li>
-              ))}
-            </ul>
-          </div>
+            </div>
+          </motion.div>
         )}
         
         {/* Botones de acción */}
@@ -454,13 +450,13 @@ function VehicleCard({
             onClick={onViewDetails}
           >
             <span className="relative z-10">Ver Detalles</span>
-            <span className={`absolute inset-0 bg-primary/5 transform transition-transform duration-300 ${isHovered ? 'translate-y-0' : 'translate-y-full'}`} />
+            <span className={`absolute inset-0 bg-[var(--color-dark-bg)]/5 transform transition-transform duration-300 ${isHovered ? 'translate-y-0' : 'translate-y-full'}`} />
           </Button>
           
           <div className="relative flex-1">
             <Button 
               size="sm"
-              className={`w-full text-xs sm:text-sm relative overflow-hidden transition-all duration-300 ${isHovered ? 'bg-primary hover:bg-primary/90' : ''}`}
+              className="w-full text-xs sm:text-sm relative overflow-hidden transition-all duration-300 bg-[var(--color-dark-hover)] hover:bg-[var(--color-dark-bg)] text-white"
               onClick={onConsultarClick}
             >
               <svg 
@@ -471,10 +467,9 @@ function VehicleCard({
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.967 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
               </svg>
               <span className="relative z-10">Contactar</span>
-              <span className={`absolute inset-0 bg-primary/10 transform transition-transform duration-300 ${isHovered ? 'translate-y-0' : 'translate-y-full'}`} />
             </Button>
             
-            {/* Selector de concesionaria con AnimatePresence para manejar la salida */}
+            {/* Selector de concesionaria con AnimatePresence */}
             <AnimatePresence>
               {showConcesionarias && (
                 <motion.div 

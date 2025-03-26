@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Montserrat, Oswald, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from './components/Navbar';
+import NavbarSpacer from './components/NavbarSpacer';
 import Footer from './components/Footer';
 import ThemeProvider from './components/ThemeProvider';
 import WhatsAppButton from './components/WhatsAppButton';
@@ -45,6 +46,7 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <Navbar />
+          <NavbarSpacer />
           {children}
           <Footer />
           <WhatsAppButton />

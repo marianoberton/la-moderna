@@ -4,6 +4,71 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Slider override styles for VehicleFilters component */
+.slider-override [data-orientation="horizontal"] {
+  height: 2px;
+}
+
+.slider-override [class*="SliderTrack"] {
+  background-color: #e5e7eb !important; /* Light gray track */
+}
+
+.slider-override [class*="SliderRange"] {
+  background-color: #000000 !important; /* Black active range */
+}
+
+.slider-override [class*="SliderThumb"] {
+  border-color: #000000 !important; /* Black thumb border */
+  background-color: #ffffff !important; /* White thumb */
+  height: 16px;
+  width: 16px;
+}
+
+/* Estilos para el nuevo componente RangeSlider */
+.range-slider-component {
+  position: relative;
+  padding: 10px 0;
+  margin: 0;
+}
+
+.range-slider-component [data-orientation="horizontal"] {
+  height: 4px; /* Grosor del track del slider */
+}
+
+.range-slider-component [class*="SliderTrack"] {
+  background-color: #e5e7eb; /* Color del track */
+  border-radius: 999px;
+}
+
+.range-slider-component [class*="SliderRange"] {
+  background-color: #000000; /* Color negro para el rango activo */
+  border-radius: 999px;
+}
+
+.range-slider-component [class*="SliderThumb"] {
+  height: 28px !important;
+  width: 28px !important;
+  border-radius: 9999px !important;
+  background-color: #ffffff !important; /* Fondo blanco para el thumb */
+  border: 2px solid #000000 !important; /* Borde negro para el thumb */
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2) !important; /* Sombra más pronunciada */
+  transition: transform 0.2s, box-shadow 0.2s;
+  aspect-ratio: 1 / 1;
+  display: block;
+  cursor: grab;
+  opacity: 1 !important; /* Asegurar que siempre sean visibles */
+}
+
+.range-slider-component [class*="SliderThumb"]:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.range-slider-component [class*="SliderThumb"]:active {
+  cursor: grabbing;
+  transform: scale(1.1);
+}
+
 @layer base {
   :root {
     /* Shadcn Variables */
@@ -28,19 +93,36 @@
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
 
-    /* Custom Theme Variables */
-    --primary-custom: #212529;
-    --primary-light: #343a40;
-    --secondary-custom: #212529;
-    --accent-custom: #adb5bd;
-    --muted-custom: #6c757d;
-    --surface: #ffffff;
-    --surface-2: #f1f3f5;
+    /* Colores principales simplificados */
+    --color-white: #ffffff;
+    --color-black: #000000;
+    --color-dark-bg: #171717;
+    --color-dark-hover: #262626;
+    --color-gold: #FFD700;
+    --color-gold-hover: #E6C200;
+    --color-gray-light: #f1f3f5;
+    --color-gray-medium: #adb5bd;
+    --color-gray-dark: #343a40;
+    
+    /* Otras definiciones de colores para mantener compatibilidad */
+    --primary-custom: var(--color-black);
+    --primary-light: var(--color-gray-dark);
+    --secondary-custom: var(--color-black);
+    --accent-custom: var(--color-gray-medium);
+    --muted-custom: var(--color-gray-medium);
+    --surface: var(--color-white);
+    --surface-2: var(--color-gray-light);
     --border-custom: #dee2e6;
     --border-light: #e9ecef;
     --shadow: rgba(0, 0, 0, 0.05);
     --highlight: #e6e6e6;
-    --metallic: #adb5bd;
+    --metallic: var(--color-gray-medium);
+    
+    /* Colores globales para la aplicación - nombres semánticos */
+    --background-dark: var(--color-dark-bg);
+    --background-dark-hover: var(--color-dark-hover);
+    --button-gold: var(--color-gold);
+    --button-gold-hover: var(--color-gold-hover);
   }
  
   .dark {

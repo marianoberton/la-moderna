@@ -78,7 +78,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative min-h-[85vh] overflow-hidden flex flex-col">
+    <section className="relative min-h-screen overflow-hidden flex flex-col">
       {/* Video de fondo con overlay */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 w-full h-full">
@@ -93,16 +93,16 @@ export default function Hero() {
           </video>
         </div>
         {/* Overlay with gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/40"></div>
       </div>
 
       {/* Contenido principal */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 md:px-8 py-12 max-w-7xl mx-auto w-full">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 md:px-8 py-12 max-w-7xl mx-auto w-full pt-28 md:pt-32">
         {/* Título principal */}
         <div className="text-center mb-8 md:mb-12 max-w-4xl animate-fadeIn">
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight font-heading">
             Tu próximo auto te espera 
-            <span className="text-[#FFD700]"> en La Moderna</span>
+            <span className="text-[var(--color-gold)]"> en La Moderna</span>
           </h1>
           <p className="text-xl text-white/90 max-w-3xl mx-auto font-medium drop-shadow-md">
             Encontra el vehículo perfecto con nuestra selección premium de autos nuevos y usados.
@@ -119,10 +119,10 @@ export default function Hero() {
             <div className="flex justify-center gap-4 md:gap-6">
               <Button 
                 variant="outline"
-                className={`flex-1 max-w-[180px] h-12 text-base font-semibold rounded-full 
+                className={`flex-1 max-w-[180px] h-12 text-base font-semibold rounded-full transition-all duration-300
                   ${condicion === "0km" 
-                    ? "bg-[#FFD700] text-black border-[#FFD700] border-2" 
-                    : "bg-white/90 text-black border-[#FFD700] border-2 hover:bg-[#FFD700] hover:text-black"
+                    ? "bg-[var(--color-gold)] text-black border-[var(--color-gold)] shadow-md" 
+                    : "bg-white/90 text-black border-gray-300 hover:bg-[var(--color-gold)]/90 hover:text-black hover:border-[var(--color-gold)]"
                   }`}
                 onClick={() => setCondicion(condicion === "0km" ? "" : "0km")}
               >
@@ -130,10 +130,10 @@ export default function Hero() {
               </Button>
               <Button 
                 variant="outline"
-                className={`flex-1 max-w-[180px] h-12 text-base font-semibold rounded-full 
+                className={`flex-1 max-w-[180px] h-12 text-base font-semibold rounded-full transition-all duration-300
                   ${condicion === "usado" 
-                    ? "bg-[#FFD700] text-black border-[#FFD700] border-2" 
-                    : "bg-white/90 text-black border-white border-2 hover:bg-[#FFD700] hover:text-black hover:border-[#FFD700]"
+                    ? "bg-[var(--color-gold)] text-black border-[var(--color-gold)] shadow-md" 
+                    : "bg-white/90 text-black border-gray-300 hover:bg-[var(--color-gold)]/90 hover:text-black hover:border-[var(--color-gold)]"
                   }`}
                 onClick={() => setCondicion(condicion === "usado" ? "" : "usado")}
               >
@@ -196,7 +196,7 @@ export default function Hero() {
               
               <Button 
                 size="lg" 
-                className="h-12 px-8 text-base font-semibold bg-[#FFD700] text-black hover:bg-[#FFD700]/90 rounded-full"
+                className="h-12 px-8 text-base font-semibold bg-[var(--color-gold)] text-black hover:bg-[var(--color-gold-hover)] rounded-full"
                 onClick={handleSearch}
               >
                 <Search className="mr-2 h-5 w-5" />
@@ -207,7 +207,6 @@ export default function Hero() {
             {/* Advanced search toggle */}
             <div className="flex justify-between items-center text-sm">
               <span className="text-muted-foreground">
-                Más de 100 vehículos disponibles
               </span>
               <Button 
                 variant="link" 
@@ -275,12 +274,6 @@ export default function Hero() {
             )}
           </div>
         </div>
-      </div>
-      
-      {/* Indicador de scroll - adjusted position and z-index */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-bounce z-30">
-        <span className="text-white text-sm mb-1 font-medium drop-shadow-lg">Descubre más</span>
-        <ChevronDown className="w-6 h-6 text-white drop-shadow-lg" />
       </div>
     </section>
   );
