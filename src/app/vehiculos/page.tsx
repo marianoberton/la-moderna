@@ -649,7 +649,8 @@ export default function VehiculosPage() {
       if (pasaFiltros && vehiculo.equipamiento) { // Verificar si el vehículo tiene datos de equipamiento
         for (const key in currentFiltros.equipamiento) {
           // Si el filtro de equipamiento está activo (true) y el vehículo no lo tiene (false o undefined)
-          if (currentFiltros.equipamiento[key as keyof typeof currentFiltros.equipamiento] && !vehiculo.equipamiento[key]) {
+          if (currentFiltros.equipamiento[key as keyof typeof currentFiltros.equipamiento] && 
+              !(vehiculo.equipamiento[key as keyof typeof currentFiltros.equipamiento])) {
             // console.log(`[Filtro Equipamiento] Descartado ${vehiculo.id}: Falta ${key}`);
             pasaFiltros = false;
             break; // No necesita seguir verificando equipamiento para este vehículo
