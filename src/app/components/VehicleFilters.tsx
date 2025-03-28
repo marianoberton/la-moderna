@@ -94,13 +94,19 @@ interface VehicleFiltersProps {
   initialFilters?: VehicleFilters;
   marcasDisponibles?: string[];
   modelosDisponibles?: string[];
+  tabCounts: {
+    countTodo: number;
+    countNuevo: number;
+    countUsado: number;
+  };
 }
 
 export default function VehicleFilters({
   onFiltersChange,
   initialFilters,
   marcasDisponibles = [],
-  modelosDisponibles = []
+  modelosDisponibles = [],
+  tabCounts
 }: VehicleFiltersProps) {
   // Estados internos UI
   const [isOpen, setIsOpen] = useState(false);
@@ -317,7 +323,7 @@ export default function VehicleFilters({
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            Todo ({29})
+            Todo ({tabCounts.countTodo})
           </button>
           <button
             onClick={() => handleTabChange('nuevo')}
@@ -327,7 +333,7 @@ export default function VehicleFilters({
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            Nuevo ({9})
+            Nuevo ({tabCounts.countNuevo})
           </button>
           <button
             onClick={() => handleTabChange('usado')}
@@ -337,7 +343,7 @@ export default function VehicleFilters({
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            Usado ({20})
+            Usado ({tabCounts.countUsado})
           </button>
         </div>
       </div>
@@ -413,11 +419,11 @@ export default function VehicleFilters({
                       <SelectValue placeholder="Tipo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="hatchback">Hatchback</SelectItem>
-                      <SelectItem value="sedan">Sedan</SelectItem>
-                      <SelectItem value="suv">SUV</SelectItem>
-                      <SelectItem value="camioneta">Camioneta</SelectItem>
-                      <SelectItem value="coupe">Coupe</SelectItem>
+                      <SelectItem value="HATCHBACK">Hatchback</SelectItem>
+                      <SelectItem value="SEDAN">Sedan</SelectItem>
+                      <SelectItem value="SUV">SUV</SelectItem>
+                      <SelectItem value="CAMIONETA">Camioneta</SelectItem>
+                      <SelectItem value="COUPE">Coupe</SelectItem>
                     </SelectContent>
                   </Select>
                   
@@ -619,11 +625,11 @@ export default function VehicleFilters({
                       <SelectValue placeholder="Tipo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="hatchback">Hatchback</SelectItem>
-                      <SelectItem value="sedan">Sedan</SelectItem>
-                      <SelectItem value="suv">SUV</SelectItem>
-                      <SelectItem value="camioneta">Camioneta</SelectItem>
-                      <SelectItem value="coupe">Coupe</SelectItem>
+                      <SelectItem value="HATCHBACK">Hatchback</SelectItem>
+                      <SelectItem value="SEDAN">Sedan</SelectItem>
+                      <SelectItem value="SUV">SUV</SelectItem>
+                      <SelectItem value="CAMIONETA">Camioneta</SelectItem>
+                      <SelectItem value="COUPE">Coupe</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -791,11 +797,11 @@ export default function VehicleFilters({
                       <SelectValue placeholder="Tipo de vehículo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="hatchback">Hatchback</SelectItem>
-                      <SelectItem value="sedan">Sedan</SelectItem>
-                      <SelectItem value="suv">SUV</SelectItem>
-                      <SelectItem value="camioneta">Camioneta</SelectItem>
-                      <SelectItem value="coupe">Coupe</SelectItem>
+                      <SelectItem value="HATCHBACK">Hatchback</SelectItem>
+                      <SelectItem value="SEDAN">Sedan</SelectItem>
+                      <SelectItem value="SUV">SUV</SelectItem>
+                      <SelectItem value="CAMIONETA">Camioneta</SelectItem>
+                      <SelectItem value="COUPE">Coupe</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
