@@ -4,7 +4,9 @@ const nextConfig = {
     // Warning instead of error during build
     ignoreDuringBuilds: true,
   },
-  // Add any other Next.js config options here
+  output: 'standalone',
+  distDir: 'build',
+  reactStrictMode: false
 };
 
 module.exports = nextConfig;
