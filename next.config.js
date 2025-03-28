@@ -4,8 +4,6 @@ const nextConfig = {
     // Warning instead of error during build
     ignoreDuringBuilds: true,
   },
-  output: 'standalone',
-  distDir: 'build',
   reactStrictMode: false
 };
 
