@@ -66,14 +66,35 @@ export default function AdminDashboard() {
         const { supabase } = await import('@/lib/supabase');
         
         // Obtener vehículos recientes
-        const { data: recents } = await supabase
+        const { data: recents, error: recentsError } = await supabase
           .from('vehicles')
-          .select('id, marca, modelo, version, imagenes, estado, precio, condicion, año, tipo, created_at')
+          .select('id, marca, modelo, version, imagenes, estado, precio, condicion, año:anio, tipo, created_at')
           .order('created_at', { ascending: false })
           .limit(5);
         
-        if (recents) {
-          setRecentVehicles(recents as DashboardVehicle[]);
+        if (recents && !recentsError) {
+          try {
+            // Asegurarse de que los datos tengan la estructura correcta
+            const formattedRecents = recents.map((vehicle: any) => ({
+              id: vehicle.id || '',
+              marca: vehicle.marca || '',
+              modelo: vehicle.modelo || '',
+              version: vehicle.version || '',
+              imagenes: vehicle.imagenes || [],
+              estado: vehicle.estado || '',
+              precio: vehicle.precio || 0,
+              condicion: vehicle.condicion || '',
+              año: vehicle.año || new Date().getFullYear(),
+              tipo: vehicle.tipo || ''
+            }));
+            setRecentVehicles(formattedRecents);
+          } catch (err) {
+            console.error('Error al procesar vehículos recientes:', err);
+            setRecentVehicles([]);
+          }
+        } else {
+          console.error('Error al obtener vehículos recientes:', recentsError);
+          setRecentVehicles([]);
         }
         
         // Procesar vehículos por tipo
