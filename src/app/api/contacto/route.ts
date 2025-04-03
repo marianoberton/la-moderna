@@ -3,6 +3,14 @@ import { createConsulta } from "@/services/consultaService";
 
 export async function POST(request: NextRequest) {
   try {
+    // Verificar configuración de entorno
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      return NextResponse.json(
+        { error: "El servidor no está configurado correctamente" },
+        { status: 503 }
+      );
+    }
+    
     const body = await request.json();
     
     // Validación básica

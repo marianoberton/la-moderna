@@ -13,9 +13,28 @@ export interface Consulta {
   leida: boolean;
 }
 
+// Verificar que Supabase esté disponible
+const checkSupabaseConnection = async () => {
+  // Si no tenemos las variables de entorno, no intentamos conectar
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    throw new Error("Supabase no está configurado. Faltan variables de entorno.");
+  }
+  
+  try {
+    // Prueba simple para verificar conexión
+    const { error } = await supabase.from('consultas').select('count').limit(1);
+    if (error) throw error;
+    return true;
+  } catch (err) {
+    throw new Error("No se pudo conectar con la base de datos");
+  }
+};
+
 // Obtener todas las consultas
 export async function getConsultas(): Promise<Consulta[]> {
   try {
+    await checkSupabaseConnection();
+    
     const { data, error } = await supabase
       .from('consultas')
       .select('*')
@@ -36,6 +55,8 @@ export async function getConsultas(): Promise<Consulta[]> {
 // Obtener consultas no leídas
 export async function getConsultasNoLeidas(): Promise<Consulta[]> {
   try {
+    await checkSupabaseConnection();
+    
     const { data, error } = await supabase
       .from('consultas')
       .select('*')
@@ -57,6 +78,8 @@ export async function getConsultasNoLeidas(): Promise<Consulta[]> {
 // Crear una nueva consulta
 export async function createConsulta(consulta: Omit<Consulta, 'id' | 'fecha' | 'estado' | 'leida'>): Promise<Consulta> {
   try {
+    await checkSupabaseConnection();
+    
     const now = new Date().toISOString();
     
     const consultaData = {
