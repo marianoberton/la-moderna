@@ -467,14 +467,14 @@ export default function VehicleFilters({
                 )}
             </Button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="h-[80vh] rounded-t-xl pt-4 px-4">
+            <SheetContent side="bottom" className="h-[90vh] rounded-t-xl pt-4 px-4">
               <SheetHeader className="text-left mb-2">
                 <SheetTitle>FILTROS DE BÚSQUEDA</SheetTitle>
                 <SheetDescription>
                   Selecciona los filtros para encontrar tu vehículo ideal
                 </SheetDescription>
               </SheetHeader>
-              <div className="space-y-4 max-h-[calc(80vh-110px)] overflow-y-auto pb-16">
+              <div className="space-y-4 max-h-[calc(90vh-110px)] overflow-y-auto pb-16">
                 {/* Marca y Modelo */}
                 <div className="space-y-2">
                   <h3 className="text-sm font-medium text-gray-700">CARACTERÍSTICAS</h3>

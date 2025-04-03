@@ -13,16 +13,25 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { SetupDatabase } from './components/SetupDatabase';
 import Link from 'next/link';
 import { CardView } from './components/CardView';
+import { FormWrapper } from './components/FormWrapper';
 
 // Función para transformar un vehículo al formato del formulario
 const vehicleToFormData = (vehicle: Vehicle) => {
+  // Convertir características de string[] a formato estructurado
+  const caracteristicasFormateadas = Array.isArray(vehicle.caracteristicas) 
+    ? vehicle.caracteristicas.map(texto => ({
+        texto,
+        categoria: "Extras" as const // Por defecto todas las características van a la categoría "Extras"
+      })) 
+    : [];
+
   return {
     id: vehicle.id,
     version: vehicle.version || '',
     marca: vehicle.marca || '',
     modelo: vehicle.modelo || '',
     year: vehicle.año?.toString() || '',
-    fuel: vehicle.combustible as "GASOLINA" | "DIESEL" | "HÍBRIDO" | "ELÉCTRICO",
+    fuel: vehicle.combustible as "NAFTA" | "DIESEL" | "HÍBRIDO" | "ELÉCTRICO" | "GNC",
     transmission: vehicle.transmision as "MANUAL" | "AUTOMÁTICA",
     price: vehicle.precio?.toString() || '',
     description: vehicle.descripcion || '',
@@ -31,13 +40,13 @@ const vehicleToFormData = (vehicle: Vehicle) => {
     doors: vehicle.puertas?.toString() || '',
     color: vehicle.color || '',
     location: vehicle.ubicacion || '',
-    featured: false, // No existe en el modelo actual
     images: vehicle.imagenes || [],
-    type: vehicle.condicion === '0km' ? "NUEVO" : "USADO",
+    condition: vehicle.condicion === '0km' ? "NUEVO" : "USADO",
+    vehicleType: vehicle.tipo || 'sedan',
     status: vehicle.estado === 'activo' ? "DISPONIBLE" : 
            vehicle.estado === 'vendido' ? "VENDIDO" : 
            vehicle.estado === 'en_pausa' ? "EN PAUSA" : "RESERVADO",
-    caracteristicas: vehicle.caracteristicas || [],
+    caracteristicas: caracteristicasFormateadas,
     equipamiento: {
       aireAcondicionado: vehicle.equipamiento?.aireAcondicionado || false,
       direccionAsistida: vehicle.equipamiento?.direccionAsistida || false,
@@ -313,8 +322,31 @@ export default function VehiculosAdmin() {
     }
   };
 
-  // Iniciar la edición de un vehículo
+  // Editar vehículo
   const handleEditVehicle = (vehicle: Vehicle) => {
+    console.log("⭐ Abriendo editor para vehículo:", {
+      id: vehicle.id,
+      marca: vehicle.marca,
+      modelo: vehicle.modelo,
+      tipo: vehicle.tipo
+    });
+    
+    // Asegurarnos de que estamos preparando correctamente los datos para el formulario
+    const formData = {
+      ...vehicleToFormData(vehicle),
+      // Añadimos campos específicos para asegurar que se preserven los valores originales
+      originalBrand: vehicle.marca || '',
+      originalModel: vehicle.modelo || ''
+    };
+
+    console.log("📝 Datos preparados para formulario:", {
+      marca: formData.marca,
+      modelo: formData.modelo,
+      originalBrand: formData.originalBrand,
+      originalModel: formData.originalModel,
+      vehicleType: formData.vehicleType
+    });
+    
     setEditingVehicle(vehicle);
     setIsDialogOpen(true);
   };
@@ -325,10 +357,10 @@ export default function VehiculosAdmin() {
     setDeleteDialogOpen(true);
   };
 
-  // Cerrar el diálogo y reiniciar estados
-  const handleDialogClose = (open: boolean) => {
-    setIsDialogOpen(open);
-    if (!open) {
+  // Función para cerrar el diálogo
+  const handleDialogClose = (isOpen: boolean) => {
+    setIsDialogOpen(isOpen);
+    if (!isOpen) {
       setEditingVehicle(null);
     }
   };
@@ -370,18 +402,18 @@ export default function VehiculosAdmin() {
           
           <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
             <DialogTrigger asChild>
-              <Button onClick={handleNewVehicleClick}>
+              <Button onClick={() => setEditingVehicle(null)}>
                 <Plus className="mr-2 h-4 w-4" />
                 Nuevo Vehículo
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>{editingVehicle ? 'Editar Vehículo' : 'Crear Nuevo Vehículo'}</DialogTitle>
+                <DialogTitle>{editingVehicle ? 'Editar Vehículo' : 'Agregar Vehículo'}</DialogTitle>
               </DialogHeader>
-              <VehicleForm 
-                initialData={editingVehicle ? vehicleToFormData(editingVehicle) : undefined}
-                onSubmit={editingVehicle ? handleUpdateVehicle : handleCreateVehicle} 
+              <FormWrapper
+                initialData={editingVehicle ? vehicleToFormData(editingVehicle) : {}}
+                onSubmit={editingVehicle ? handleUpdateVehicle : handleCreateVehicle}
               />
             </DialogContent>
           </Dialog>

@@ -314,9 +314,14 @@ export function VehicleForm({ initialData = {}, onSubmit }: VehicleFormProps) {
   // Encontrar la marca y modelo correspondientes en modo edición
   useEffect(() => {
     if (isEditing && initialData.marca && initialData.modelo) {
-      // Almacenar los valores originales para fallback
-      const originalBrand = initialData.marca;
-      const originalModel = initialData.modelo;
+      console.log("🚀 Cargando datos iniciales de marca/modelo:", {
+        marca: initialData.marca,
+        modelo: initialData.modelo
+      });
+      
+      // Guardar los valores originales para respaldo siempre, no solo si no se encuentra
+      form.setValue("originalBrand", initialData.marca);
+      form.setValue("originalModel", initialData.modelo);
       
       // Intentamos primero mapear las marcas conocidas
       let foundBrand = false;
@@ -354,30 +359,29 @@ export function VehicleForm({ initialData = {}, onSubmit }: VehicleFormProps) {
         if (model) {
           form.setValue("modelo", model.id);
         } else {
-          // Si no se encuentra el modelo pero estamos manteniendo la marca original, preservar el nombre original del modelo
-          console.log("Modelo no encontrado para marca conocida, preservando nombre de modelo original");
+          // Si no se encuentra el modelo pero estamos manteniendo la marca original
+          console.log("Modelo no encontrado para marca conocida, usando otra");
           
-          // Guardar los valores originales para tenerlos de respaldo
-          form.setValue("originalBrand", originalBrand);
-          form.setValue("originalModel", originalModel);
+          // Si no se encuentra el modelo correspondiente, usamos "otra" para preservar el valor original
+          const otraBrand = carBrands.find(b => b.id === 'otra');
+          if (otraBrand) {
+            form.setValue("marca", otraBrand.id);
+            const otherModels = getModelsByBrand(otraBrand.id);
+            setAvailableModels(otherModels);
+            
+            if (otherModels.length > 0) {
+              form.setValue("modelo", otherModels[0].id);
+            }
+          }
         }
-      }
-      
-      // Si no se encuentra la marca, usar "otra"
-      if (!foundBrand) {
+      } else {
+        // Si no se encuentra la marca, usar "otra"
         console.log("Marca no encontrada, usando marca 'otra'");
         const otraBrand = carBrands.find(b => b.id === 'otra');
         if (otraBrand) {
           form.setValue("marca", otraBrand.id);
           const models = getModelsByBrand(otraBrand.id);
           setAvailableModels(models);
-          
-          // Al usar la marca "otra", necesitamos preservar los valores originales
-          console.log(`Estableciendo valores ocultos del formulario: marca=${originalBrand}, modelo=${originalModel}`);
-          
-          // Agregar campos ocultos al formulario para preservar los valores originales
-          form.setValue("originalBrand", originalBrand);
-          form.setValue("originalModel", originalModel);
           
           // Establecer el modelo "otro"
           if (models.length > 0) {
@@ -516,11 +520,11 @@ export function VehicleForm({ initialData = {}, onSubmit }: VehicleFormProps) {
         let brandName = '';
         let modelName = '';
         
-        // Si la marca es "otra", usar valores originales si están disponibles
-        if (selectedBrandId === 'otra' && values.originalBrand) {
-          brandName = values.originalBrand;
+        // Manejo especial para "otra" marca: SIEMPRE usar valores originales si están disponibles
+        if (selectedBrandId === 'otra') {
+          brandName = values.originalBrand || 'Otra';
           modelName = values.originalModel || 'Otro';
-          console.log(`Usando valores originales: marca=${brandName}, modelo=${modelName}`);
+          console.log(`Usando valores originales en submit: marca=${brandName}, modelo=${modelName}`);
         } else {
           // Manejo normal de marca/modelo
           if (!selectedBrand) {
@@ -530,28 +534,32 @@ export function VehicleForm({ initialData = {}, onSubmit }: VehicleFormProps) {
               throw new Error('Error: No se pudo encontrar la marca seleccionada');
             }
             console.warn('Usando marca de respaldo "otra" porque la marca seleccionada no se encontró');
-          }
-          
-          brandName = selectedBrand.name;
-          
-          // Obtener modelos para esta marca
-          const models = getModelsByBrand(selectedBrand.id);
-          
-          // Encontrar el modelo seleccionado
-          const selectedModel = models.find(m => m.id === selectedModelId);
-          
-          if (selectedModel) {
-            modelName = selectedModel.name;
-          } else if (models.length > 0) {
-            // Fallback al primer modelo
-            modelName = models[0].name;
-            console.warn('Usando modelo de respaldo porque el modelo seleccionado no se encontró');
+            
+            // Si caemos en "otra", usar los valores originales
+            brandName = values.originalBrand || 'Otra';
+            modelName = values.originalModel || 'Otro';
           } else {
-            modelName = 'Otro';
+            brandName = selectedBrand.name;
+            
+            // Obtener modelos para esta marca
+            const models = getModelsByBrand(selectedBrand.id);
+            
+            // Encontrar el modelo seleccionado
+            const selectedModel = models.find(m => m.id === selectedModelId);
+            
+            if (selectedModel) {
+              modelName = selectedModel.name;
+            } else if (models.length > 0) {
+              // Fallback al primer modelo
+              modelName = models[0].name;
+              console.warn('Usando modelo de respaldo porque el modelo seleccionado no se encontró');
+            } else {
+              modelName = 'Otro';
+            }
           }
         }
         
-        // Format characteristics for saving to Supabase (text only)
+        // Formatear las características para guardarlas en Supabase (text only)
         const caracteristicasFormatted = values.caracteristicas.map(
           (c: {texto: string, categoria: string}) => c.texto
         );
@@ -570,11 +578,11 @@ export function VehicleForm({ initialData = {}, onSubmit }: VehicleFormProps) {
           pasajeros: parseInt(values.passengers),
           ubicacion: values.location,
           condicion: values.condition === "NUEVO" ? "0km" : "usado",
-          tipo: values.vehicleType,  // Este es el campo para el tipo de vehículo
+          tipo: values.vehicleType,
           descripcion: values.description || "",
           financiacion: false,
           permuta: false,
-          caracteristicas: caracteristicasFormatted, // Save only texts for compatibility
+          caracteristicas: caracteristicasFormatted,
           equipamiento: values.equipamiento || {},
           imagenes: values.images || [],
           estado: values.status === "DISPONIBLE" ? "activo" : 
@@ -754,20 +762,66 @@ export function VehicleForm({ initialData = {}, onSubmit }: VehicleFormProps) {
           .single();
         
         if (!error && refreshedVehicle) {
-          // Mapear los valores del vehículo refrescado a los campos del formulario
-          const mappedData = {
-            ...initialData,
+          console.log("🔄 Actualizando con datos frescos:", {
+            tipo: refreshedVehicle.tipo,
             marca: refreshedVehicle.marca,
             modelo: refreshedVehicle.modelo,
-            vehicleType: refreshedVehicle.tipo,
-            condition: refreshedVehicle.condicion === "0km" ? "NUEVO" : "USADO",
-            // Otros campos que necesiten actualización
-          };
-          
-          // Actualizar los datos iniciales con los datos refrescados
-          Object.keys(mappedData).forEach(key => {
-            form.setValue(key as any, mappedData[key as keyof typeof mappedData]);
+            condicion: refreshedVehicle.condicion
           });
+          
+          // Guardar siempre los valores originales
+          form.setValue("originalBrand", refreshedVehicle.marca);
+          form.setValue("originalModel", refreshedVehicle.modelo);
+          
+          // Buscar coincidencia en marcas conocidas
+          let foundBrand = false;
+          let brand = carBrands.find(b => b.name.toLowerCase() === refreshedVehicle.marca.toLowerCase());
+          
+          // Intentar coincidencia parcial
+          if (!brand) {
+            brand = carBrands.find(b => 
+              refreshedVehicle.marca.toLowerCase().includes(b.name.toLowerCase()) || 
+              b.name.toLowerCase().includes(refreshedVehicle.marca.toLowerCase())
+            );
+          }
+          
+          if (brand) {
+            foundBrand = true;
+            form.setValue("marca", brand.id);
+            
+            const models = getModelsByBrand(brand.id);
+            
+            // Buscar modelo
+            const model = models.find(m => 
+              m.name.toLowerCase() === refreshedVehicle.modelo.toLowerCase() ||
+              refreshedVehicle.modelo.toLowerCase().includes(m.name.toLowerCase()) ||
+              m.name.toLowerCase().includes(refreshedVehicle.modelo.toLowerCase())
+            );
+            
+            if (model) {
+              form.setValue("modelo", model.id);
+            } else {
+              // Si el modelo no coincide, usar "otra"
+              const otraBrand = carBrands.find(b => b.id === 'otra');
+              if (otraBrand) {
+                form.setValue("marca", otraBrand.id);
+                const otherModels = getModelsByBrand(otraBrand.id);
+                if (otherModels.length > 0) {
+                  form.setValue("modelo", otherModels[0].id);
+                }
+              }
+            }
+          } else {
+            // Si no hay coincidencia, usar "otra"
+            const otraBrand = carBrands.find(b => b.id === 'otra');
+            if (otraBrand) {
+              form.setValue("marca", otraBrand.id);
+              const models = getModelsByBrand(otraBrand.id);
+              if (models.length > 0) {
+                form.setValue("modelo", models[0].id);
+              }
+            }
+          }
           
           // Para vehicleType, necesitamos un tratamiento especial
           if (refreshedVehicle.tipo) {
@@ -776,6 +830,9 @@ export function VehicleForm({ initialData = {}, onSubmit }: VehicleFormProps) {
               form.setValue("vehicleType", refreshedVehicle.tipo);
             }
           }
+          
+          // Actualizar condición
+          form.setValue("condition", refreshedVehicle.condicion === "0km" ? "NUEVO" : "USADO");
         }
       } catch (error) {
         console.error('Error al refrescar datos del vehículo:', error);
