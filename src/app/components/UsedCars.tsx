@@ -11,9 +11,34 @@ import {
   Cog,
   Gauge,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from 'lucide-react';
-import VehicleCard, { Vehiculo } from './VehicleCard';
+import { Vehiculo } from './VehicleCard';
+
+// Badge personalizado sin hover para USADO/0KM
+const StatusBadge = ({ children, className, ...props }: React.HTMLAttributes<HTMLDivElement>) => {
+  return (
+    <div 
+      className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold ${className}`} 
+      {...props}
+    >
+      {children}
+    </div>
+  );
+};
+
+// Badge personalizado sin hover para información de vehículo
+const InfoBadge = ({ children, className, ...props }: React.HTMLAttributes<HTMLDivElement>) => {
+  return (
+    <div 
+      className={`inline-flex items-center rounded-md border border-transparent px-2.5 py-0.5 text-xs ${className}`} 
+      {...props}
+    >
+      {children}
+    </div>
+  );
+};
 
 // Datos de las concesionarias
 const concesionarias = [
@@ -32,7 +57,8 @@ const concesionarias = [
 ];
 
 export default function UsedCars() {
-  const usedCars: Vehiculo[] = [
+  // Mantenemos los datos mock como fallback
+  const mockUsedCars: Vehiculo[] = [
     {
       id: 1,
       marca: 'VOLKSWAGEN',
@@ -116,190 +142,6 @@ export default function UsedCars() {
       imagen: '/images/Usado/duster.jpg',
       fotos: 12,
       highlights: ['Multimedia', 'Control crucero', 'Aire acondicionado']
-    },
-    {
-      id: 7,
-      marca: 'TOYOTA',
-      modelo: 'ETIOS',
-      version: 'ETIOS 1.5 XLS SEDAN',
-      año: 2019,
-      km: 55000,
-      precio: 13800000,
-      combustible: 'Nafta',
-      transmision: 'Manual',
-      imagen: '/images/Usado/etios_usado.jpg',
-      fotos: 15,
-      highlights: ['Económico', 'ABS', 'Airbag']
-    },
-    {
-      id: 8,
-      marca: 'TOYOTA',
-      modelo: 'ETIOS',
-      version: 'ETIOS 1.5 XLS HATCHBACK',
-      año: 2020,
-      km: 38000,
-      precio: 14500000,
-      combustible: 'Nafta',
-      transmision: 'Manual',
-      imagen: '/images/Usado/etios1.jpg',
-      fotos: 16,
-      highlights: ['ABS', 'Llantas de aleación', 'Bluetooth']
-    },
-    {
-      id: 9,
-      marca: 'VOLKSWAGEN',
-      modelo: 'GOL TREND',
-      version: 'GOL TREND 1.6 TRENDLINE',
-      año: 2019,
-      km: 62000,
-      precio: 11900000,
-      combustible: 'Nafta',
-      transmision: 'Manual',
-      color: 'Blanco',
-      image: '/images/Usado/gol_trend_usado.jpg'
-    },
-    {
-      id: 10,
-      marca: 'VOLKSWAGEN',
-      modelo: 'GOL TREND',
-      version: 'GOL TREND 1.6 HIGHLINE',
-      año: 2018,
-      km: 75000,
-      precio: 10800000,
-      combustible: 'Nafta',
-      transmision: 'Manual',
-      color: 'Gris',
-      image: '/images/Usado/gol_usado_2.jpg'
-    },
-    {
-      id: 11,
-      marca: 'VOLKSWAGEN',
-      modelo: 'GOL TREND',
-      version: 'GOL TREND 1.6 COMFORTLINE',
-      año: 2017,
-      km: 89000,
-      precio: 9500000,
-      combustible: 'Nafta',
-      transmision: 'Manual',
-      color: 'Rojo',
-      image: '/images/Usado/gol_usado.jpg'
-    },
-    {
-      id: 12,
-      marca: 'VOLKSWAGEN',
-      modelo: 'GOLF',
-      version: 'GOLF 1.4 TSI HIGHLINE DSG',
-      año: 2020,
-      km: 42000,
-      precio: 21500000,
-      combustible: 'Nafta',
-      transmision: 'Automática DSG',
-      color: 'Blanco',
-      images: [
-        '/images/Usado/golf1 (2).jpg',
-        '/images/Usado/golf2 (2).jpg',
-        '/images/Usado/golf3 (2).jpg'
-      ],
-      fotos: 18,
-      highlights: ['Tracción 4x4', 'Asientos de cuero', 'Control de estabilidad']
-    },
-    {
-      id: 13,
-      marca: 'VOLKSWAGEN',
-      modelo: 'GOLF',
-      version: 'GOLF 1.4 TSI COMFORTLINE MT',
-      año: 2019,
-      km: 55000,
-      precio: 19800000,
-      combustible: 'Nafta',
-      transmision: 'Manual',
-      color: 'Gris',
-      images: [
-        '/images/Usado/golf1.jpg',
-        '/images/Usado/golf2.jpg',
-        '/images/Usado/golf3.jpg'
-      ],
-      fotos: 16,
-      highlights: ['Motor turbo', 'Caja automática', 'Sensores']
-    },
-    {
-      id: 14,
-      marca: 'TOYOTA',
-      modelo: 'HILUX',
-      version: 'HILUX 2.8 SRX 4X4 AT',
-      año: 2021,
-      km: 48000,
-      precio: 32500000,
-      combustible: 'Diesel',
-      transmision: 'Automática',
-      color: 'Blanco',
-      images: [
-        '/images/Usado/hilux1.jpg',
-        '/images/Usado/hilux2.jpg',
-        '/images/Usado/hilux3.jpg'
-      ],
-      fotos: 18,
-      highlights: ['Tracción 4x4', 'Asientos de cuero', 'Control de estabilidad']
-    },
-    {
-      id: 15,
-      marca: 'FORD',
-      modelo: 'RANGER',
-      version: 'RANGER 3.2 LIMITED 4X4 AT',
-      año: 2023,
-      km: 25000,
-      precio: 35900000,
-      combustible: 'Diesel',
-      transmision: 'Automática',
-      color: 'Gris',
-      image: '/images/Usado/ranger2023_usada.jpg',
-      fotos: 18,
-      highlights: ['Tracción 4x4', 'Asientos de cuero', 'Control de estabilidad']
-    },
-    {
-      id: 16,
-      marca: 'CHEVROLET',
-      modelo: 'S10',
-      version: 'S10 2.8 HIGH COUNTRY 4X4 AT',
-      año: 2020,
-      km: 58000,
-      precio: 29800000,
-      combustible: 'Diesel',
-      transmision: 'Automática',
-      color: 'Negro',
-      image: '/images/Usado/s10_usada.jpg',
-      fotos: 18,
-      highlights: ['Tracción 4x4', 'Asientos de cuero', 'Control de estabilidad']
-    },
-    {
-      id: 17,
-      marca: 'VOLKSWAGEN',
-      modelo: 'TAOS',
-      version: 'TAOS 1.4 HIGHLINE DSG',
-      año: 2022,
-      km: 32000,
-      precio: 27500000,
-      combustible: 'Nafta',
-      transmision: 'Automática DSG',
-      color: 'Blanco',
-      image: '/images/Usado/taos_usada.jpg',
-      fotos: 18,
-      highlights: ['Tracción 4x4', 'Asientos de cuero', 'Control de estabilidad']
-    },
-    {
-      id: 18,
-      marca: 'CHEVROLET',
-      modelo: 'TRACKER',
-      version: 'TRACKER 1.2 PREMIER AT',
-      año: 2021,
-      km: 38000,
-      precio: 23900000,
-      combustible: 'Nafta',
-      transmision: 'Automática',
-      color: 'Gris',
-      image: '/images/Usado/tracker_usada.jpg',
-      fotos: 18,
-      highlights: ['Tracción 4x4', 'Asientos de cuero', 'Control de estabilidad']
     }
   ];
 
@@ -308,8 +150,110 @@ export default function UsedCars() {
   const [itemsPerPage, setItemsPerPage] = useState(3);
   const [isMobile, setIsMobile] = useState(false);
   const [showConcesionarias, setShowConcesionarias] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [usedCars, setUsedCars] = useState<Vehiculo[]>(mockUsedCars);
 
-  // Mostrar solo los primeros 8 vehículos en la página principal
+  // Cargar vehículos destacados desde Supabase
+  useEffect(() => {
+    const loadFeaturedVehicles = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Importar el servicio de vehículos
+        const { getVehicles } = await import('@/services/vehicleService');
+        
+        // Obtener todos los vehículos activos
+        const allVehicles = await getVehicles(true);
+        
+        // Filtrar vehículos usados destacados
+        const featuredUsedVehicles = allVehicles.filter(vehicle => 
+          vehicle.is_featured && 
+          (vehicle.condicion === 'USADO' || vehicle.condicion === 'usado') &&
+          vehicle.kilometraje > 0
+        );
+        
+        if (!featuredUsedVehicles || featuredUsedVehicles.length === 0) {
+          console.log('No hay vehículos usados destacados, usando datos de ejemplo');
+          setUsedCars(mockUsedCars);
+          setIsLoading(false);
+          return;
+        }
+        
+        // Transformar los datos al formato de Vehiculo
+        const transformed: Vehiculo[] = featuredUsedVehicles.map((vehicle, index) => {
+          // Extraer características destacadas
+          let highlights: string[] = [];
+          
+          // Primero usamos las características seleccionadas específicamente para destacados
+          if (Array.isArray(vehicle.selected_highlights) && vehicle.selected_highlights.length > 0) {
+            console.log(`Vehículo ${vehicle.id} tiene ${vehicle.selected_highlights.length} características destacadas seleccionadas`, vehicle.selected_highlights);
+            highlights = [...vehicle.selected_highlights];
+          } 
+          // Si no hay características seleccionadas, usamos las características y equipamiento
+          else {
+            console.log(`Vehículo ${vehicle.id} no tiene características destacadas seleccionadas, usando caracteristicas y equipamiento`);
+            // Añadimos las características explícitas si existen
+            if (Array.isArray(vehicle.caracteristicas) && vehicle.caracteristicas.length > 0) {
+              highlights = [...vehicle.caracteristicas];
+            }
+            
+            // Luego añadimos el equipamiento activado
+            if (vehicle.equipamiento && typeof vehicle.equipamiento === 'object') {
+              const equipHighlights = Object.entries(vehicle.equipamiento)
+                .filter(([key, value]) => value === true)
+                .map(([key]) => {
+                  // Convertir camelCase a texto legible
+                  const readable = key
+                    .replace(/([A-Z])/g, ' $1')
+                    .replace(/^./, str => str.toUpperCase());
+                  return readable;
+                });
+              
+              highlights = [...highlights, ...equipHighlights];
+            }
+          }
+          
+          // Limitar a 3 características para mostrar
+          const limitedHighlights = highlights.slice(0, 3);
+          
+          // Formatear correctamente combustible y transmisión con solo la primera letra en mayúscula
+          const formatFirstLetterUpper = (text: string) => {
+            if (!text) return '';
+            return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+          };
+
+          return {
+            id: vehicle.id, // Mantener el ID original que puede ser UUID
+            marca: vehicle.marca.toUpperCase(),
+            modelo: vehicle.modelo.toUpperCase(),
+            version: vehicle.version,
+            año: vehicle.año || new Date().getFullYear(),
+            km: vehicle.kilometraje || 0,
+            precio: vehicle.precio || 0,
+            combustible: formatFirstLetterUpper(vehicle.combustible) || 'Nafta',
+            transmision: formatFirstLetterUpper(vehicle.transmision) || 'Manual',
+            imagen: vehicle.imagenes?.[0] || '/placeholder-car.jpg',
+            fotos: vehicle.imagenes?.length || 0,
+            images: vehicle.imagenes,
+            color: vehicle.color,
+            highlights: limitedHighlights
+          };
+        });
+        
+        console.log('Vehículos usados destacados cargados:', transformed.length);
+        setUsedCars(transformed);
+      } catch (error) {
+        console.error('Error al cargar vehículos usados destacados:', error);
+        setUsedCars(mockUsedCars);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadFeaturedVehicles();
+  }, []);
+
+  // Mostrar solo los primeros vehículos en la página principal
   const displayedCars = usedCars.slice(0, 8);
 
   // Efecto para ajustar itemsPerPage según el tamaño de la pantalla
@@ -394,7 +338,20 @@ export default function UsedCars() {
   };
 
   // Función para navegar a la página de detalles del vehículo
-  const navigateToVehicleDetails = (carId: number) => {
+  const navigateToVehicleDetails = (carId: number | string) => {
+    if (!carId) return;
+    
+    // Verificar si estamos trabajando con datos de ejemplo (IDs numéricos 1-6)
+    const isMockData = typeof carId === 'number' && carId <= 6;
+    
+    if (isMockData) {
+      // Para datos de ejemplo, mostrar mensaje explicativo
+      console.log('ID es de datos de ejemplo, no se puede navegar a la ficha real');
+      alert('Este vehículo es un ejemplo y no tiene una ficha detallada. En la versión final, aquí se mostrará la información completa del vehículo.');
+      return;
+    }
+    
+    // Es un ID real, navegar a la página
     window.location.href = `/vehiculos/${carId}`;
   };
 
@@ -426,125 +383,153 @@ export default function UsedCars() {
           <div className="h-0.5 w-20 bg-[var(--color-dark-bg)] rounded-full"></div>
         </div>
         
-        <div className="relative px-0 sm:px-2">
-          {isMobile ? (
-            // Vista móvil - cada vehículo ocupa todo el ancho visible
-            <div className="overflow-hidden">
-              <motion.div 
-                className="flex"
-                initial={false}
-                animate={{ x: `-${activeIndex * 100}%` }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              >
-                {displayedCars.map((car, index) => (
-                  <div 
-                    key={car.id} 
-                    style={{ width: '100%', flex: '0 0 100%' }}
-                    className="px-0"
-                  >
-                    <UsedVehicleCard 
-                      car={car}
-                      index={index}
-                      formatPrice={formatPrice}
-                      concesionarias={concesionarias}
-                      showConcesionarias={showConcesionarias === car.id}
-                      onConsultarClick={() => setShowConcesionarias(showConcesionarias === car.id ? null : car.id)}
-                      onConcesionariaSelect={(whatsapp) => {
-                        openWhatsApp(whatsapp, `${car.marca} ${car.modelo} ${car.version}`);
-                        setShowConcesionarias(null);
-                      }}
-                      onClose={() => setShowConcesionarias(null)}
-                      onViewDetails={() => navigateToVehicleDetails(car.id)}
-                      isMobile={isMobile}
-                    />
-                  </div>
-                ))}
-              </motion.div>
-            </div>
-          ) : (
-            // Vista tablet/desktop con el mismo enfoque que FeaturedNew
-            <div className="overflow-hidden">
-              <motion.div 
-                className="flex"
-                initial={false}
-                animate={{ x: `-${activeIndex * (100/3)}%` }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                style={{
-                  width: "auto",
-                }}
-              >
-                {displayedCars.map((car, index) => (
-                  <div 
-                    key={car.id} 
-                    style={{ width: "33.333%" }}
-                    className="px-1 sm:px-2 flex-shrink-0"
-                  >
-                    <UsedVehicleCard 
-                      car={car}
-                      index={index}
-                      formatPrice={formatPrice}
-                      concesionarias={concesionarias}
-                      showConcesionarias={showConcesionarias === car.id}
-                      onConsultarClick={() => setShowConcesionarias(showConcesionarias === car.id ? null : car.id)}
-                      onConcesionariaSelect={(whatsapp) => {
-                        openWhatsApp(whatsapp, `${car.marca} ${car.modelo} ${car.version}`);
-                        setShowConcesionarias(null);
-                      }}
-                      onClose={() => setShowConcesionarias(null)}
-                      onViewDetails={() => navigateToVehicleDetails(car.id)}
-                      isMobile={isMobile}
-                    />
-                  </div>
-                ))}
-              </motion.div>
-            </div>
-          )}
-
-          {/* Navegación del carrusel para todas las vistas - posicionamiento ajustado */}
-          <Button 
-            variant="outline" 
-            size="icon" 
-            className="absolute -left-4 sm:-left-4 top-1/2 -translate-y-1/2 rounded-full shadow-md hover:shadow-lg z-10 bg-background/80 backdrop-blur-sm"
-            onClick={prevSlide}
-          >
-            <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span className="sr-only">Anterior</span>
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            size="icon" 
-            className="absolute -right-4 sm:-right-4 top-1/2 -translate-y-1/2 rounded-full shadow-md hover:shadow-lg z-10 bg-background/80 backdrop-blur-sm"
-            onClick={nextSlide}
-          >
-            <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span className="sr-only">Siguiente</span>
-          </Button>
-          
-          <div className="flex justify-center mt-8 gap-2">
-            {Array.from({ length: totalPages }).map((_, i) => (
-              <button 
-                key={i} 
-                className={`w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full transition-all duration-300 ${i === currentPage ? 'bg-[var(--color-dark-bg)] w-6 sm:w-8' : 'bg-muted hover:bg-[var(--color-dark-bg)]/50'}`}
-                aria-label={`Ir a página ${i + 1}`}
-                onClick={() => setActiveIndex(i * itemsPerPage)}
-              />
-            ))}
+        {isLoading ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="h-10 w-10 animate-spin text-[var(--color-dark-bg)]" />
           </div>
-        </div>
-        
-        <div className="text-center mt-10">
-          <Button 
-            asChild 
-            variant="default"
-            className="rounded-full bg-[var(--color-gold)] text-black hover:bg-[var(--color-gold-hover)] px-8 py-3 font-semibold text-sm"
-          >
-            <Link href="/vehiculos/usados" className="inline-flex items-center">
-              Ver todos los usados ({usedCars.length})
-              <ChevronRight className="ml-2 h-5 w-5" />
-            </Link>
-          </Button>
-        </div>
+        ) : displayedCars.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="rounded-full bg-muted p-3 mb-4">
+              <Gauge className="h-6 w-6 text-[var(--color-dark-bg)]" />
+            </div>
+            <h3 className="text-lg font-medium mb-2">No hay vehículos destacados</h3>
+            <p className="text-muted-foreground max-w-md">
+              Actualmente no hay vehículos usados seleccionados para mostrar. Por favor, vuelva a revisar más tarde.
+            </p>
+            <Button 
+              asChild 
+              variant="default"
+              className="mt-6 rounded-full bg-[var(--color-gold)] text-black hover:bg-[var(--color-gold-hover)] px-8 py-3 font-semibold text-sm"
+            >
+              <Link href="/vehiculos?condicion=USADO" className="inline-flex items-center">
+                Ver todos los usados
+                <ChevronRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+          </div>
+        ) : (
+          <>
+            <div className="relative px-0 sm:px-2">
+              {isMobile ? (
+                // Vista móvil - cada vehículo ocupa todo el ancho visible
+                <div className="overflow-hidden">
+                  <motion.div 
+                    className="flex"
+                    initial={false}
+                    animate={{ x: `-${activeIndex * 100}%` }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  >
+                    {displayedCars.map((car, index) => (
+                      <div 
+                        key={car.id} 
+                        style={{ width: '100%', flex: '0 0 100%' }}
+                        className="px-0"
+                      >
+                        <UsedVehicleCard 
+                          car={car}
+                          index={index}
+                          formatPrice={formatPrice}
+                          concesionarias={concesionarias}
+                          showConcesionarias={showConcesionarias === car.id}
+                          onConsultarClick={() => setShowConcesionarias(showConcesionarias === car.id ? null : car.id)}
+                          onConcesionariaSelect={(whatsapp) => {
+                            openWhatsApp(whatsapp, `${car.marca} ${car.modelo} ${car.version}`);
+                            setShowConcesionarias(null);
+                          }}
+                          onClose={() => setShowConcesionarias(null)}
+                          onViewDetails={() => navigateToVehicleDetails(car.id)}
+                          isMobile={isMobile}
+                        />
+                      </div>
+                    ))}
+                  </motion.div>
+                </div>
+              ) : (
+                // Vista tablet/desktop con el mismo enfoque que FeaturedNew
+                <div className="overflow-hidden">
+                  <motion.div 
+                    className="flex"
+                    initial={false}
+                    animate={{ x: `-${activeIndex * (100/3)}%` }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    style={{
+                      width: "auto",
+                    }}
+                  >
+                    {displayedCars.map((car, index) => (
+                      <div 
+                        key={car.id} 
+                        style={{ width: "33.333%" }}
+                        className="px-1 sm:px-2 flex-shrink-0"
+                      >
+                        <UsedVehicleCard 
+                          car={car}
+                          index={index}
+                          formatPrice={formatPrice}
+                          concesionarias={concesionarias}
+                          showConcesionarias={showConcesionarias === car.id}
+                          onConsultarClick={() => setShowConcesionarias(showConcesionarias === car.id ? null : car.id)}
+                          onConcesionariaSelect={(whatsapp) => {
+                            openWhatsApp(whatsapp, `${car.marca} ${car.modelo} ${car.version}`);
+                            setShowConcesionarias(null);
+                          }}
+                          onClose={() => setShowConcesionarias(null)}
+                          onViewDetails={() => navigateToVehicleDetails(car.id)}
+                          isMobile={isMobile}
+                        />
+                      </div>
+                    ))}
+                  </motion.div>
+                </div>
+              )}
+
+              {/* Navegación del carrusel para todas las vistas - posicionamiento ajustado */}
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="absolute -left-4 sm:-left-4 top-1/2 -translate-y-1/2 rounded-full shadow-md hover:shadow-lg z-10 bg-background/80 backdrop-blur-sm"
+                onClick={prevSlide}
+              >
+                <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="sr-only">Anterior</span>
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="absolute -right-4 sm:-right-4 top-1/2 -translate-y-1/2 rounded-full shadow-md hover:shadow-lg z-10 bg-background/80 backdrop-blur-sm"
+                onClick={nextSlide}
+              >
+                <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="sr-only">Siguiente</span>
+              </Button>
+              
+              <div className="flex justify-center mt-8 gap-2">
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <button 
+                    key={i} 
+                    className={`w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full transition-all duration-300 ${i === currentPage ? 'bg-[var(--color-dark-bg)] w-6 sm:w-8' : 'bg-muted hover:bg-[var(--color-dark-bg)]/50'}`}
+                    aria-label={`Ir a página ${i + 1}`}
+                    onClick={() => setActiveIndex(i * itemsPerPage)}
+                  />
+                ))}
+              </div>
+            </div>
+            
+            <div className="text-center mt-10">
+              <Button 
+                asChild 
+                variant="default"
+                className="rounded-full bg-[var(--color-gold)] text-black hover:bg-[var(--color-gold-hover)] px-8 py-3 font-semibold text-sm"
+              >
+                <Link href="/vehiculos?condicion=USADO" className="inline-flex items-center">
+                  Ver todos los usados ({usedCars.length})
+                  <ChevronRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -576,6 +561,27 @@ function UsedVehicleCard({
   isMobile
 }: UsedVehicleCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  
+  // Función para obtener la imagen correcta del vehículo
+  const getCarImage = () => {
+    if (imageError) {
+      return "https://via.placeholder.com/320x208?text=Sin+Imagen";
+    }
+    
+    // Si hay imágenes en el array, usa la primera
+    if (car.images && car.images.length > 0) {
+      return car.images[0];
+    }
+    
+    // Si hay una imagen principal, úsala
+    if (car.imagen) {
+      return car.imagen;
+    }
+    
+    // Imagen por defecto si no hay ninguna
+    return "https://via.placeholder.com/320x208?text=Sin+Imagen";
+  };
   
   return (
     <motion.div 
@@ -593,26 +599,28 @@ function UsedVehicleCard({
       >
         <div className={`absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10 transition-opacity duration-300 ${isHovered ? 'opacity-50' : 'opacity-100'}`}></div>
         <img 
-          src={car.imagen} 
+          src={getCarImage()} 
           alt={`${car.marca} ${car.modelo}`}
           className="w-full h-full object-cover object-center transition-all duration-500"
           onError={(e) => {
-            e.currentTarget.src = "https://via.placeholder.com/320x208";
+            console.log(`Error cargando imagen para vehículo ${car.id}`);
+            setImageError(true);
           }}
         />
-        <Badge className="absolute top-3 left-3 z-20 bg-[var(--color-dark-bg)] text-white font-semibold">
+        <StatusBadge className="absolute top-3 left-3 z-20 bg-[var(--color-dark-bg)] text-white border-[var(--color-dark-bg)]">
           USADO
-        </Badge>
-        {/* Badges para año y kilometraje */}
-        <div className="absolute bottom-3 left-3 z-20 flex space-x-2">
-          <Badge variant="outline" className="bg-black/70 text-white border-none text-xs">
+        </StatusBadge>
+        
+        {/* Badges para año y kilometraje - ahora a la derecha como en la página vehiculos */}
+        <div className="absolute bottom-3 right-3 z-20 flex space-x-2">
+          <InfoBadge className="bg-black/70 text-white">
             <Calendar className="h-3 w-3 mr-1" />
             {car.año}
-          </Badge>
-          <Badge variant="outline" className="bg-black/70 text-white border-none text-xs">
+          </InfoBadge>
+          <InfoBadge className="bg-black/70 text-white">
             <Gauge className="h-3 w-3 mr-1" />
             {car.km.toLocaleString()} km
-          </Badge>
+          </InfoBadge>
         </div>
       </div>
       
@@ -667,7 +675,7 @@ function UsedVehicleCard({
             <p className="text-xs font-medium text-[var(--color-dark-bg)] mb-1">Equipamiento destacado</p>
             <div className="flex flex-wrap gap-1 justify-center">
               {car.highlights.slice(0, 3).map((highlight: string, i: number) => (
-                <span key={i} className="text-xs bg-muted px-2 py-0.5 rounded-full">
+                <span key={`${car.id}-highlight-${i}`} className="text-xs bg-muted px-2 py-0.5 rounded-full">
                   {highlight}
                 </span>
               ))}

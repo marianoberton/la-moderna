@@ -25,14 +25,29 @@ export function ImageUpload({
     
     try {
       setIsUploading(true);
-      const uploadPromises = acceptedFiles.map(file => uploadImage(file));
-      const urls = await Promise.all(uploadPromises);
+      console.log('Archivos recibidos para carga:', acceptedFiles.map(f => `${f.name} (${f.size} bytes)`));
       
-      onChange([...value, ...urls]);
-      toast.success('Imágenes subidas correctamente');
-    } catch (error) {
-      console.error('Error al subir imágenes:', error);
-      toast.error('Error al subir las imágenes');
+      // Procesar las imágenes una por una para mejor diagnóstico
+      const urls: string[] = [];
+      for (const file of acceptedFiles) {
+        try {
+          console.log(`Procesando archivo: ${file.name}`);
+          const url = await uploadImage(file);
+          urls.push(url);
+          console.log(`Archivo ${file.name} subido exitosamente`);
+        } catch (error: any) {
+          console.error(`Error al subir ${file.name}:`, error);
+          toast.error(`Error al subir ${file.name}: ${error.message || 'Error desconocido'}`);
+        }
+      }
+      
+      if (urls.length > 0) {
+        onChange([...value, ...urls]);
+        toast.success(`${urls.length} de ${acceptedFiles.length} imágenes subidas correctamente`);
+      }
+    } catch (error: any) {
+      console.error('Error en el proceso general de carga:', error);
+      toast.error(`Error al procesar las imágenes: ${error.message || JSON.stringify(error)}`);
     } finally {
       setIsUploading(false);
     }
@@ -87,18 +102,23 @@ export function ImageUpload({
           </div>
         ) : (
           <>
-            <ImageIcon className="mx-auto h-10 w-10 text-muted-foreground" />
-            <p className="mt-2 text-sm text-muted-foreground">
-              {isDragActive
-                ? "Suelta las imágenes aquí"
-                : "Arrastra imágenes aquí o haz clic para seleccionar"}
-            </p>
+        <ImageIcon className="mx-auto h-10 w-10 text-muted-foreground" />
+        <p className="mt-2 text-sm text-muted-foreground">
+          {isDragActive
+            ? "Suelta las imágenes aquí"
+            : "Arrastra imágenes aquí o haz clic para seleccionar"}
+        </p>
           </>
         )}
       </div>
 
       <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="images" direction="horizontal">
+        <Droppable 
+          droppableId="droppable-images" 
+          direction="horizontal"
+          isDropDisabled={false}
+          isCombineEnabled={false}
+        >
           {(provided) => (
             <div
               {...provided.droppableProps}
@@ -106,8 +126,13 @@ export function ImageUpload({
               className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4"
             >
               {value.map((url, index) => (
-                <Draggable key={url} draggableId={url} index={index}>
-                  {(provided) => (
+                <Draggable 
+                  key={url} 
+                  draggableId={url} 
+                  index={index}
+                  isDragDisabled={isUploading}
+                >
+                  {(provided, snapshot) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
@@ -120,7 +145,7 @@ export function ImageUpload({
                         className="object-cover w-full h-full"
                       />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
+                      <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDelete(url, index);
@@ -129,7 +154,7 @@ export function ImageUpload({
                           type="button"
                         >
                           <X className="h-4 w-4 text-red-500" />
-                        </button>
+                      </button>
                         {index === 0 && (
                           <div className="absolute bottom-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
                             Principal

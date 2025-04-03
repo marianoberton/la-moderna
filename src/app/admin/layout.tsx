@@ -11,7 +11,10 @@ import {
   BarChart2, 
   Menu,
   X,
-  LogOut
+  LogOut,
+  Star,
+  Sparkles,
+  Clock
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -35,6 +38,18 @@ const menuItems = [
     title: 'Vehículos',
     icon: Car,
     href: '/admin/vehiculos',
+    submenu: [
+      {
+        title: 'Todos',
+        icon: Car,
+        href: '/admin/vehiculos',
+      },
+      {
+        title: 'Destacados',
+        icon: Star,
+        href: '/admin/vehiculos/destacados',
+      }
+    ]
   },
   {
     title: 'Consultas',
@@ -58,113 +73,133 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
   const pathname = usePathname();
 
+  const toggleSubmenu = (href: string) => {
+    if (expandedMenu === href) {
+      setExpandedMenu(null);
+    } else {
+      setExpandedMenu(href);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex h-screen">
       {/* Sidebar */}
-      <aside className={`
-        fixed top-0 left-0 z-40 h-screen transition-transform 
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        md:translate-x-0 border-r bg-card w-64
-      `}>
-        <div className="h-full flex flex-col">
-          {/* Logo */}
-          <div className="h-16 flex items-center justify-between px-4 border-b">
-            <Link href="/admin" className="flex items-center space-x-2">
-              <Car className="h-6 w-6" />
-              <span className="font-bold text-xl">La Moderna</span>
-            </Link>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="md:hidden"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
-
-          {/* Navigation */}
-          <ScrollArea className="flex-1 px-3 py-4">
-            <nav className="space-y-1">
-              {menuItems.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`
-                      flex items-center space-x-3 px-3 py-2 rounded-lg text-sm
-                      transition-colors hover:bg-accent
-                      ${isActive ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'}
-                    `}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    <span>{item.title}</span>
+      <div className={`${isSidebarOpen ? 'w-64' : 'w-20'} bg-background border-r transition-all duration-300`}>
+        <div className="p-4 flex justify-between items-center">
+          {isSidebarOpen && <h1 className="text-xl font-bold">La Moderna</h1>}
+          <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+            {isSidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          </Button>
+        </div>
+        <ScrollArea className="h-[calc(100vh-4rem)]">
+          <div className="p-2 space-y-1">
+            {menuItems.map((item) => (
+              <div key={item.href}>
+                {item.submenu ? (
+                  <>
+                    <Button
+                      variant={pathname.startsWith(item.href) ? "secondary" : "ghost"}
+                      className={`w-full justify-start ${!isSidebarOpen ? 'px-2' : ''}`}
+                      onClick={() => toggleSubmenu(item.href)}
+                    >
+                      <item.icon className={`h-4 w-4 ${!isSidebarOpen ? 'mx-auto' : 'mr-2'}`} />
+                      {isSidebarOpen && (
+                        <div className="flex flex-1 items-center justify-between">
+                          <span>{item.title}</span>
+                          <span className="text-xs">
+                            {expandedMenu === item.href ? '▼' : '▶'}
+                          </span>
+                        </div>
+                      )}
+                    </Button>
+                    
+                    {isSidebarOpen && expandedMenu === item.href && (
+                      <div className="ml-6 mt-1 space-y-1">
+                        {item.submenu.map((subItem) => (
+                          <Link key={subItem.href} href={subItem.href}>
+                            <Button
+                              variant={pathname === subItem.href ? "secondary" : "ghost"}
+                              className="w-full justify-start"
+                              size="sm"
+                            >
+                              <subItem.icon className="h-3.5 w-3.5 mr-2" />
+                              {subItem.title}
+                            </Button>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <Link href={item.href}>
+                    <Button
+                      variant={pathname === item.href ? "secondary" : "ghost"}
+                      className={`w-full justify-start ${!isSidebarOpen ? 'px-2' : ''}`}
+                    >
+                      <item.icon className={`h-4 w-4 ${!isSidebarOpen ? 'mx-auto' : 'mr-2'}`} />
+                      {isSidebarOpen && item.title}
+                    </Button>
                   </Link>
-                );
-              })}
-            </nav>
-          </ScrollArea>
+                )}
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
 
-          {/* User */}
-          <div className="border-t p-4">
+      {/* Main content */}
+      <div className="flex-1 overflow-auto">
+        <div className="h-16 border-b flex items-center justify-between px-4">
+          <h2 className="text-lg font-semibold">
+            {(() => {
+              // Check if current pathname is in submenu
+              for (const item of menuItems) {
+                if (item.submenu) {
+                  const foundSubItem = item.submenu.find(subItem => subItem.href === pathname);
+                  if (foundSubItem) {
+                    return foundSubItem.title;
+                  }
+                }
+              }
+              // Default to direct menu item
+              return menuItems.find(item => item.href === pathname)?.title || 'Dashboard';
+            })()}
+          </h2>
+          <div className="flex items-center gap-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-full justify-start px-2">
-                  <Avatar className="h-8 w-8 mr-2">
-                    <AvatarImage src="/avatar.jpg" />
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src="/avatars/01.png" alt="@admin" />
                     <AvatarFallback>AD</AvatarFallback>
                   </Avatar>
-                  <div className="flex flex-col items-start">
-                    <span className="text-sm font-medium">Admin</span>
-                    <span className="text-xs text-muted-foreground">admin@lamoderna.com</span>
-                  </div>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">Administrador</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      admin@lamoderna.com
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Configuración</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Cerrar Sesión</span>
+                  <span>Cerrar sesión</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
-      </aside>
-
-      {/* Main Content */}
-      <div className={`
-        transition-margin
-        ${sidebarOpen ? 'md:ml-64' : ''}
-      `}>
-        {/* Header */}
-        <header className="h-16 border-b bg-card flex items-center justify-between px-4">
-          <Button 
-            variant="ghost" 
-            size="icon"
-            className="md:hidden"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
-          <div className="flex items-center space-x-4">
-            {/* Aquí puedes agregar notificaciones, búsqueda, etc. */}
-          </div>
-        </header>
-
-        {/* Page Content */}
-        <main className="p-4 md:p-8">
+        <div className="p-4">
           {children}
-        </main>
+        </div>
       </div>
     </div>
   );

@@ -4,7 +4,10 @@ const nextConfig = {
     // Warning instead of error during build
     ignoreDuringBuilds: true,
   },
-  reactStrictMode: false
+  reactStrictMode: false,
+  images: {
+    domains: ['xlwcbonmkfpliydbyngb.supabase.co'],
+  }
 };
 
 module.exports = nextConfig;

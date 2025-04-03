@@ -1,31 +1,50 @@
 'use client';
 
-import { useState } from 'react';
 import Image from 'next/image';
+import { useState } from 'react';
 
-export default function ClientImage({ src, alt, className, width, height }: {
+interface ClientImageProps {
   src: string;
   alt: string;
   className?: string;
   width?: number;
   height?: number;
-}) {
+  priority?: boolean;
+}
+
+export default function ClientImage({
+  src,
+  alt,
+  className = '',
+  width = 320,
+  height = 208,
+  priority = false
+}: ClientImageProps) {
   const [error, setError] = useState(false);
-  
-  return (
-    error ? (
-      <div className={`bg-gray-200 flex items-center justify-center ${className}`}>
-        <span className="text-gray-400">Imagen no disponible</span>
-      </div>
-    ) : (
-      <img 
-        src={src} 
-        alt={alt} 
-        width={width} 
+
+  // Si hay un error, mostrar una imagen de placeholder
+  if (error) {
+    return (
+      <Image
+        src="/placeholder-car.jpg"
+        alt={alt}
+        width={width}
         height={height}
-        className={className} 
-        onError={() => setError(true)}
+        className={className}
+        priority={priority}
       />
-    )
+    );
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      className={className}
+      priority={priority}
+      onError={() => setError(true)}
+    />
   );
 } 

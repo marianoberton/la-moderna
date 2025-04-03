@@ -25,6 +25,7 @@ export interface Vehiculo {
   images?: string[];
   color?: string;
   highlights?: string[];
+  selected_highlights?: string[];
 }
 
 // Props para el componente VehicleCard
@@ -81,13 +82,10 @@ export default function VehicleCard({ vehiculo, index, formatPrecio }: VehicleCa
         className="relative h-48 sm:h-60 overflow-hidden cursor-pointer bg-gray-50 p-0 sm:p-2 block" 
       >
         <div className={`absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10 transition-opacity duration-300 ${isHovered ? 'opacity-50' : 'opacity-100'}`}></div>
-        <img 
+        <ClientImage 
           src={getActiveImage()} 
           alt={`${vehiculo.marca} ${vehiculo.modelo}`}
           className="w-full h-full object-cover object-center transition-all duration-500"
-          onError={(e) => {
-            e.currentTarget.src = "https://via.placeholder.com/320x208";
-          }}
         />
         <Badge className={`absolute top-3 left-3 z-20 ${is0KM ? 'bg-[var(--color-gold)] text-black' : 'bg-accent text-accent-foreground'}`}>
           {is0KM ? '0KM' : 'Usado'}

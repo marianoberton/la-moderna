@@ -7,31 +7,31 @@ import Link from "next/link";
 const vehicleCategories = [
   {
     type: 'HATCHBACK',
-    href: '/vehiculos?tipo=hatchback',
+    href: '/vehiculos?tipoVehiculo=hatchback',
     icon: '/hatchback.svg',
     scale: 1
   },
   {
     type: 'SEDAN',
-    href: '/vehiculos?tipo=sedan',
+    href: '/vehiculos?tipoVehiculo=sedan',
     icon: '/sedan.svg',
     scale: 1.15 // Ligeramente más grande
   },
   {
     type: 'SUV',
-    href: '/vehiculos?tipo=suv',
+    href: '/vehiculos?tipoVehiculo=suv',
     icon: '/suv.svg',
     scale: 1
   },
   {
     type: 'CAMIONETA',
-    href: '/vehiculos?tipo=camioneta',
+    href: '/vehiculos?tipoVehiculo=pickup',
     icon: '/camioneta.svg',
     scale: 1.15 // Ligeramente más grande
   },
   {
     type: 'COUPE',
-    href: '/vehiculos?tipo=coupe',
+    href: '/vehiculos?tipoVehiculo=coupe',
     icon: '/coupe.svg',
     scale: 1
   }

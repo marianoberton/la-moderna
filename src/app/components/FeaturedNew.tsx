@@ -10,8 +10,27 @@ import {
   Fuel, 
   Cog,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from 'lucide-react';
+
+// Definir la interfaz para el vehículo
+interface FeaturedVehicle {
+  id: string | number;
+  brand: string;
+  model: string;
+  version: string;
+  condition: string;
+  image: string;
+  imageHover?: string;
+  price: string;
+  year: string;
+  fuel: string;
+  transmission: string;
+  highlights: string[];
+  color?: string;
+  drive?: string;
+}
 
 // Datos de las concesionarias
 const concesionarias = [
@@ -29,108 +48,167 @@ const concesionarias = [
   }
 ];
 
+// Datos de ejemplo 0KM
+const mockFeaturedCars: FeaturedVehicle[] = [
+  {
+    id: 1,
+    brand: 'VOLKSWAGEN',
+    model: 'AMAROK',
+    version: 'V6 COMFORTLINE 4X4 AT',
+    condition: 'Nuevo',
+    image: '/images/0km/amaraok0.jpg',
+    price: 'Consultar',
+    year: '2024',
+    fuel: 'Diesel',
+    transmission: 'Automática',
+    highlights: ['Motor V6 TDI', 'Tracción 4x4', 'Asientos de cuero']
+  },
+  {
+    id: 2,
+    brand: 'TOYOTA',
+    model: 'COROLLA CROSS',
+    version: 'COROLLA CROSS 2.0 XEI CVT',
+    condition: 'Nuevo',
+    image: '/images/0km/corolla-cross0.jpg',
+    price: 'Consultar',
+    year: '2024',
+    fuel: 'Nafta',
+    transmission: 'Automática',
+    highlights: ['Motor 2.0L', 'Climatizador bizona', 'Control de crucero']
+  },
+  {
+    id: 3,
+    brand: 'VOLKSWAGEN',
+    model: 'TAOS',
+    version: 'TAOS 1.4 TSI HIGHLINE DSG',
+    condition: 'Nuevo',
+    image: '/images/0km/taos003.jpg',
+    price: 'Consultar',
+    year: '2024',
+    fuel: 'Nafta',
+    transmission: 'Automática',
+    highlights: ['Motor 1.4 TSI', 'Caja DSG', 'Asistente de conducción']
+  },
+  {
+    id: 4,
+    brand: 'VOLKSWAGEN',
+    model: 'NIVUS',
+    version: 'NIVUS 200 TSI HIGHLINE AT',
+    condition: 'Nuevo',
+    image: '/images/0km/nivus0.jpg',
+    price: 'Consultar',
+    year: '2024',
+    fuel: 'Nafta',
+    transmission: 'Automática',
+    highlights: ['Motor TSI', 'Techo panorámico', 'Sensores de estacionamiento']
+  }
+];
+
 export default function FeaturedNew() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [showConcesionarias, setShowConcesionarias] = useState<number | null>(null);
+  const [showConcesionarias, setShowConcesionarias] = useState<string | number | null>(null);
   const [itemsPerPage, setItemsPerPage] = useState(3);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+  const [featuredCars, setFeaturedCars] = useState<FeaturedVehicle[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
-  const featuredCars = [
-    {
-      id: 1,
-      brand: 'VOLKSWAGEN',
-      model: 'AMAROK',
-      version: 'V6 COMFORTLINE 4X4 AT',
-      condition: 'Nuevo',
-      image: '/images/0km/amaraok0.jpg',
-      price: 'Consultar',
-      year: '2024',
-      fuel: 'Diesel',
-      transmission: 'Automática',
-      highlights: ['Motor V6 TDI', 'Tracción 4x4', 'Asientos de cuero']
-    },
-    {
-      id: 2,
-      brand: 'VOLKSWAGEN',
-      model: 'AMAROK',
-      version: 'AMAROK 2.0 COMFORTLINE 4X2 MT',
-      condition: 'Nuevo',
-      image: '/images/0km/amaraok0 (2).jpg',
-      imageHover: '/images/0km/amaraok0-interior.jpg', // Imagen alternativa para hover
-      color: 'Blanco',
-      drive: '4x2',
-      price: 'Consultar',
-      year: '2024',
-      fuel: 'Diesel',
-      transmission: 'Manual',
-      highlights: ['Motor 2.0 TDI', 'Cámara de retroceso', 'Pantalla táctil 8"']
-    },
-    {
-      id: 3,
-      brand: 'TOYOTA',
-      model: 'COROLLA CROSS',
-      version: 'COROLLA CROSS 2.0 XEI CVT',
-      condition: 'Nuevo',
-      image: '/images/0km/corolla-cross0.jpg',
-      imageHover: '/images/0km/corolla-cross0-interior.jpg', // Imagen alternativa para hover
-      color: 'Blanco',
-      drive: '4x2',
-      price: 'Consultar',
-      year: '2024',
-      fuel: 'Nafta',
-      transmission: 'Automática',
-      highlights: ['Motor 2.0L', 'Climatizador bizona', 'Control de crucero']
-    },
-    {
-      id: 4,
-      brand: 'VOLKSWAGEN',
-      model: 'NIVUS',
-      version: 'NIVUS 200 TSI HIGHLINE AT',
-      condition: 'Nuevo',
-      image: '/images/0km/nivus0.jpg',
-      imageHover: '/images/0km/nivus0-interior.jpg', // Imagen alternativa para hover
-      color: 'Gris',
-      drive: 'FWD',
-      price: 'Consultar',
-      year: '2024',
-      fuel: 'Nafta',
-      transmission: 'Automática',
-      highlights: ['Motor TSI', 'Techo panorámico', 'Sensores de estacionamiento']
-    },
-    {
-      id: 5,
-      brand: 'VOLKSWAGEN',
-      model: 'TAOS',
-      version: 'TAOS 1.4 TSI HIGHLINE DSG',
-      condition: 'Nuevo',
-      image: '/images/0km/taos003.jpg',
-      imageHover: '/images/0km/taos003-interior.jpg', // Imagen alternativa para hover
-      color: 'Blanco',
-      drive: 'FWD',
-      price: 'Consultar',
-      year: '2024',
-      fuel: 'Nafta',
-      transmission: 'Automática',
-      highlights: ['Motor 1.4 TSI', 'Caja DSG', 'Asistente de conducción']
-    },
-    {
-      id: 6,
-      brand: 'VOLKSWAGEN',
-      model: 'T-CROSS',
-      version: 'T-CROSS 1.4 TSI COMFORTLINE',
-      condition: 'Nuevo',
-      image: '/images/0km/tcross_2024_1_confortline.jpg',
-      imageHover: '/images/0km/tcross_2024_1_interior.jpg', // Imagen alternativa para hover
-      color: 'Blanco',
-      drive: 'FWD',
-      price: 'Consultar',
-      year: '2024',
-      fuel: 'Nafta',
-      transmission: 'Manual',
-      highlights: ['Motor 1.4 TSI', 'Pantalla táctil', 'Bluetooth']
-    }
-  ];
+  // Cargar vehículos destacados desde Supabase
+  useEffect(() => {
+    const loadFeaturedVehicles = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Importar el servicio de vehículos
+        const { getVehicles } = await import('@/services/vehicleService');
+        
+        // Obtener todos los vehículos activos
+        const allVehicles = await getVehicles(true);
+        
+        // Filtrar vehículos 0KM destacados
+        const featuredNewVehicles = allVehicles.filter(vehicle => 
+          vehicle.is_featured && 
+          (vehicle.condicion === 'NUEVO' || vehicle.condicion === 'nuevo' || 
+           vehicle.condicion === '0KM' || vehicle.condicion === '0km') &&
+          vehicle.kilometraje === 0
+        );
+        
+        if (!featuredNewVehicles || featuredNewVehicles.length === 0) {
+          console.log('No hay vehículos destacados, usando datos de ejemplo');
+          setFeaturedCars(mockFeaturedCars);
+          return;
+        }
+        
+        // Transformar los datos al formato de FeaturedVehicle
+        const transformed: FeaturedVehicle[] = featuredNewVehicles.map(vehicle => {
+          // Extraer el equipamiento como características destacadas
+          let allHighlights: string[] = [];
+          
+          // Primero usamos las características seleccionadas específicamente para destacados
+          if (Array.isArray(vehicle.selected_highlights) && vehicle.selected_highlights.length > 0) {
+            allHighlights = [...vehicle.selected_highlights];
+          } 
+          // Si no hay características seleccionadas, usamos las características y equipamiento
+          else {
+            // Añadimos las características explícitas si existen
+            if (Array.isArray(vehicle.caracteristicas) && vehicle.caracteristicas.length > 0) {
+              allHighlights = [...vehicle.caracteristicas];
+            }
+            
+            // Luego añadimos el equipamiento activado
+            if (vehicle.equipamiento && typeof vehicle.equipamiento === 'object') {
+              const equipHighlights = Object.entries(vehicle.equipamiento)
+                .filter(([key, value]) => value === true)
+                .map(([key]) => {
+                  // Convertir camelCase a texto legible
+                  const readable = key
+                    .replace(/([A-Z])/g, ' $1')
+                    .replace(/^./, str => str.toUpperCase());
+                  return readable;
+                });
+              
+              allHighlights = [...allHighlights, ...equipHighlights];
+            }
+          }
+          
+          // Limitar a 3 características para mostrar
+          const highlights = allHighlights.slice(0, 3);
+          
+          return {
+            id: vehicle.id,
+            brand: vehicle.marca.toUpperCase(),
+            model: vehicle.modelo.toUpperCase(),
+            version: vehicle.version,
+            condition: 'Nuevo',
+            image: vehicle.imagenes?.[0] || '/placeholder-car.jpg',
+            imageHover: vehicle.imagenes?.[1],
+            price: 'Consultar',
+            year: vehicle.año?.toString() || new Date().getFullYear().toString(),
+            fuel: vehicle.combustible ? 
+              vehicle.combustible.charAt(0).toUpperCase() + vehicle.combustible.slice(1).toLowerCase() : 
+              'Nafta',
+            transmission: vehicle.transmision ? 
+              vehicle.transmision.charAt(0).toUpperCase() + vehicle.transmision.slice(1).toLowerCase() : 
+              'Manual',
+            highlights: highlights,
+            color: vehicle.color,
+            drive: vehicle.traccion
+          };
+        });
+        
+        console.log('Vehículos destacados cargados:', transformed.length);
+        setFeaturedCars(transformed);
+      } catch (err) {
+        console.error('Error al procesar vehículos destacados:', err);
+        // Usar datos mock como fallback
+        setFeaturedCars(mockFeaturedCars);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadFeaturedVehicles();
+  }, []);
 
   // Efecto para ajustar itemsPerPage según el tamaño de la pantalla
   useEffect(() => {
@@ -156,21 +234,25 @@ export default function FeaturedNew() {
   }, []);
 
   const nextSlide = () => {
+    if (featuredCars.length === 0) return;
+    
     if (isMobile) {
       const maxIndex = featuredCars.length - 1;
       setActiveIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
     } else {
-      const maxIndex = Math.max(0, featuredCars.length - 3);
+      const maxIndex = Math.max(0, featuredCars.length - itemsPerPage);
       setActiveIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
     }
   };
 
   const prevSlide = () => {
+    if (featuredCars.length === 0) return;
+    
     if (isMobile) {
       const maxIndex = featuredCars.length - 1;
       setActiveIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
     } else {
-      const maxIndex = Math.max(0, featuredCars.length - 3);
+      const maxIndex = Math.max(0, featuredCars.length - itemsPerPage);
       setActiveIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
     }
   };
@@ -185,13 +267,13 @@ export default function FeaturedNew() {
   };
 
   // Función para navegar a la página de detalles del vehículo
-  const navigateToVehicleDetails = (carId: number) => {
+  const navigateToVehicleDetails = (carId: string | number) => {
     window.location.href = `/vehiculos/${carId}`;
   };
 
   // Para móvil, limitamos el activeIndex al rango de vehículos disponibles
   useEffect(() => {
-    if (isMobile && activeIndex >= featuredCars.length) {
+    if (isMobile && featuredCars.length > 0 && activeIndex >= featuredCars.length) {
       setActiveIndex(0);
     }
   }, [activeIndex, isMobile, featuredCars.length]);
@@ -208,6 +290,11 @@ export default function FeaturedNew() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [showConcesionarias]);
 
+  // Si no hay vehículos destacados, no mostramos nada
+  if (!isLoading && featuredCars.length === 0) {
+    return null;
+  }
+
   return (
     <div className="relative py-6">
       <div className="container px-2 sm:px-6">
@@ -217,122 +304,134 @@ export default function FeaturedNew() {
           <div className="h-0.5 w-20 bg-primary rounded-full"></div>
         </div>
         
-        <div className="relative px-2">
-          {isMobile ? (
-            // Vista móvil - cada vehículo ocupa todo el ancho visible
-            <div className="overflow-hidden px-1">
-              <motion.div 
-                className="flex"
-                initial={false}
-                animate={{ x: `-${activeIndex * 100}%` }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              >
-                {featuredCars.map((car, index) => (
-                  <div 
-                    key={car.id} 
-                    style={{ width: '100%', flex: '0 0 100%' }}
-                  >
-                    <VehicleCard 
-                      car={car} 
-                      index={index} 
-                      concesionarias={concesionarias}
-                      showConcesionarias={showConcesionarias === car.id}
-                      onConsultarClick={() => setShowConcesionarias(showConcesionarias === car.id ? null : car.id)}
-                      onConcesionariaSelect={(whatsapp) => {
-                        openWhatsApp(whatsapp, `${car.brand} ${car.model} ${car.version}`);
-                        setShowConcesionarias(null);
-                      }}
-                      onClose={() => setShowConcesionarias(null)}
-                      onViewDetails={() => navigateToVehicleDetails(car.id)}
-                      isMobile={isMobile}
-                    />
-                  </div>
-                ))}
-              </motion.div>
-            </div>
-          ) : (
-            // Vista tablet/desktop con grid
-            <div className="overflow-hidden">
-              <motion.div 
-                className="flex"
-                initial={false}
-                animate={{ x: `-${activeIndex * (100/3)}%` }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                style={{
-                  width: "auto",
-                }}
-              >
-                {featuredCars.map((car, index) => (
-                  <div 
-                    key={car.id} 
-                    style={{ width: "33.333%" }}
-                    className="px-1 sm:px-2 flex-shrink-0"
-                  >
-                    <VehicleCard 
-                      car={car} 
-                      index={index} 
-                      concesionarias={concesionarias}
-                      showConcesionarias={showConcesionarias === car.id}
-                      onConsultarClick={() => setShowConcesionarias(showConcesionarias === car.id ? null : car.id)}
-                      onConcesionariaSelect={(whatsapp) => {
-                        openWhatsApp(whatsapp, `${car.brand} ${car.model} ${car.version}`);
-                        setShowConcesionarias(null);
-                      }}
-                      onClose={() => setShowConcesionarias(null)}
-                      onViewDetails={() => navigateToVehicleDetails(car.id)}
-                      isMobile={isMobile}
-                    />
-                  </div>
-                ))}
-              </motion.div>
-            </div>
-          )}
+        {isLoading ? (
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="w-10 h-10 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <div className="relative px-2">
+            {isMobile ? (
+              // Vista móvil - cada vehículo ocupa todo el ancho visible
+              <div className="overflow-hidden px-1">
+                <motion.div 
+                  className="flex"
+                  initial={false}
+                  animate={{ x: `-${activeIndex * 100}%` }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                >
+                  {featuredCars.map((car, index) => (
+                    <div 
+                      key={car.id} 
+                      style={{ width: '100%', flex: '0 0 100%' }}
+                    >
+                      <VehicleCard 
+                        car={car} 
+                        index={index} 
+                        concesionarias={concesionarias}
+                        showConcesionarias={showConcesionarias === car.id}
+                        onConsultarClick={() => setShowConcesionarias(showConcesionarias === car.id ? null : car.id)}
+                        onConcesionariaSelect={(whatsapp) => {
+                          openWhatsApp(whatsapp, `${car.brand} ${car.model} ${car.version}`);
+                          setShowConcesionarias(null);
+                        }}
+                        onClose={() => setShowConcesionarias(null)}
+                        onViewDetails={() => navigateToVehicleDetails(car.id)}
+                        isMobile={isMobile}
+                      />
+                    </div>
+                  ))}
+                </motion.div>
+              </div>
+            ) : (
+              // Vista tablet/desktop con grid
+              <div className="overflow-hidden">
+                <motion.div 
+                  className="flex"
+                  initial={false}
+                  animate={{ x: `-${activeIndex * (100/itemsPerPage)}%` }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  style={{
+                    width: "auto",
+                  }}
+                >
+                  {featuredCars.map((car, index) => (
+                    <div 
+                      key={car.id} 
+                      style={{ width: `${100/itemsPerPage}%` }}
+                      className="px-1 sm:px-2 flex-shrink-0"
+                    >
+                      <VehicleCard 
+                        car={car} 
+                        index={index} 
+                        concesionarias={concesionarias}
+                        showConcesionarias={showConcesionarias === car.id}
+                        onConsultarClick={() => setShowConcesionarias(showConcesionarias === car.id ? null : car.id)}
+                        onConcesionariaSelect={(whatsapp) => {
+                          openWhatsApp(whatsapp, `${car.brand} ${car.model} ${car.version}`);
+                          setShowConcesionarias(null);
+                        }}
+                        onClose={() => setShowConcesionarias(null)}
+                        onViewDetails={() => navigateToVehicleDetails(car.id)}
+                        isMobile={isMobile}
+                      />
+                    </div>
+                  ))}
+                </motion.div>
+              </div>
+            )}
 
-          {/* Navegación del carrusel (botones e indicadores) */}
-          <Button 
-            variant="outline" 
-            size="icon" 
-            className="absolute left-0 sm:left-1 top-1/2 -translate-y-1/2 rounded-full shadow-md hover:shadow-lg z-10 bg-background/80 backdrop-blur-sm"
-            onClick={prevSlide}
-          >
-            <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span className="sr-only">Anterior</span>
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            size="icon" 
-            className="absolute right-0 sm:right-1 top-1/2 -translate-y-1/2 rounded-full shadow-md hover:shadow-lg z-10 bg-background/80 backdrop-blur-sm"
-            onClick={nextSlide}
-          >
-            <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span className="sr-only">Siguiente</span>
-          </Button>
-          
-          <div className="flex justify-center mt-8 gap-2">
-            {Array.from({ length: totalPages }).map((_, i) => (
-              <button 
-                key={i} 
-                className={`w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full transition-all duration-300 ${i === currentPage ? 'bg-[var(--color-dark-bg)] w-6 sm:w-8' : 'bg-muted hover:bg-[var(--color-dark-bg)]/50'}`}
-                aria-label={`Ir a página ${i + 1}`}
-                onClick={() => setActiveIndex(i * itemsPerPage)}
-              />
-            ))}
+            {/* Navegación del carrusel (botones e indicadores) */}
+            {featuredCars.length > itemsPerPage && (
+              <>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="absolute left-0 sm:left-1 top-1/2 -translate-y-1/2 rounded-full shadow-md hover:shadow-lg z-10 bg-background/80 backdrop-blur-sm"
+                  onClick={prevSlide}
+                >
+                  <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="sr-only">Anterior</span>
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="absolute right-0 sm:right-1 top-1/2 -translate-y-1/2 rounded-full shadow-md hover:shadow-lg z-10 bg-background/80 backdrop-blur-sm"
+                  onClick={nextSlide}
+                >
+                  <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="sr-only">Siguiente</span>
+                </Button>
+              </>
+            )}
+            
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-8 gap-2">
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <button 
+                    key={i} 
+                    className={`w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full transition-all duration-300 ${i === currentPage ? 'bg-[var(--color-dark-bg)] w-6 sm:w-8' : 'bg-muted hover:bg-[var(--color-dark-bg)]/50'}`}
+                    aria-label={`Ir a página ${i + 1}`}
+                    onClick={() => setActiveIndex(i * itemsPerPage)}
+                  />
+                ))}
+              </div>
+            )}
+            
+            <div className="flex justify-center mt-10">
+              <Button 
+                asChild 
+                variant="default"
+                className="rounded-full bg-[var(--color-gold)] text-black hover:bg-[var(--color-gold-hover)] px-8 py-3 font-semibold text-sm"
+              >
+                <Link href="/vehiculos?condicion=NUEVO" className="inline-flex items-center">
+                  Ver todos los vehículos 0KM
+                  <ChevronRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+            </div>
           </div>
-          
-          <div className="flex justify-center mt-10">
-            <Button 
-              asChild 
-              variant="default"
-              className="rounded-full bg-[var(--color-gold)] text-black hover:bg-[var(--color-gold-hover)] px-8 py-3 font-semibold text-sm"
-            >
-              <Link href="/vehiculos/0km" className="inline-flex items-center">
-                Ver todos los vehículos 0KM
-                <ChevronRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

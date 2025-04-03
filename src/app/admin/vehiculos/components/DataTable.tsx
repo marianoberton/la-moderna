@@ -21,15 +21,23 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Vehicle } from "@/types/vehicle";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, Eye } from "lucide-react";
+import { Edit, Trash2, Eye, MoreHorizontal } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { QRCodeDialog } from './QRCodeDialog';
 
 interface DataTableProps {
   data: Vehicle[];
   onEdit: (vehicle: Vehicle) => void;
   onDelete: (id: string) => void;
+  onUpdateStatus?: (id: string, newStatus: 'activo' | 'vendido' | 'reservado' | 'en_pausa') => void;
 }
 
-export function DataTable({ data, onEdit, onDelete }: DataTableProps) {
+export function DataTable({ data, onEdit, onDelete, onUpdateStatus }: DataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const columns: ColumnDef<Vehicle>[] = [
@@ -90,12 +98,62 @@ export function DataTable({ data, onEdit, onDelete }: DataTableProps) {
       cell: ({ row }) => {
         const estado = row.getValue("estado") as string;
         const variant = 
-          estado === "activo" ? "success" : 
-          estado === "reservado" ? "warning" : "destructive";
+          estado === "activo" ? "default" : 
+          estado === "reservado" ? "secondary" : 
+          estado === "vendido" ? "destructive" : "outline";
+        
+        if (onUpdateStatus) {
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="p-0">
+                  <Badge 
+                    variant={variant}
+                    className={`cursor-pointer ${estado === "activo" ? "bg-green-500" : estado === "reservado" ? "bg-amber-500" : ""}`}
+                  >
+                    {estado === "activo" ? "Disponible" : 
+                     estado === "reservado" ? "Reservado" : 
+                     estado === "vendido" ? "Vendido" : 
+                     estado === "en_pausa" ? "En Pausa" : estado.charAt(0).toUpperCase() + estado.slice(1)}
+                  </Badge>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem 
+                  className={estado === "activo" ? "font-bold" : ""}
+                  onClick={() => onUpdateStatus(String(row.original.id), "activo")}
+                >
+                  <Badge variant="default" className="mr-2 bg-green-500">•</Badge> Disponible
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className={estado === "reservado" ? "font-bold" : ""}
+                  onClick={() => onUpdateStatus(String(row.original.id), "reservado")}
+                >
+                  <Badge variant="secondary" className="mr-2 bg-amber-500">•</Badge> Reservado
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className={estado === "vendido" ? "font-bold" : ""}
+                  onClick={() => onUpdateStatus(String(row.original.id), "vendido")}
+                >
+                  <Badge variant="destructive" className="mr-2">•</Badge> Vendido
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className={estado === "en_pausa" ? "font-bold" : ""}
+                  onClick={() => onUpdateStatus(String(row.original.id), "en_pausa")}
+                >
+                  <Badge variant="outline" className="mr-2">•</Badge> En Pausa
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        }
         
         return (
-          <Badge variant={variant as any}>
-            {estado.charAt(0).toUpperCase() + estado.slice(1)}
+          <Badge variant={variant}>
+            {estado === "activo" ? "Disponible" : 
+             estado === "reservado" ? "Reservado" : 
+             estado === "vendido" ? "Vendido" : 
+             estado === "en_pausa" ? "En Pausa" : estado.charAt(0).toUpperCase() + estado.slice(1)}
           </Badge>
         );
       },
@@ -118,7 +176,7 @@ export function DataTable({ data, onEdit, onDelete }: DataTableProps) {
               variant="outline" 
               size="sm" 
               className="h-8 w-8 p-0 text-destructive border-destructive hover:bg-destructive/10"
-              onClick={() => onDelete(row.original.id)}
+              onClick={() => onDelete(String(row.original.id))}
             >
               <Trash2 className="h-4 w-4" />
               <span className="sr-only">Eliminar</span>
@@ -134,6 +192,10 @@ export function DataTable({ data, onEdit, onDelete }: DataTableProps) {
                 <span className="sr-only">Ver</span>
               </a>
             </Button>
+            <QRCodeDialog 
+              vehicleId={String(row.original.id)} 
+              brandModel={`${row.original.marca} ${row.original.modelo}`}
+            />
           </div>
         );
       },
@@ -199,27 +261,30 @@ export function DataTable({ data, onEdit, onDelete }: DataTableProps) {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
+      
+      <div className="flex items-center justify-between px-2 py-4">
         <div className="text-sm text-muted-foreground">
           Página {table.getState().pagination.pageIndex + 1} de{' '}
           {table.getPageCount()}
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Anterior
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Siguiente
-        </Button>
+        <div className="flex space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Anterior
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Siguiente
+          </Button>
+        </div>
       </div>
     </div>
   );

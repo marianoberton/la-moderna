@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useState, useEffect } from 'react';
 import { branches } from '../types/branches';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -37,6 +38,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function ContactForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState<typeof branches[0] | null>(null);
 
   const form = useForm<FormValues>({
@@ -63,15 +65,58 @@ export default function ContactForm() {
     }
   }, [form.watch('branch')]);
 
-  function onSubmit(values: FormValues) {
-    console.log(values);
-    const branchData = branches.find(b => 
-      b.id === (values.branch === 'trenque-lauquen' ? 1 : 2)
-    );
-    
-    // Aquí implementarías el envío real del formulario
-    // Puedes usar branchData.email para enviar al correo correcto
-    console.log(`Enviando a: ${branchData?.email}`);
+  async function onSubmit(values: FormValues) {
+    try {
+      setIsSubmitting(true);
+      
+      const branchData = branches.find(b => 
+        b.id === (values.branch === 'trenque-lauquen' ? 1 : 2)
+      );
+      
+      // Preparar los datos para enviar
+      const formData = {
+        nombre: values.name,
+        email: values.email,
+        telefono: values.phone,
+        mensaje: values.message,
+        sucursal: values.branch,
+        // Opcional: puedes añadir el vehículo si este formulario se usa desde la página de un vehículo
+        vehiculo: window.location.pathname.includes('/vehiculos/') ? window.location.pathname.split('/').pop() : undefined
+      };
+      
+      // Enviar a la API
+      const response = await fetch('/api/contacto', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.error || 'Error al enviar el formulario');
+      }
+      
+      // Resetear el formulario
+      form.reset({
+        name: '',
+        email: '',
+        phone: '',
+        message: '',
+        branch: ''
+      });
+      
+      // Mostrar mensaje de éxito
+      toast.success('Tu consulta ha sido enviada correctamente. Nos pondremos en contacto contigo lo antes posible.');
+      
+    } catch (error: any) {
+      console.error('Error al enviar formulario:', error);
+      toast.error(`Error al enviar el formulario: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -175,8 +220,9 @@ export default function ContactForm() {
           <Button 
             type="submit" 
             className="w-full bg-[var(--background-dark-hover)] hover:bg-[var(--background-dark)] text-white"
+            disabled={isSubmitting}
           >
-            Enviar mensaje
+            {isSubmitting ? 'Enviando...' : 'Enviar mensaje'}
           </Button>
         </form>
       </Form>

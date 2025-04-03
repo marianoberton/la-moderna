@@ -28,11 +28,6 @@ import {
   DialogClose
 } from "@/components/ui/dialog";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
   Sheet,
   SheetContent,
   SheetDescription,
@@ -46,47 +41,28 @@ import { motion } from 'framer-motion';
 import { TabsTrigger, TabsList, Tabs } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { carBrands } from '@/lib/car-brands';
+import CarTypes from '@/app/components/CarTypes';
 
 // Definir el tipo de los filtros
 type VehicleFilters = {
-  busqueda: string;
+  searchTerm: string;
   marca: string;
   modelo: string;
-  precioRango: [number, number];
-  añoRango: [number, number];
-  kilometrajeRango: [number, number];
+  tipoVehiculo: string;
   combustible: string;
   transmision: string;
+  color: string;
+  condicion: string;
+  precioMin: number;
+  precioMax: number;
+  añoMin: number;
+  añoMax: number;
+  kmMin: number;
+  kmMax: number;
   financiacion: boolean;
   permuta: boolean;
-  color: string;
-  tipoVehiculo: string;
-  condicion: string; // Todo, nuevo, usado
-  equipamiento: {
-    aireAcondicionado: boolean;
-    direccionAsistida: boolean;
-    vidriosElectricos: boolean;
-    tapiceriaCuero: boolean;
-    cierreCentralizado: boolean;
-    alarma: boolean;
-    airbags: boolean;
-    bluetooth: boolean;
-    controlCrucero: boolean;
-    techoSolar: boolean;
-    llantasAleacion: boolean;
-    traccion4x4: boolean;
-    abs: boolean;
-    esp: boolean;
-    asistenteFrenado: boolean;
-    camaraReversa: boolean;
-    sensorEstacionamiento: boolean;
-    navegacionGPS: boolean;
-    controlVoz: boolean;
-    asientosElectricos: boolean;
-    asientosCalefaccionados: boolean;
-    volanteCuero: boolean;
-    climatizador: boolean;
-  };
+  equipamiento: string[];
 };
 
 interface VehicleFiltersProps {
@@ -100,6 +76,76 @@ interface VehicleFiltersProps {
     countUsado: number;
   };
 }
+
+const TIPOS_VEHICULO = [
+  { value: 'sedan', label: 'Sedan' },
+  { value: 'hatchback', label: 'Hatchback' },
+  { value: 'suv', label: 'SUV' },
+  { value: 'pickup', label: 'Pickup' },
+  { value: 'coupe', label: 'Coupe' }
+];
+
+const TIPOS_COMBUSTIBLE = [
+  { value: 'NAFTA', label: 'Nafta' },
+  { value: 'DIESEL', label: 'Diesel' },
+  { value: 'HÍBRIDO', label: 'Híbrido' },
+  { value: 'ELÉCTRICO', label: 'Eléctrico' },
+  { value: 'GNC', label: 'GNC' }
+];
+
+const TIPOS_TRANSMISION = [
+  { value: 'MANUAL', label: 'Manual' },
+  { value: 'AUTOMÁTICA', label: 'Automática' }
+];
+
+const COLORES = [
+  { value: 'blanco', label: 'Blanco' },
+  { value: 'negro', label: 'Negro' },
+  { value: 'gris', label: 'Gris' },
+  { value: 'rojo', label: 'Rojo' },
+  { value: 'azul', label: 'Azul' },
+  { value: 'verde', label: 'Verde' },
+  { value: 'amarillo', label: 'Amarillo' },
+  { value: 'naranja', label: 'Naranja' },
+  { value: 'marron', label: 'Marrón' },
+  { value: 'beige', label: 'Beige' },
+  { value: 'dorado', label: 'Dorado' },
+  { value: 'plateado', label: 'Plateado' },
+  { value: 'violeta', label: 'Violeta' },
+  { value: 'bordo', label: 'Bordo' },
+  { value: 'otro', label: 'Otro' }
+]
+
+const CONDICIONES = [
+  { value: 'NUEVO', label: 'Nuevo' },
+  { value: 'USADO', label: 'Usado' }
+];
+
+const EQUIPAMIENTO = [
+  { value: 'aireAcondicionado', label: 'Aire acondicionado' },
+  { value: 'direccionAsistida', label: 'Dirección asistida' },
+  { value: 'vidriosElectricos', label: 'Vidrios eléctricos' },
+  { value: 'tapiceriaCuero', label: 'Tapicería de cuero' },
+  { value: 'cierreCentralizado', label: 'Cierre centralizado' },
+  { value: 'alarma', label: 'Alarma' },
+  { value: 'airbags', label: 'Airbags' },
+  { value: 'bluetooth', label: 'Bluetooth' },
+  { value: 'controlCrucero', label: 'Control crucero' },
+  { value: 'techoSolar', label: 'Techo solar' },
+  { value: 'llantasAleacion', label: 'Llantas de aleación' },
+  { value: 'traccion4x4', label: 'Tracción 4x4' },
+  { value: 'abs', label: 'ABS' },
+  { value: 'esp', label: 'ESP' },
+  { value: 'asistenteFrenado', label: 'Asistente de frenado' },
+  { value: 'camaraReversa', label: 'Cámara de reversa' },
+  { value: 'sensorEstacionamiento', label: 'Sensores de estacionamiento' },
+  { value: 'navegacionGPS', label: 'Navegación GPS' },
+  { value: 'controlVoz', label: 'Control por voz' },
+  { value: 'asientosElectricos', label: 'Asientos eléctricos' },
+  { value: 'asientosCalefaccionados', label: 'Asientos calefaccionados' },
+  { value: 'volanteCuero', label: 'Volante de cuero' },
+  { value: 'climatizador', label: 'Climatizador' }
+];
 
 export default function VehicleFilters({
   onFiltersChange,
@@ -122,53 +168,56 @@ export default function VehicleFilters({
   
   // Importante: No mantenemos un estado local de los filtros
   // Simplemente usamos lo que recibimos del componente padre
-  const filters = initialFilters || {
-    busqueda: '',
-    marca: '',
-    modelo: '',
-    precioRango: [0, 100000000],
-    añoRango: [1990, 2025],
-    kilometrajeRango: [0, 300000],
-    combustible: '',
-    transmision: '',
-    financiacion: false,
-    permuta: false,
-    color: '',
-    tipoVehiculo: '',
-    condicion: 'todo',
-    equipamiento: {
-      aireAcondicionado: false,
-      direccionAsistida: false,
-      vidriosElectricos: false,
-      tapiceriaCuero: false,
-      cierreCentralizado: false,
-      alarma: false,
-      airbags: false,
-      bluetooth: false,
-      controlCrucero: false,
-      techoSolar: false,
-      llantasAleacion: false,
-      traccion4x4: false,
-      abs: false,
-      esp: false,
-      asistenteFrenado: false,
-      camaraReversa: false,
-      sensorEstacionamiento: false,
-      navegacionGPS: false,
-      controlVoz: false,
-      asientosElectricos: false,
-      asientosCalefaccionados: false,
-      volanteCuero: false,
-      climatizador: false
+  const filters = {
+    searchTerm: initialFilters?.searchTerm || '',
+    marca: initialFilters?.marca || '',
+    modelo: initialFilters?.modelo || '',
+    tipoVehiculo: initialFilters?.tipoVehiculo || '',
+    combustible: initialFilters?.combustible || '',
+    transmision: initialFilters?.transmision || '',
+    color: initialFilters?.color || '',
+    condicion: initialFilters?.condicion || '',
+    precioMin: initialFilters?.precioMin || 0,
+    precioMax: initialFilters?.precioMax || 100000000,
+    añoMin: initialFilters?.añoMin || 1990,
+    añoMax: initialFilters?.añoMax || 2025,
+    kmMin: initialFilters?.kmMin || 0,
+    kmMax: initialFilters?.kmMax || 500000,
+    financiacion: initialFilters?.financiacion || false,
+    permuta: initialFilters?.permuta || false,
+    equipamiento: Array.isArray(initialFilters?.equipamiento) ? initialFilters.equipamiento : []
+  };
+
+  // Función para verificar si un item está en el equipamiento
+  const isEquipamientoSelected = (value: string): boolean => {
+    if (!filters.equipamiento) return false;
+    if (Array.isArray(filters.equipamiento)) {
+      return filters.equipamiento.includes(value);
     }
+    // Si es un objeto (para mantener compatibilidad con estados anteriores)
+    if (typeof filters.equipamiento === 'object') {
+      return Boolean((filters.equipamiento as any)[value]);
+    }
+    return false;
+  };
+
+  // Función para formatear números con seguridad
+  const formatNumber = (value: number | undefined, defaultValue: number = 0) => {
+    return (value ?? defaultValue).toLocaleString();
+  };
+
+  // Función específica para formatear años sin puntos
+  const formatYear = (value: number | undefined, defaultValue: number = 1990) => {
+    return (value ?? defaultValue).toString();
   };
 
   // Efecto para actualizar la pestaña seleccionada basada en initialFilters
   useEffect(() => {
     if (initialFilters) {
-      if (initialFilters.condicion === '0km') {
+      console.log('[VehicleFilters] initialFilters.condicion cambió a:', initialFilters.condicion);
+      if (initialFilters.condicion === 'NUEVO' || initialFilters.condicion === 'nuevo') {
         setSelectedTab('nuevo');
-      } else if (initialFilters.condicion === 'usado') {
+      } else if (initialFilters.condicion === 'USADO' || initialFilters.condicion === 'usado') {
         setSelectedTab('usado');
       } else {
         setSelectedTab('todo');
@@ -195,34 +244,30 @@ export default function VehicleFilters({
     onFiltersChange(newFilters);
   };
 
-  // Manejador para cambios en el equipamiento
-  const handleEquipamientoChange = (equipName: string, checked: boolean) => {
-    if (!onFiltersChange) return;
-    
-    // Crear una copia de los filtros actuales
-    const newEquipamiento = { ...filters.equipamiento, [equipName]: checked };
-    const newFilters = { ...filters, equipamiento: newEquipamiento };
-    
-    // Notificar al componente padre
-    onFiltersChange(newFilters);
-  };
-
   // Manejador para cambios de pestaña (todo/nuevo/usado)
   const handleTabChange = (value: string) => {
+    console.log('[VehicleFilters] handleTabChange llamado con:', value, 'selectedTab actual:', selectedTab);
     if (value === selectedTab) return; // No hacer nada si el tab es el mismo
     
-    // Actualizar el estado de la pestaña
+    // Actualizar el estado de la pestaña inmediatamente
     setSelectedTab(value);
     
     if (!onFiltersChange) return;
     
     // Mapear el valor de la pestaña a la condición correspondiente
-    let condicion = 'todo';
-    if (value === 'nuevo') condicion = '0km';
-    if (value === 'usado') condicion = 'usado';
+    let condicion = 'todo'; // Por defecto, usar 'todo'
+    if (value === 'nuevo') condicion = 'NUEVO';
+    if (value === 'usado') condicion = 'USADO';
+    
+    console.log('[VehicleFilters] Enviando cambio de condición:', condicion);
     
     // Notificar el cambio al componente padre
     onFiltersChange({ ...filters, condicion });
+    
+    // Forzar la actualización de UI para reflejar el cambio inmediatamente
+    setTimeout(() => {
+      console.log('[VehicleFilters] Después del cambio, selectedTab es:', value);
+    }, 0);
   };
 
   // Función para resetear los filtros
@@ -230,48 +275,27 @@ export default function VehicleFilters({
     if (!onFiltersChange) return;
     
     // Mantener solo la condición actual basada en la pestaña seleccionada
-    const condicion = selectedTab === 'nuevo' ? '0km' : selectedTab === 'usado' ? 'usado' : 'todo';
+    const condicion = selectedTab === 'nuevo' ? 'nuevo' : selectedTab === 'usado' ? 'usado' : '';
     
     // Crear un objeto de filtros reseteado
     const newFilters = {
-      busqueda: '',
+      searchTerm: '',
       marca: '',
       modelo: '',
-      precioRango: [0, 100000000] as [number, number],
-      añoRango: [1990, 2025] as [number, number],
-      kilometrajeRango: [0, 300000] as [number, number],
+      tipoVehiculo: '',
       combustible: '',
       transmision: '',
+      color: '',
+      condicion,
+      precioMin: 0,
+      precioMax: 100000000,
+      añoMin: 1990,
+      añoMax: 2025,
+      kmMin: 0,
+      kmMax: 500000,
       financiacion: false,
       permuta: false,
-      color: '',
-      tipoVehiculo: '',
-      condicion,
-      equipamiento: {
-        aireAcondicionado: false,
-        direccionAsistida: false,
-        vidriosElectricos: false,
-        tapiceriaCuero: false,
-        cierreCentralizado: false,
-        alarma: false,
-        airbags: false,
-        bluetooth: false,
-        controlCrucero: false,
-        techoSolar: false,
-        llantasAleacion: false,
-        traccion4x4: false,
-        abs: false,
-        esp: false,
-        asistenteFrenado: false,
-        camaraReversa: false,
-        sensorEstacionamiento: false,
-        navegacionGPS: false,
-        controlVoz: false,
-        asientosElectricos: false,
-        asientosCalefaccionados: false,
-        volanteCuero: false,
-        climatizador: false
-      }
+      equipamiento: [] // Aseguramos que siempre sea un array
     };
     
     // Notificar al componente padre
@@ -293,14 +317,14 @@ export default function VehicleFilters({
     if (filters.permuta) count++;
     if (filters.color) count++;
     
-    // Contar equipamiento activo
-    Object.values(filters.equipamiento).forEach(value => {
-      if (value) count++;
-    });
+    // Contar equipamiento activo (aseguramos que sea un array)
+    if (Array.isArray(filters.equipamiento)) {
+      filters.equipamiento.forEach(() => count++);
+    }
     
-    if (filters.precioRango[0] > 0 || filters.precioRango[1] < 100000000) count++;
-    if (filters.añoRango[0] > 1990 || filters.añoRango[1] < 2025) count++;
-    if (filters.kilometrajeRango[0] > 0 || filters.kilometrajeRango[1] < 300000) count++;
+    if (filters.precioMin > 0 || filters.precioMax < 100000000) count++;
+    if (filters.añoMin > 1990 || filters.añoMax < 2025) count++;
+    if (filters.kmMin > 0 || filters.kmMax < 500000) count++;
     return count;
   })();
 
@@ -309,7 +333,84 @@ export default function VehicleFilters({
     setIsOpen(false);
   };
 
-  // El resto del componente se mantiene igual...
+  // Handlers para los filtros
+  const handleSearchTermChange = (value: string) => {
+    // ... existing code ...
+  };
+  
+  // Handler para el equipamiento
+  const handleEquipamientoChange = (value: string) => {
+    console.log(`[VehicleFilters] Equipamiento change: ${value}`);
+    
+    const currentEquipamiento = Array.isArray(filters.equipamiento) ? [...filters.equipamiento] : [];
+    
+    // Alternar la selección
+    const newEquipamiento = currentEquipamiento.includes(value)
+      ? currentEquipamiento.filter(item => item !== value)
+      : [...currentEquipamiento, value];
+    
+    console.log(`[VehicleFilters] New equipamiento:`, newEquipamiento);
+    
+    // Informar al componente padre
+    if (onFiltersChange) {
+      onFiltersChange({
+        ...filters,
+        equipamiento: newEquipamiento
+      });
+    }
+  };
+  
+  // Handler para el slider de precio
+  const handlePriceChange = (values: number[]) => {
+    console.log(`[VehicleFilters] Dragging price slider: ${values[0]} - ${values[1]}`);
+  };
+  
+  // Handler para el commit del slider de precio (cuando se suelta)
+  const handlePriceCommit = (values: number[]) => {
+    console.log(`[VehicleFilters] Price slider committed: ${values[0]} - ${values[1]}`);
+    if (onFiltersChange) {
+      onFiltersChange({
+        ...filters,
+        precioMin: values[0],
+        precioMax: values[1]
+      });
+    }
+  };
+  
+  // Handler para el slider de año
+  const handleYearChange = (values: number[]) => {
+    console.log(`[VehicleFilters] Dragging year slider: ${values[0]} - ${values[1]}`);
+  };
+  
+  // Handler para el commit del slider de año (cuando se suelta)
+  const handleYearCommit = (values: number[]) => {
+    console.log(`[VehicleFilters] Year slider committed: ${values[0]} - ${values[1]}`);
+    if (onFiltersChange) {
+      onFiltersChange({
+        ...filters,
+        añoMin: values[0],
+        añoMax: values[1]
+      });
+    }
+  };
+  
+  // Handler para el slider de kilometraje
+  const handleKmChange = (values: number[]) => {
+    console.log(`[VehicleFilters] Dragging km slider: ${values[0]} - ${values[1]}`);
+  };
+  
+  // Handler para el commit del slider de kilometraje (cuando se suelta)
+  const handleKmCommit = (values: number[]) => {
+    console.log(`[VehicleFilters] Km slider committed: ${values[0]} - ${values[1]}`);
+    if (onFiltersChange) {
+      onFiltersChange({
+        ...filters,
+        kmMin: values[0],
+        kmMax: values[1]
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Pestañas de filtro Todo/Nuevo/Usado */}
@@ -386,8 +487,10 @@ export default function VehicleFilters({
                         <SelectValue placeholder="Marca" />
                       </SelectTrigger>
                       <SelectContent>
-                        {marcasDisponibles.map(marca => (
-                          <SelectItem key={marca} value={marca}>{marca}</SelectItem>
+                        {carBrands.map((brand) => (
+                          <SelectItem key={brand.id} value={brand.id}>
+                            {brand.name}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -419,11 +522,11 @@ export default function VehicleFilters({
                       <SelectValue placeholder="Tipo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="HATCHBACK">Hatchback</SelectItem>
-                      <SelectItem value="SEDAN">Sedan</SelectItem>
-                      <SelectItem value="SUV">SUV</SelectItem>
-                      <SelectItem value="CAMIONETA">Camioneta</SelectItem>
-                      <SelectItem value="COUPE">Coupe</SelectItem>
+                      {TIPOS_VEHICULO.map((tipo) => (
+                        <SelectItem key={tipo.value} value={tipo.value}>
+                          {tipo.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   
@@ -435,10 +538,11 @@ export default function VehicleFilters({
                       <SelectValue placeholder="Combustible" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="nafta">Nafta</SelectItem>
-                      <SelectItem value="diesel">Diesel</SelectItem>
-                      <SelectItem value="gnc">GNC</SelectItem>
-                      <SelectItem value="hibrido">Híbrido</SelectItem>
+                      {TIPOS_COMBUSTIBLE.map((tipo) => (
+                        <SelectItem key={tipo.value} value={tipo.value}>
+                          {tipo.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
 
@@ -450,8 +554,11 @@ export default function VehicleFilters({
                       <SelectValue placeholder="Transmisión" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="manual">Manual</SelectItem>
-                      <SelectItem value="automatica">Automática</SelectItem>
+                      {TIPOS_TRANSMISION.map((tipo) => (
+                        <SelectItem key={tipo.value} value={tipo.value}>
+                          {tipo.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   
@@ -462,9 +569,9 @@ export default function VehicleFilters({
                         className="w-full h-10 border border-gray-200 rounded-lg bg-white text-gray-700 relative"
                       >
                         Equipamiento
-                        {Object.values(filters.equipamiento).filter(Boolean).length > 0 && (
+                        {filters.equipamiento.length > 0 && (
                           <span className="absolute -top-2 -right-2 bg-[var(--color-gold)] text-black text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                            {Object.values(filters.equipamiento).filter(Boolean).length}
+                            {filters.equipamiento.length}
                           </span>
                         )}
             </Button>
@@ -477,18 +584,19 @@ export default function VehicleFilters({
                   <Label className="text-sm font-medium text-gray-700">Precio</Label>
                   <div className="py-2">
                     <RangeSlider
-                      value={filters.precioRango}
+                      key="precio-slider"
+                      value={[filters.precioMin || 0, filters.precioMax || 100000000]}
                       min={0}
                       max={100000000}
                       step={500000}
-                      defaultValue={[0, 100000000]}
-                      onValueChange={(value) => handleFilterChange('precioRango', value)}
+                      onValueChange={handlePriceChange}
+                      onValueCommit={handlePriceCommit}
                       aria-label="Rango de precios"
                     />
                   </div>
                   <div className="flex justify-between text-sm text-gray-500">
-                    <span>${filters.precioRango[0].toLocaleString()}</span>
-                    <span>${filters.precioRango[1].toLocaleString()}</span>
+                    <span>${formatNumber(filters.precioMin)}</span>
+                    <span>${formatNumber(filters.precioMax)}</span>
                   </div>
           </div>
 
@@ -497,40 +605,44 @@ export default function VehicleFilters({
                   <Label className="text-sm font-medium text-gray-700">Año</Label>
                   <div className="py-2">
                     <RangeSlider
-                      value={filters.añoRango}
+                      key="año-slider"
+                      value={[filters.añoMin || 1990, filters.añoMax || 2025]}
                       min={1990}
                       max={2025}
                       step={1}
-                      defaultValue={[1990, 2025]}
-                      onValueChange={(value) => handleFilterChange('añoRango', value)}
+                      onValueChange={handleYearChange}
+                      onValueCommit={handleYearCommit}
                       aria-label="Rango de años"
                     />
                   </div>
                   <div className="flex justify-between text-sm text-gray-500">
-                    <span>{filters.añoRango[0]}</span>
-                    <span>{filters.añoRango[1]}</span>
+                    <span>{formatYear(filters.añoMin, 1990)}</span>
+                    <span>{formatYear(filters.añoMax, 2025)}</span>
                   </div>
                 </div>
 
                 {/* Kilometraje */}
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">Kilometraje</Label>
-                  <div className="py-2">
-                    <RangeSlider
-                      value={filters.kilometrajeRango}
-                      min={0}
-                      max={300000}
-                      step={5000}
-                      defaultValue={[0, 300000]}
-                      onValueChange={(value) => handleFilterChange('kilometrajeRango', value)}
-                      aria-label="Rango de kilometraje"
-                    />
+                {filters.condicion !== 'NUEVO' && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">Kilometraje</Label>
+                    <div className="py-2">
+                      <RangeSlider
+                        key="km-slider"
+                        value={[filters.kmMin || 0, filters.kmMax || 500000]}
+                        min={0}
+                        max={500000}
+                        step={5000}
+                        onValueChange={handleKmChange}
+                        onValueCommit={handleKmCommit}
+                        aria-label="Rango de kilometraje"
+                      />
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-500">
+                      <span>{formatNumber(filters.kmMin)} km</span>
+                      <span>{formatNumber(filters.kmMax)} km</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-sm text-gray-500">
-                    <span>{filters.kilometrajeRango[0].toLocaleString()} km</span>
-                    <span>{filters.kilometrajeRango[1].toLocaleString()} km</span>
-                  </div>
-                </div>
+                )}
               </div>
               
               <div className="fixed bottom-0 left-0 right-0 bg-white py-4 px-4 border-t border-gray-200 flex flex-row space-x-2">
@@ -564,8 +676,10 @@ export default function VehicleFilters({
                   <SelectValue placeholder="Marca" />
                 </SelectTrigger>
                 <SelectContent>
-                  {marcasDisponibles.map(marca => (
-                    <SelectItem key={marca} value={marca}>{marca}</SelectItem>
+              {carBrands.map((brand) => (
+                <SelectItem key={brand.id} value={brand.id}>
+                  {brand.name}
+                </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -589,8 +703,10 @@ export default function VehicleFilters({
                       <SelectValue placeholder="Marca" />
                     </SelectTrigger>
                     <SelectContent>
-                      {marcasDisponibles.map(marca => (
-                        <SelectItem key={marca} value={marca}>{marca}</SelectItem>
+                      {carBrands.map((brand) => (
+                        <SelectItem key={brand.id} value={brand.id}>
+                          {brand.name}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -625,11 +741,11 @@ export default function VehicleFilters({
                       <SelectValue placeholder="Tipo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="HATCHBACK">Hatchback</SelectItem>
-                      <SelectItem value="SEDAN">Sedan</SelectItem>
-                      <SelectItem value="SUV">SUV</SelectItem>
-                      <SelectItem value="CAMIONETA">Camioneta</SelectItem>
-                      <SelectItem value="COUPE">Coupe</SelectItem>
+                      {TIPOS_VEHICULO.map((tipo) => (
+                        <SelectItem key={tipo.value} value={tipo.value}>
+                          {tipo.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -643,10 +759,11 @@ export default function VehicleFilters({
                       <SelectValue placeholder="Combustible" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="nafta">Nafta</SelectItem>
-                      <SelectItem value="diesel">Diesel</SelectItem>
-                      <SelectItem value="gnc">GNC</SelectItem>
-                      <SelectItem value="hibrido">Híbrido</SelectItem>
+                      {TIPOS_COMBUSTIBLE.map((tipo) => (
+                        <SelectItem key={tipo.value} value={tipo.value}>
+                          {tipo.label}
+                        </SelectItem>
+                      ))}
                 </SelectContent>
               </Select>
             </div>
@@ -663,8 +780,11 @@ export default function VehicleFilters({
                       <SelectValue placeholder="Transmisión" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="manual">Manual</SelectItem>
-                      <SelectItem value="automatica">Automática</SelectItem>
+                      {TIPOS_TRANSMISION.map((tipo) => (
+                        <SelectItem key={tipo.value} value={tipo.value}>
+                          {tipo.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -677,9 +797,9 @@ export default function VehicleFilters({
                         className="w-full h-10 border border-gray-200 rounded-lg bg-white text-gray-700 relative"
                       >
                         Equipamiento
-                        {Object.values(filters.equipamiento).filter(Boolean).length > 0 && (
+                        {filters.equipamiento.length > 0 && (
                           <span className="absolute -top-2 -right-2 bg-[var(--color-gold)] text-black text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                            {Object.values(filters.equipamiento).filter(Boolean).length}
+                            {filters.equipamiento.length}
                           </span>
                         )}
                       </Button>
@@ -695,18 +815,19 @@ export default function VehicleFilters({
               <Label className="text-sm font-medium text-gray-600">Rango de precios</Label>
                 <div className="py-2">
                 <RangeSlider
-                  value={filters.precioRango}
-                  min={0}
-                  max={100000000}
-                  step={500000}
-                  defaultValue={[0, 100000000]}
-                  onValueChange={(value) => handleFilterChange('precioRango', value)}
-                  aria-label="Rango de precios"
-                />
+                    value={[filters.precioMin || 0, filters.precioMax || 100000000]}
+                    min={0}
+                    max={100000000}
+                    step={500000}
+                    defaultValue={[0, 100000000]}
+                    onValueChange={handlePriceChange}
+                    onValueCommit={handlePriceCommit}
+                    aria-label="Rango de precios"
+                  />
               </div>
               <div className="flex justify-between text-sm text-gray-500">
-                <span>${filters.precioRango[0].toLocaleString()}</span>
-                <span>${filters.precioRango[1].toLocaleString()}</span>
+                  <span>${formatNumber(filters.precioMin)}</span>
+                  <span>${formatNumber(filters.precioMax)}</span>
               </div>
             </div>
 
@@ -714,18 +835,19 @@ export default function VehicleFilters({
               <Label className="text-sm font-medium text-gray-600">Año</Label>
                 <div className="py-2">
                 <RangeSlider
-                  value={filters.añoRango}
-                  min={1990}
-                  max={2025}
-                  step={1}
-                  defaultValue={[1990, 2025]}
-                  onValueChange={(value) => handleFilterChange('añoRango', value)}
-                  aria-label="Rango de años"
-                />
+                    value={[filters.añoMin || 1990, filters.añoMax || 2025]}
+                    min={1990}
+                    max={2025}
+                    step={1}
+                    defaultValue={[1990, 2025]}
+                    onValueChange={handleYearChange}
+                    onValueCommit={handleYearCommit}
+                    aria-label="Rango de años"
+                  />
               </div>
               <div className="flex justify-between text-sm text-gray-500">
-                <span>{filters.añoRango[0]}</span>
-                <span>{filters.añoRango[1]}</span>
+                  <span>{formatYear(filters.añoMin, 1990)}</span>
+                  <span>{formatYear(filters.añoMax, 2025)}</span>
               </div>
             </div>
 
@@ -733,18 +855,19 @@ export default function VehicleFilters({
               <Label className="text-sm font-medium text-gray-600">Kilometraje</Label>
                 <div className="py-2">
                 <RangeSlider
-                  value={filters.kilometrajeRango}
-                  min={0}
-                  max={300000}
-                  step={5000}
-                  defaultValue={[0, 300000]}
-                  onValueChange={(value) => handleFilterChange('kilometrajeRango', value)}
-                  aria-label="Rango de kilometraje"
-                />
+                    value={[filters.kmMin || 0, filters.kmMax || 500000]}
+                    min={0}
+                    max={500000}
+                    step={5000}
+                    defaultValue={[0, 500000]}
+                    onValueChange={handleKmChange}
+                    onValueCommit={handleKmCommit}
+                    aria-label="Rango de kilometraje"
+                  />
               </div>
               <div className="flex justify-between text-sm text-gray-500">
-                <span>{filters.kilometrajeRango[0].toLocaleString()} km</span>
-                <span>{filters.kilometrajeRango[1].toLocaleString()} km</span>
+                  <span>{formatNumber(filters.kmMin)} km</span>
+                  <span>{formatNumber(filters.kmMax)} km</span>
                 </div>
               </div>
             </div>
@@ -764,8 +887,10 @@ export default function VehicleFilters({
                       <SelectValue placeholder="Marca" />
                     </SelectTrigger>
                     <SelectContent>
-                      {marcasDisponibles.map(marca => (
-                        <SelectItem key={marca} value={marca}>{marca}</SelectItem>
+                      {carBrands.map((brand) => (
+                        <SelectItem key={brand.id} value={brand.id}>
+                          {brand.name}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -797,11 +922,11 @@ export default function VehicleFilters({
                       <SelectValue placeholder="Tipo de vehículo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="HATCHBACK">Hatchback</SelectItem>
-                      <SelectItem value="SEDAN">Sedan</SelectItem>
-                      <SelectItem value="SUV">SUV</SelectItem>
-                      <SelectItem value="CAMIONETA">Camioneta</SelectItem>
-                      <SelectItem value="COUPE">Coupe</SelectItem>
+                      {TIPOS_VEHICULO.map((tipo) => (
+                        <SelectItem key={tipo.value} value={tipo.value}>
+                          {tipo.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -815,10 +940,11 @@ export default function VehicleFilters({
                     <SelectValue placeholder="Combustible" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="nafta">Nafta</SelectItem>
-                    <SelectItem value="diesel">Diesel</SelectItem>
-                    <SelectItem value="gnc">GNC</SelectItem>
-                      <SelectItem value="hibrido">Híbrido</SelectItem>
+                      {TIPOS_COMBUSTIBLE.map((tipo) => (
+                        <SelectItem key={tipo.value} value={tipo.value}>
+                          {tipo.label}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
                 </div>
@@ -832,8 +958,11 @@ export default function VehicleFilters({
                     <SelectValue placeholder="Transmisión" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="manual">Manual</SelectItem>
-                    <SelectItem value="automatica">Automática</SelectItem>
+                      {TIPOS_TRANSMISION.map((tipo) => (
+                        <SelectItem key={tipo.value} value={tipo.value}>
+                          {tipo.label}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
                 </div>
@@ -846,9 +975,9 @@ export default function VehicleFilters({
                         className="h-11 w-full border border-gray-200 rounded-lg bg-white text-gray-700 relative"
                       >
                         Equipamiento
-                        {Object.values(filters.equipamiento).filter(Boolean).length > 0 && (
+                        {filters.equipamiento.length > 0 && (
                           <span className="absolute -top-2 -right-2 bg-[var(--color-gold)] text-black text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                            {Object.values(filters.equipamiento).filter(Boolean).length}
+                            {filters.equipamiento.length}
                           </span>
                         )}
                       </Button>
@@ -863,18 +992,19 @@ export default function VehicleFilters({
                   <Label className="text-sm font-medium text-gray-600">Precio</Label>
                   <div className="py-2">
                     <RangeSlider
-                      value={filters.precioRango}
+                      key="precio-slider"
+                      value={[filters.precioMin || 0, filters.precioMax || 100000000]}
                       min={0}
                       max={100000000}
                       step={500000}
-                      defaultValue={[0, 100000000]}
-                      onValueChange={(value) => handleFilterChange('precioRango', value)}
+                      onValueChange={handlePriceChange}
+                      onValueCommit={handlePriceCommit}
                       aria-label="Rango de precios"
                     />
                   </div>
                   <div className="flex justify-between text-sm text-gray-500">
-                    <span>${filters.precioRango[0].toLocaleString()}</span>
-                    <span>${filters.precioRango[1].toLocaleString()}</span>
+                    <span>${formatNumber(filters.precioMin)}</span>
+                    <span>${formatNumber(filters.precioMax)}</span>
                   </div>
                 </div>
                 
@@ -882,18 +1012,19 @@ export default function VehicleFilters({
                   <Label className="text-sm font-medium text-gray-600">Año</Label>
                   <div className="py-2">
                     <RangeSlider
-                      value={filters.añoRango}
+                      key="año-slider"
+                      value={[filters.añoMin || 1990, filters.añoMax || 2025]}
                       min={1990}
                       max={2025}
                       step={1}
-                      defaultValue={[1990, 2025]}
-                      onValueChange={(value) => handleFilterChange('añoRango', value)}
+                      onValueChange={handleYearChange}
+                      onValueCommit={handleYearCommit}
                       aria-label="Rango de años"
                     />
                   </div>
                   <div className="flex justify-between text-sm text-gray-500">
-                    <span>{filters.añoRango[0]}</span>
-                    <span>{filters.añoRango[1]}</span>
+                    <span>{formatYear(filters.añoMin, 1990)}</span>
+                    <span>{formatYear(filters.añoMax, 2025)}</span>
                   </div>
                 </div>
                 
@@ -901,18 +1032,19 @@ export default function VehicleFilters({
                   <Label className="text-sm font-medium text-gray-600">Kilometraje</Label>
                   <div className="py-2">
                     <RangeSlider
-                      value={filters.kilometrajeRango}
+                      key="km-slider"
+                      value={[filters.kmMin || 0, filters.kmMax || 500000]}
                       min={0}
-                      max={300000}
+                      max={500000}
                       step={5000}
-                      defaultValue={[0, 300000]}
-                      onValueChange={(value) => handleFilterChange('kilometrajeRango', value)}
+                      onValueChange={handleKmChange}
+                      onValueCommit={handleKmCommit}
                       aria-label="Rango de kilometraje"
                     />
                   </div>
                   <div className="flex justify-between text-sm text-gray-500">
-                    <span>{filters.kilometrajeRango[0].toLocaleString()} km</span>
-                    <span>{filters.kilometrajeRango[1].toLocaleString()} km</span>
+                    <span>{formatNumber(filters.kmMin)} km</span>
+                    <span>{formatNumber(filters.kmMax)} km</span>
                   </div>
                 </div>
               </div>
@@ -931,460 +1063,28 @@ export default function VehicleFilters({
               
               <div className="py-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {/* Confort */}
-                  <div className="space-y-3">
-                    <h3 className="font-medium text-gray-800">Confort</h3>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="aire-acondicionado"
-                        checked={filters.equipamiento.aireAcondicionado}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('aireAcondicionado', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="aire-acondicionado" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Aire acondicionado
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="climatizador"
-                        checked={filters.equipamiento.climatizador}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('climatizador', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="climatizador" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Climatizador
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="asientos-electricos"
-                        checked={filters.equipamiento.asientosElectricos}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('asientosElectricos', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="asientos-electricos" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Asientos eléctricos
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="asientos-calefaccionados"
-                        checked={filters.equipamiento.asientosCalefaccionados}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('asientosCalefaccionados', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="asientos-calefaccionados" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Asientos calefaccionados
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="tapiceria-cuero"
-                        checked={filters.equipamiento.tapiceriaCuero}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('tapiceriaCuero', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="tapiceria-cuero" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Tapicería de cuero
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="volante-cuero"
-                        checked={filters.equipamiento.volanteCuero}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('volanteCuero', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="volante-cuero" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Volante de cuero
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="techo-solar"
-                        checked={filters.equipamiento.techoSolar}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('techoSolar', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="techo-solar" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Techo solar
-                      </label>
-                    </div>
-                  </div>
-                  
-                  {/* Seguridad */}
-                  <div className="space-y-3">
-                    <h3 className="font-medium text-gray-800">Seguridad</h3>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="abs"
-                        checked={filters.equipamiento.abs}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('abs', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="abs" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        ABS
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="airbags"
-                        checked={filters.equipamiento.airbags}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('airbags', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="airbags" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Airbags
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="esp"
-                        checked={filters.equipamiento.esp}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('esp', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="esp" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Control de estabilidad (ESP)
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="asistente-frenado"
-                        checked={filters.equipamiento.asistenteFrenado}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('asistenteFrenado', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="asistente-frenado" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Asistente de frenado
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="alarma"
-                        checked={filters.equipamiento.alarma}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('alarma', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="alarma" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Alarma
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="cierre-centralizado"
-                        checked={filters.equipamiento.cierreCentralizado}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('cierreCentralizado', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="cierre-centralizado" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Cierre centralizado
-                      </label>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Segunda fila de categorías */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-6">
-                  {/* Tecnología */}
-                  <div className="space-y-3">
-                    <h3 className="font-medium text-gray-800">Tecnología</h3>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="bluetooth"
-                        checked={filters.equipamiento.bluetooth}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('bluetooth', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="bluetooth" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Bluetooth
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="gps"
-                        checked={filters.equipamiento.navegacionGPS}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('navegacionGPS', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="gps" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Navegación GPS
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="camara-reversa"
-                        checked={filters.equipamiento.camaraReversa}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('camaraReversa', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="camara-reversa" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Cámara de reversa
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="sensor-estacionamiento"
-                        checked={filters.equipamiento.sensorEstacionamiento}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('sensorEstacionamiento', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="sensor-estacionamiento" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Sensores de estacionamiento
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="control-voz"
-                        checked={filters.equipamiento.controlVoz}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('controlVoz', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="control-voz" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Control por voz
-                      </label>
-                    </div>
-                  </div>
-                  
-                  {/* Extras y funcionales */}
-                  <div className="space-y-3">
-                    <h3 className="font-medium text-gray-800">Extras y funcionales</h3>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="direccion-asistida"
-                        checked={filters.equipamiento.direccionAsistida}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('direccionAsistida', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="direccion-asistida" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Dirección asistida
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="vidrios-electricos"
-                        checked={filters.equipamiento.vidriosElectricos}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('vidriosElectricos', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="vidrios-electricos" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Vidrios eléctricos
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="control-crucero"
-                        checked={filters.equipamiento.controlCrucero}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('controlCrucero', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="control-crucero" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Control crucero
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="llantas-aleacion"
-                        checked={filters.equipamiento.llantasAleacion}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('llantasAleacion', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="llantas-aleacion" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Llantas de aleación
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="traccion-4x4"
-                        checked={filters.equipamiento.traccion4x4}
-                        onCheckedChange={(checked) => 
-                          handleEquipamientoChange('traccion4x4', checked as boolean)
-                        }
-                      />
-                      <label 
-                        htmlFor="traccion-4x4" 
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Tracción 4x4
-                      </label>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Financiación y permuta */}
-                <div className="mt-6 space-y-3">
-                  <h3 className="font-medium text-gray-800">Opciones de compra</h3>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="financiacion"
-                      checked={filters.financiacion}
-                      onCheckedChange={(checked) => 
-                        handleFilterChange('financiacion', checked as boolean)
-                      }
-                    />
-                    <label 
-                      htmlFor="financiacion" 
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Acepta financiación
-                    </label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="permuta"
-                      checked={filters.permuta}
-                      onCheckedChange={(checked) => 
-                        handleFilterChange('permuta', checked as boolean)
-                      }
-                    />
-                    <label 
-                      htmlFor="permuta" 
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Acepta permuta
-                    </label>
-                  </div>
-                </div>
-                
-                {/* Color */}
-                <div className="mt-6">
-                  <h3 className="font-medium text-gray-800 mb-3">Color</h3>
-                <Select 
-                  value={filters.color}
-                  onValueChange={(value) => handleFilterChange('color', value)}
-                >
-                    <SelectTrigger className="h-10 border border-gray-200 rounded-lg bg-white text-gray-700 w-full md:w-1/2">
-                      <SelectValue placeholder="Selecciona un color" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="blanco">Blanco</SelectItem>
-                    <SelectItem value="negro">Negro</SelectItem>
-                    <SelectItem value="gris">Gris</SelectItem>
-                    <SelectItem value="rojo">Rojo</SelectItem>
-                    <SelectItem value="azul">Azul</SelectItem>
-                      <SelectItem value="verde">Verde</SelectItem>
-                      <SelectItem value="amarillo">Amarillo</SelectItem>
-                      <SelectItem value="naranja">Naranja</SelectItem>
-                      <SelectItem value="marron">Marrón</SelectItem>
-                      <SelectItem value="beige">Beige</SelectItem>
-                      <SelectItem value="plateado">Plateado</SelectItem>
-                      <SelectItem value="dorado">Dorado</SelectItem>
-                  </SelectContent>
-                </Select>
+                  {EQUIPAMIENTO.map((item) => {
+                    const isSelected = isEquipamientoSelected(item.value);
+                    console.log(`[VehicleFilters] Equipamiento ${item.value}: ${isSelected ? 'seleccionado' : 'no seleccionado'}`);
+                    return (
+                      <div key={item.value} className="flex items-center space-x-2">
+                        <Checkbox 
+                          id={item.value}
+                          checked={isSelected}
+                          onCheckedChange={(checked) => {
+                            console.log(`[VehicleFilters] Checkbox ${item.value} cambiado a: ${checked}`);
+                            handleEquipamientoChange(item.value);
+                          }}
+                        />
+                        <label 
+                          htmlFor={item.value} 
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          {item.label}
+                        </label>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -1403,7 +1103,7 @@ export default function VehicleFilters({
                     <Button type="button" className="flex-1 bg-[var(--color-gold)] text-black hover:bg-[var(--color-gold)]/90">
                       Aplicar filtros 
                       <span className="ml-1 h-5 w-5 rounded-full bg-black text-[var(--color-gold)] text-xs font-medium inline-flex items-center justify-center">
-                        {activeFiltersCount}
+                        {filters.equipamiento.length}
                       </span>
                     </Button>
                   </DialogClose>

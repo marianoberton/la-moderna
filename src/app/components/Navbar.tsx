@@ -8,6 +8,7 @@ import {
   Sheet,
   SheetContent,
   SheetTrigger,
+  SheetTitle,
 } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { Oswald } from 'next/font/google';
@@ -22,12 +23,24 @@ export default function Navbar() {
   
   // Determinar si estamos en la página de inicio
   const isHomePage = pathname === '/';
+  
+  // Verificar si estamos en la página de vehículos
+  const isVehiclesPage = pathname === '/vehiculos';
 
   const navItems = [
-    { href: '/vehiculos', label: 'Vehículos' },
+    { href: '/vehiculos?condicion=NUEVO', label: '0KM' },
+    { href: '/vehiculos?condicion=USADO', label: 'USADOS' },
     { href: '/sobre-nosotros', label: 'Sobre Nosotros' },
     { href: '/contacto', label: 'Contacto' },
   ];
+
+  // Función para forzar la recarga cuando estamos en la página de vehículos
+  const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (isVehiclesPage && (href.includes('/vehiculos?condicion='))) {
+      e.preventDefault();
+      window.location.href = href; // Fuerza la recarga completa
+    }
+  };
 
   // Efecto para detectar el scroll
   useEffect(() => {
@@ -104,6 +117,7 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={(e) => handleNavigation(e, item.href)}
                 className={`text-base font-medium uppercase transition-colors ${getLinkClasses()}`}
               >
                 {item.label}
@@ -121,12 +135,16 @@ export default function Navbar() {
                 </button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[280px] sm:w-[350px]">
+                <SheetTitle className="sr-only">Navegación</SheetTitle>
                 <div className="mt-8 flex flex-col gap-6">
                   {navItems.map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
-                      onClick={() => setIsOpen(false)}
+                      onClick={(e) => {
+                        handleNavigation(e, item.href);
+                        setIsOpen(false);
+                      }}
                       className="text-lg font-medium uppercase text-foreground transition-colors hover:text-primary"
                     >
                       {item.label}

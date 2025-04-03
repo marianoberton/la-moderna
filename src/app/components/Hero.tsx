@@ -15,20 +15,54 @@ import {
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
+import { carBrands } from '@/lib/car-brands';
 
-// Datos de ejemplo para autocompletado
-const sugerencias = [
-  { value: 'volkswagen-amarok', label: 'Volkswagen Amarok', tipo: 'Pickup' },
-  { value: 'toyota-hilux', label: 'Toyota Hilux', tipo: 'Pickup' },
-  { value: 'volkswagen-taos', label: 'Volkswagen Taos', tipo: 'SUV' },
-  { value: 'toyota-corolla', label: 'Toyota Corolla', tipo: 'Sedan' },
-  { value: 'volkswagen-golf', label: 'Volkswagen Golf', tipo: 'Hatchback' },
-  { value: 'ford-ranger', label: 'Ford Ranger', tipo: 'Pickup' },
-  { value: 'chevrolet-cruze', label: 'Chevrolet Cruze', tipo: 'Sedan' },
-  { value: 'toyota-etios', label: 'Toyota Etios', tipo: 'Hatchback' },
-  { value: 'volkswagen-nivus', label: 'Volkswagen Nivus', tipo: 'SUV' },
-  { value: 'chevrolet-s10', label: 'Chevrolet S10', tipo: 'Pickup' },
+// Tipos de vehículos disponibles
+const vehicleTypes = [
+  { id: 'sedan', nombre: 'Sedan' },
+  { id: 'hatchback', nombre: 'Hatchback' },
+  { id: 'suv', nombre: 'SUV' },
+  { id: 'pickup', nombre: 'Pickup' },
+  { id: 'coupe', nombre: 'Coupe' }
 ];
+
+// Generar sugerencias completas a partir de carBrands
+const generateSuggestions = () => {
+  const suggestions = [];
+  
+  // Agregar sugerencias para cada marca
+  carBrands.forEach(brand => {
+    // Agregar la marca como sugerencia
+    suggestions.push({
+      value: `marca-${brand.id}`,
+      label: brand.name,
+      tipo: 'Marca'
+    });
+    
+    // Agregar cada modelo con su marca
+    brand.models.forEach(model => {
+      suggestions.push({
+        value: `${brand.id}-${model.id}`,
+        label: `${brand.name} ${model.name}`,
+        tipo: brand.id === 'otra' ? 'Otro' : 'Modelo'
+      });
+    });
+  });
+  
+  // Agregar tipos de vehículos para búsqueda por tipo
+  suggestions.push(
+    { value: 'tipo-sedan', label: 'Sedan', tipo: 'Tipo de Vehículo' },
+    { value: 'tipo-suv', label: 'SUV', tipo: 'Tipo de Vehículo' },
+    { value: 'tipo-pickup', label: 'Pickup', tipo: 'Tipo de Vehículo' },
+    { value: 'tipo-hatchback', label: 'Hatchback', tipo: 'Tipo de Vehículo' },
+    { value: 'tipo-coupe', label: 'Coupe', tipo: 'Tipo de Vehículo' }
+  );
+  
+  return suggestions;
+};
+
+// Generar sugerencias completas
+const sugerencias = generateSuggestions();
 
 export default function Hero() {
   const [value, setValue] = useState("");
@@ -55,7 +89,10 @@ export default function Hero() {
       suggestion => suggestion.label.toLowerCase().includes(userInput.toLowerCase())
     );
     
-    setFilteredSuggestions(filtered);
+    // Limitar el número de sugerencias para no sobrecargar la UI
+    const limitedResults = filtered.slice(0, 10);
+    
+    setFilteredSuggestions(limitedResults);
     setShowSuggestions(true);
   };
 
@@ -63,18 +100,73 @@ export default function Hero() {
   const handleSelectSuggestion = (suggestion: typeof sugerencias[0]) => {
     setValue(suggestion.label);
     setShowSuggestions(false);
+    
+    // Si es un tipo de vehículo, establecer el tipo
+    if (suggestion.value.startsWith('tipo-')) {
+      const tipoValue = suggestion.value.replace('tipo-', '');
+      setTipo(tipoValue);
+    } 
+    // Si es una marca, establecer la marca
+    else if (suggestion.value.startsWith('marca-')) {
+      const marcaValue = suggestion.value.replace('marca-', '');
+      setMarca(marcaValue);
+    }
+    // Si es un modelo (marca-modelo), establecer marca y guardar el término de búsqueda
+    else {
+      const [marcaValue] = suggestion.value.split('-');
+      setMarca(marcaValue);
+      // Mantenemos el valor completo para la búsqueda
+    }
   };
 
   // Función para manejar la búsqueda
   const handleSearch = () => {
-    // Aquí iría la lógica para redirigir a la página de resultados
+    // Preparar objeto de filtros en el formato esperado por VehicleFilters
     const searchParams = new URLSearchParams();
     
-    if (value) searchParams.append('query', value);
-    if (condicion) searchParams.append('condicion', condicion);
-    if (marca) searchParams.append('marca', marca);
+    // Mapear condición a formato esperado (NUEVO/USADO)
+    let condicionValue = '';
+    if (condicion === "0km") {
+      condicionValue = "NUEVO";
+    } else if (condicion === "usado") {
+      condicionValue = "USADO";
+    }
     
-    window.location.href = `/vehiculos/busqueda?${searchParams.toString()}`;
+    // Añadir parámetros básicos
+    if (value) searchParams.append('searchTerm', value);
+    if (marca) searchParams.append('marca', marca);
+    if (condicionValue) searchParams.append('condicion', condicionValue);
+    
+    // Añadir parámetros avanzados si están disponibles
+    if (precio) {
+      const [min, max] = precio.split('-');
+      if (min) searchParams.append('precioMin', min);
+      if (max && max !== '+') searchParams.append('precioMax', max);
+      // Si termina en +, solo establecemos el mínimo
+      if (precio.endsWith('+')) {
+        // No establecer máximo
+      }
+    }
+    
+    if (anio) {
+      // Procesar rango de años
+      if (anio === '2025+') {
+        searchParams.append('añoMin', '2025');
+      } else if (anio === '2010-') {
+        searchParams.append('añoMax', '2010');
+      } else {
+        // Formato esperado: '2020-2024'
+        const [min, max] = anio.split('-');
+        if (min) searchParams.append('añoMin', min);
+        if (max) searchParams.append('añoMax', max);
+      }
+    }
+    
+    // Añadir tipo de vehículo si está seleccionado
+    if (tipo) searchParams.append('tipoVehiculo', tipo);
+    
+    // Redirigir a la página de vehículos con los filtros
+    window.location.href = `/vehiculos?${searchParams.toString()}`;
   };
 
   // Manejadores optimizados para los botones de condición
@@ -155,8 +247,8 @@ export default function Hero() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5" />
                 <Input
-                  placeholder="Busca por marca, modelo o características (ej: SUV 4x4)"
-                  className="pl-10 h-14 text-lg"
+                  placeholder="Busca por cualquier marca, modelo o tipo de vehículo (ej: Toyota Corolla, SUV)"
+                  className="pl-10 h-14 text-sm sm:text-base md:text-lg"
                   value={value}
                   onChange={handleInputChange}
                   onFocus={() => setShowSuggestions(true)}
@@ -177,8 +269,10 @@ export default function Hero() {
                         className="px-4 py-2 hover:bg-muted cursor-pointer flex justify-between items-center"
                         onMouseDown={() => handleSelectSuggestion(suggestion)}
                       >
-                        <span>{suggestion.label}</span>
-                        <span className="text-xs text-muted-foreground">{suggestion.tipo}</span>
+                        <span className="font-medium">{suggestion.label}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {suggestion.tipo}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -194,11 +288,11 @@ export default function Hero() {
                     <SelectValue placeholder="Marca" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="volkswagen">Volkswagen</SelectItem>
-                    <SelectItem value="toyota">Toyota</SelectItem>
-                    <SelectItem value="ford">Ford</SelectItem>
-                    <SelectItem value="chevrolet">Chevrolet</SelectItem>
-                    <SelectItem value="renault">Renault</SelectItem>
+                    {carBrands.map((brand) => (
+                      <SelectItem key={brand.id} value={brand.id}>
+                        {brand.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -240,11 +334,13 @@ export default function Hero() {
                         <SelectValue placeholder="Rango de precio" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="0-1000000">Hasta $1.000.000</SelectItem>
-                        <SelectItem value="1000000-2000000">$1.000.000 - $2.000.000</SelectItem>
-                        <SelectItem value="2000000-3000000">$2.000.000 - $3.000.000</SelectItem>
-                        <SelectItem value="3000000-5000000">$3.000.000 - $5.000.000</SelectItem>
-                        <SelectItem value="5000000+">Más de $5.000.000</SelectItem>
+                        <SelectItem value="0-2000000">Hasta $2.000.000</SelectItem>
+                        <SelectItem value="2000000-5000000">$2.000.000 - $5.000.000</SelectItem>
+                        <SelectItem value="5000000-10000000">$5.000.000 - $10.000.000</SelectItem>
+                        <SelectItem value="10000000-20000000">$10.000.000 - $20.000.000</SelectItem>
+                        <SelectItem value="20000000-50000000">$20.000.000 - $50.000.000</SelectItem>
+                        <SelectItem value="50000000-100000000">$50.000.000 - $100.000.000</SelectItem>
+                        <SelectItem value="50000000+">Más de $50.000.000</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -255,11 +351,13 @@ export default function Hero() {
                         <SelectValue placeholder="Año" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="2023+">2023 o posterior</SelectItem>
-                        <SelectItem value="2020-2022">2020 - 2022</SelectItem>
+                        <SelectItem value="2025+">2025 o posterior</SelectItem>
+                        <SelectItem value="2020-2024">2020 - 2024</SelectItem>
                         <SelectItem value="2015-2019">2015 - 2019</SelectItem>
                         <SelectItem value="2010-2014">2010 - 2014</SelectItem>
-                        <SelectItem value="2010-">Anterior a 2010</SelectItem>
+                        <SelectItem value="2005-2009">2005 - 2009</SelectItem>
+                        <SelectItem value="2000-2004">2000 - 2004</SelectItem>
+                        <SelectItem value="2000-">Anterior a 2000</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -270,11 +368,11 @@ export default function Hero() {
                         <SelectValue placeholder="Tipo de vehículo" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="sedan">Sedán</SelectItem>
-                        <SelectItem value="suv">SUV</SelectItem>
-                        <SelectItem value="pickup">Pickup</SelectItem>
-                        <SelectItem value="hatchback">Hatchback</SelectItem>
-                        <SelectItem value="deportivo">Deportivo</SelectItem>
+                        {vehicleTypes.map((type) => (
+                          <SelectItem key={type.id} value={type.id}>
+                            {type.nombre}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>

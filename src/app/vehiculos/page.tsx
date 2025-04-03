@@ -10,31 +10,9 @@ import VehicleFilters from '../components/VehicleFilters';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import React from 'react';
-
-// Definir la interfaz para el vehículo
-export interface Vehiculo {
-  id: number;
-  marca: string;
-  modelo: string;
-  version: string;
-  precio: number;
-  año: number;
-  km: number;
-  transmision: string;
-  combustible: string;
-  imagen?: string;
-  fotos?: number;
-  image?: string;
-  images?: string[];
-  color?: string;
-  highlights?: string[];
-  destacado?: boolean;
-  fechaPublicacion?: Date;
-  equipamiento?: Record<string, boolean>;
-  financiacion?: boolean;
-  permuta?: boolean;
-  tipoVehiculo?: string;
-}
+import { getVehicles } from '@/services/vehicleService';
+import { Vehicle } from '@/types/vehicle';
+import { useRouter } from 'next/navigation';
 
 // Badge personalizado sin hover para OKM/USADO
 const StatusBadge = ({ children, className, ...props }: React.HTMLAttributes<HTMLDivElement>) => {
@@ -61,63 +39,113 @@ const InfoBadge = ({ children, className, ...props }: React.HTMLAttributes<HTMLD
 };
 
 // Componente de tarjeta de vehículo
-const VehicleCard = ({ vehicle }: { vehicle: Vehiculo }) => {
+const VehicleCard = ({ vehicle }: { vehicle: Vehicle }) => {
+  const isNew = vehicle.kilometraje === 0 || vehicle.condicion === '0km';
+  const imageUrl = vehicle.imagenes?.[0] || "/placeholder-car.jpg";
+  const year = vehicle.año || 0;
+  const km = vehicle.kilometraje || 0;
+  const router = useRouter();
+
+  // Función para abrir WhatsApp
+  const openWhatsApp = (whatsapp: string, carInfo: string) => {
+    const message = encodeURIComponent(`Hola, estoy interesado en el vehículo: ${carInfo}`);
+    window.open(`https://wa.me/${whatsapp}?text=${message}`, '_blank');
+  };
+
+  // Función para ir a la página de detalles
+  const goToDetails = () => {
+    router.push(`/vehiculos/${vehicle.id}`);
+  };
+
   return (
-    <Link href={`/vehiculos/${vehicle.id}`} className="block h-full">
-      <div className="bg-white rounded-lg overflow-hidden border border-gray-200 h-full flex flex-col relative">
-        {/* Imagen principal con badges */}
-        <div className="relative h-60 overflow-hidden bg-gray-50 p-3">
-          <img 
-            src={vehicle.imagen || "/placeholder-car.jpg"} 
+    <div 
+      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col h-full relative"
+    >
+      {/* Imagen principal con badges - ahora clickeable */}
+      <div 
+        className="relative h-60 overflow-hidden bg-gray-50 p-3 cursor-pointer"
+        onClick={goToDetails}
+      >
+        <img 
+          src={imageUrl} 
             alt={`${vehicle.marca} ${vehicle.modelo}`}
-            className="w-full h-full object-cover object-center"
+          className="w-full h-full object-cover object-center transition-transform hover:scale-105"
             onError={(e) => {
               e.currentTarget.src = "/placeholder-car.jpg";
             }}
           />
           <StatusBadge 
             className={`absolute top-3 left-3 z-20 ${
-              vehicle.km === 0 
+            isNew
                 ? 'bg-[var(--color-gold)] text-black border-[var(--color-gold)]' 
                 : 'bg-[var(--color-dark-bg)] text-white border-[var(--color-dark-bg)]'
             }`}
           >
-            {vehicle.km === 0 ? 'OKM' : 'USADO'}
+          {isNew ? 'OKM' : 'USADO'}
           </StatusBadge>
           
           {/* Año y kilometraje solo para usados - ahora a la derecha */}
-          {vehicle.km > 0 && (
+        {!isNew && (
             <div className="absolute bottom-3 right-3 z-20 flex space-x-2">
               <InfoBadge className="bg-black/70 text-white">
                 <Calendar className="h-3 w-3 mr-1" />
-                {vehicle.año}
+              {year}
               </InfoBadge>
               <InfoBadge className="bg-black/70 text-white">
                 <Gauge className="h-3 w-3 mr-1" />
-                {vehicle.km.toLocaleString()} km
+              {km.toLocaleString()} km
               </InfoBadge>
             </div>
           )}
         </div>
         
         <div className="p-3 sm:p-4 flex-1 flex flex-col">
-          {/* Marca y modelo */}
-          <div className="mb-2 sm:mb-3">
+        {/* Marca y modelo - ahora clickeable */}
+        <div 
+          className="mb-2 sm:mb-3 cursor-pointer"
+          onClick={goToDetails}
+        >
             <h3 className="text-lg sm:text-xl font-bold line-clamp-1">
               {vehicle.marca} <span className="text-[var(--color-dark-bg)]">{vehicle.modelo}</span>
             </h3>
             <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">{vehicle.version}</p>
           </div>
           
-          {/* Precio */}
+        {/* Precio o Consultar */}
           <div className="mt-auto">
+          {isNew ? (
+            <Button 
+              size="sm"
+              className="w-full bg-[var(--color-dark-hover)] hover:bg-[var(--color-dark-bg)] text-white"
+              onClick={() => openWhatsApp("5491154645940", `${vehicle.marca} ${vehicle.modelo} ${vehicle.version}`)}
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 24 24" 
+                className="h-4 w-4 mr-1.5 text-white fill-current"
+              >
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.967 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              Consultar
+            </Button>
+          ) : (
+            <div className="flex justify-between items-center">
             <p className="text-base sm:text-lg font-bold text-[var(--color-dark-bg)]">
-              $ {vehicle.precio.toLocaleString()}
-            </p>
+                $ {(vehicle.precio || 0).toLocaleString()}
+              </p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="ml-2"
+                onClick={goToDetails}
+              >
+                Ver más
+              </Button>
           </div>
+          )}
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 
@@ -141,329 +169,121 @@ const VehicleGridSkeleton = () => {
 
 // Definir el estado inicial de los filtros FUERA del componente
 const initialFilterState = {
-    busqueda: '',
+    searchTerm: '',  // Cambiado de 'busqueda' a 'searchTerm' para coincidir con VehicleFilters
     marca: '',
     modelo: '',
-    precioRango: [0, 100000000] as [number, number],
-    añoRango: [1990, 2025] as [number, number],
-    kilometrajeRango: [0, 300000] as [number, number],
+    tipoVehiculo: '',
     combustible: '',
     transmision: '',
+    color: '',
+    condicion: 'todo',
+    precioMin: 0,
+    precioMax: 100000000,
+    añoMin: 1990,
+    añoMax: new Date().getFullYear(),
+    kmMin: 0,
+    kmMax: 500000,
     financiacion: false,
     permuta: false,
-    color: '',
-    tipoVehiculo: '',
-    condicion: 'todo',
-    equipamiento: {
-      aireAcondicionado: false,
-      direccionAsistida: false,
-      vidriosElectricos: false,
-      tapiceriaCuero: false,
-      cierreCentralizado: false,
-      alarma: false,
-      airbags: false,
-      bluetooth: false,
-      controlCrucero: false,
-      techoSolar: false,
-      llantasAleacion: false,
-      traccion4x4: false,
-      abs: false,
-      esp: false,
-      asistenteFrenado: false,
-      camaraReversa: false,
-      sensorEstacionamiento: false,
-      navegacionGPS: false,
-      controlVoz: false,
-      asientosElectricos: false,
-      asientosCalefaccionados: false,
-      volanteCuero: false,
-      climatizador: false
-    }
+    equipamiento: [] as string[]  // Cambiado a array para coincidir con VehicleFilters
 };
 
 export default function VehiculosPage() {
   console.log('[VehiculosPage] Render Start');
   // ---- DEFINICIONES INICIALES DE ESTADO ----
   const [ordenar, setOrdenar] = useState('destacados');
-  // Usar la constante para el estado inicial
   const [filtros, setFiltros] = useState(initialFilterState); 
+  const [vehiculos, setVehiculos] = useState<Vehicle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   const [isMobile, setIsMobile] = useState(false);
   
-  // ---- DATOS DE VEHÍCULOS (simulados) ----
-  const vehiculos = useMemo(() => [
-    {
-      id: 1,
-      marca: 'Volkswagen',
-      modelo: 'Taos',
-      version: 'TAOS 1.4 HIGHLINE DSG',
-      precio: 42500000,
-      año: 2025,
-      km: 0,
-      transmision: 'Automática',
-      combustible: 'Nafta',
-      imagen: '/images/0km/taos003.jpg',
-      fotos: 12,
-      destacado: true,
-      fechaPublicacion: new Date('2024-03-01'),
-      highlights: ['Motor 1.4 TSI', 'Caja DSG', 'Asistente de conducción'],
-      tipoVehiculo: 'SUV',
-      color: 'blanco',
-      financiacion: true,
-      permuta: true,
-      equipamiento: {
-        aireAcondicionado: true,
-        direccionAsistida: true,
-        vidriosElectricos: true,
-        tapiceriaCuero: false,
-        cierreCentralizado: true,
-        alarma: true,
-        airbags: true,
-        bluetooth: true,
-        controlCrucero: true,
-        techoSolar: false,
-        llantasAleacion: true,
-        traccion4x4: false,
-        abs: true,
-        esp: true,
-        asistenteFrenado: true,
-        camaraReversa: true,
-        sensorEstacionamiento: true,
-        navegacionGPS: true,
-        controlVoz: false,
-        asientosElectricos: false,
-        asientosCalefaccionados: false,
-        volanteCuero: true,
-        climatizador: true
+  // Leer parámetros de URL del buscador Hero
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      
+      // Crear objeto para nuevos filtros
+      const newFilters: Partial<typeof initialFilterState> = {};
+      
+      // Mapear los parámetros de búsqueda a filtros
+      if (params.has('searchTerm')) {
+        newFilters.searchTerm = params.get('searchTerm') || '';
       }
-    },
-    {
-      id: 2,
-      marca: 'Volkswagen',
-      modelo: 'T-Cross',
-      version: 'T-CROSS 1.4 TSI COMFORTLINE',
-      precio: 35900000,
-      año: 2025,
-      km: 0,
-      transmision: 'Manual',
-      combustible: 'Nafta',
-      imagen: '/images/0km/tcross_2024_1_confortline.jpg',
-      fotos: 14,
-      destacado: false,
-      fechaPublicacion: new Date('2024-02-15'),
-      highlights: ['Pantalla táctil', 'Conectividad Apple/Android', 'Climatizador'],
-      tipoVehiculo: 'SUV',
-      color: 'gris',
-      financiacion: true,
-      permuta: false,
-      equipamiento: {
-        aireAcondicionado: true,
-        direccionAsistida: true,
-        vidriosElectricos: true,
-        tapiceriaCuero: false,
-        cierreCentralizado: true,
-        alarma: true,
-        airbags: true,
-        bluetooth: true,
-        controlCrucero: false,
-        techoSolar: false,
-        llantasAleacion: true,
-        traccion4x4: false,
-        abs: true,
-        esp: true,
-        asistenteFrenado: true,
-        camaraReversa: false,
-        sensorEstacionamiento: true,
-        navegacionGPS: false,
-        controlVoz: false,
-        asientosElectricos: false,
-        asientosCalefaccionados: false,
-        volanteCuero: false,
-        climatizador: true
+      
+      if (params.has('marca')) {
+        newFilters.marca = params.get('marca') || '';
       }
-    },
-    {
-      id: 3,
-      marca: 'Volkswagen', 
-      modelo: 'Nivus',
-      version: 'NIVUS 200 TSI HIGHLINE AT',
-      precio: 39800000,
-      año: 2025,
-      km: 0,
-      transmision: 'Automática',
-      combustible: 'Nafta',
-      imagen: '/images/0km/nivus0.jpg',
-      fotos: 16,
-      destacado: true,
-      fechaPublicacion: new Date('2024-02-20'),
-      highlights: ['Motor TSI', 'Techo panorámico', 'Sensores de parking'],
-      tipoVehiculo: 'SUV',
-      color: 'negro',
-      financiacion: true,
-      permuta: true,
-      equipamiento: {
-        aireAcondicionado: true,
-        direccionAsistida: true,
-        vidriosElectricos: true,
-        tapiceriaCuero: true,
-        cierreCentralizado: true,
-        alarma: true,
-        airbags: true,
-        bluetooth: true,
-        controlCrucero: true,
-        techoSolar: true,
-        llantasAleacion: true,
-        traccion4x4: false,
-        abs: true,
-        esp: true,
-        asistenteFrenado: true,
-        camaraReversa: true,
-        sensorEstacionamiento: true,
-        navegacionGPS: true,
-        controlVoz: true,
-        asientosElectricos: true,
-        asientosCalefaccionados: true,
-        volanteCuero: true,
-        climatizador: true
+      
+      if (params.has('condicion')) {
+        newFilters.condicion = params.get('condicion') || 'todo';
       }
-    },
-    {
-      id: 4,
-      marca: 'Toyota',
-      modelo: 'Corolla Cross',
-      version: 'COROLLA CROSS 2.0 XEI CVT',
-      precio: 38900000,
-      año: 2025,
-      km: 0,
-      transmision: 'Automática',
-      combustible: 'Nafta',
-      imagen: '/images/0km/corolla-cross0.jpg',
-      fotos: 10,
-      destacado: false,
-      fechaPublicacion: new Date('2024-03-05'),
-      highlights: ['Motor 2.0L', 'Climatizador bizona', 'Control de crucero'],
-      tipoVehiculo: 'SUV',
-      color: 'rojo',
-      financiacion: true,
-      permuta: false,
-      equipamiento: {
-        aireAcondicionado: true,
-        direccionAsistida: true,
-        vidriosElectricos: true,
-        tapiceriaCuero: true,
-        cierreCentralizado: true,
-        alarma: true,
-        airbags: true,
-        bluetooth: true,
-        controlCrucero: true,
-        techoSolar: false,
-        llantasAleacion: true,
-        traccion4x4: false,
-        abs: true,
-        esp: true,
-        asistenteFrenado: true,
-        camaraReversa: true,
-        sensorEstacionamiento: true,
-        navegacionGPS: true,
-        controlVoz: false,
-        asientosElectricos: false,
-        asientosCalefaccionados: true,
-        volanteCuero: true,
-        climatizador: true
+      
+      // Parámetros numéricos: precio, año, kilometraje
+      if (params.has('precioMin')) {
+        newFilters.precioMin = Number(params.get('precioMin')) || 0;
       }
-    },
-    {
-      id: 5,
-      marca: 'Volkswagen',
-      modelo: 'Amarok',
-      version: 'AMAROK 2.0 HIGHLINE 4X4 AT',
-      precio: 28500000,
-      año: 2020,
-      km: 65000,
-      transmision: 'Automática',
-      combustible: 'Diesel',
-      imagen: '/images/Usado/amarok_usada.jpg',
-      fotos: 18,
-      destacado: true,
-      fechaPublicacion: new Date('2024-01-10'),
-      highlights: ['Tracción 4x4', 'Cámara de retroceso', 'Asientos de cuero'],
-      tipoVehiculo: 'CAMIONETA',
-      color: 'plateado',
-      financiacion: true,
-      permuta: true,
-      equipamiento: {
-        aireAcondicionado: true,
-        direccionAsistida: true,
-        vidriosElectricos: true,
-        tapiceriaCuero: true,
-        cierreCentralizado: true,
-        alarma: true,
-        airbags: true,
-        bluetooth: true,
-        controlCrucero: true,
-        techoSolar: false,
-        llantasAleacion: true,
-        traccion4x4: true,
-        abs: true,
-        esp: true,
-        asistenteFrenado: true,
-        camaraReversa: true,
-        sensorEstacionamiento: true,
-        navegacionGPS: true,
-        controlVoz: false,
-        asientosElectricos: true,
-        asientosCalefaccionados: true,
-        volanteCuero: true,
-        climatizador: true
+      
+      if (params.has('precioMax')) {
+        newFilters.precioMax = Number(params.get('precioMax')) || 100000000;
       }
-    },
-    {
-      id: 6,
-      marca: 'Volkswagen',
-      modelo: 'Amarok',
-      version: 'AMAROK 2.0 COMFORTLINE 4X2 MT',
-      precio: 24900000,
-      año: 2019,
-      km: 78000,
-      transmision: 'Manual',
-      combustible: 'Diesel',
-      imagen: '/images/Usado/amarokusada.jpg',
-      fotos: 15,
-      destacado: false,
-      fechaPublicacion: new Date('2024-01-20'),
-      highlights: ['Faros LED', 'Sensores de estacionamiento', 'Bluetooth'],
-      tipoVehiculo: 'CAMIONETA',
-      color: 'gris',
-      financiacion: false,
-      permuta: true,
-      equipamiento: {
-        aireAcondicionado: true,
-        direccionAsistida: true,
-        vidriosElectricos: true,
-        tapiceriaCuero: false,
-        cierreCentralizado: true,
-        alarma: true,
-        airbags: true,
-        bluetooth: true,
-        controlCrucero: false,
-        techoSolar: false,
-        llantasAleacion: true,
-        traccion4x4: false,
-        abs: true,
-        esp: true,
-        asistenteFrenado: true,
-        camaraReversa: false,
-        sensorEstacionamiento: true,
-        navegacionGPS: false,
-        controlVoz: false,
-        asientosElectricos: false,
-        asientosCalefaccionados: false,
-        volanteCuero: true,
-        climatizador: false
+      
+      if (params.has('añoMin')) {
+        newFilters.añoMin = Number(params.get('añoMin')) || 1990;
+      }
+      
+      if (params.has('añoMax')) {
+        newFilters.añoMax = Number(params.get('añoMax')) || new Date().getFullYear();
+      }
+      
+      if (params.has('tipoVehiculo')) {
+        newFilters.tipoVehiculo = params.get('tipoVehiculo') || '';
+      }
+      
+      // Si hay parámetros, actualizar filtros
+      if (Object.keys(newFilters).length > 0) {
+        console.log('[URL Params] Aplicando filtros desde URL:', newFilters);
+        setFiltros(prevState => ({
+          ...prevState,
+          ...newFilters
+        }));
       }
     }
-  ], []); 
-  console.log('[VehiculosPage] vehiculos count:', vehiculos.length);
+  }, []);
+  
+  // Cargar vehículos al montar el componente
+  useEffect(() => {
+    const loadVehicles = async () => {
+      try {
+        setLoading(true);
+        const data = await getVehicles(true);
+        console.log('Vehículos cargados desde Supabase:', data.length);
+        
+        // Información detallada de cada vehículo para depuración
+        data.forEach((v, index) => {
+          console.log(`Vehículo ${index + 1}:`, {
+            id: v.id, 
+            marca: v.marca, 
+            modelo: v.modelo, 
+            condicion: v.condicion,
+            kilometraje: v.kilometraje,
+            estado: v.estado,
+            created_at: v.created_at
+          });
+        });
+        
+        setVehiculos(data);
+      } catch (err) {
+        console.error('Error al cargar vehículos:', err);
+        setError('Error al cargar los vehículos. Por favor, intente nuevamente.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadVehicles();
+  }, []);
 
   // ---- LÓGICA DE FILTRADO Y ORDENACIÓN (Funciones Puras) ----
   
@@ -471,7 +291,7 @@ export default function VehiculosPage() {
   const checkActiveFilters = useCallback((currentFiltros: typeof initialFilterState): boolean => {
     console.log('[checkActiveFilters] Verificando filtros:', currentFiltros);
     // Filtros básicos
-    if (currentFiltros.busqueda || 
+    if (currentFiltros.searchTerm || 
         currentFiltros.marca || 
         currentFiltros.modelo || 
         currentFiltros.combustible || 
@@ -485,18 +305,18 @@ export default function VehiculosPage() {
     }
     
     // Filtros de rango (comparar con los valores iniciales)
-    if (currentFiltros.precioRango[0] > initialFilterState.precioRango[0] || 
-        currentFiltros.precioRango[1] < initialFilterState.precioRango[1] ||
-        currentFiltros.añoRango[0] > initialFilterState.añoRango[0] || 
-        currentFiltros.añoRango[1] < initialFilterState.añoRango[1] ||
-        currentFiltros.kilometrajeRango[0] > initialFilterState.kilometrajeRango[0] || 
-        currentFiltros.kilometrajeRango[1] < initialFilterState.kilometrajeRango[1]) {
+    if (currentFiltros.precioMin > initialFilterState.precioMin || 
+        currentFiltros.precioMax < initialFilterState.precioMax ||
+        currentFiltros.añoMin > initialFilterState.añoMin || 
+        currentFiltros.añoMax < initialFilterState.añoMax ||
+        currentFiltros.kmMin > initialFilterState.kmMin || 
+        currentFiltros.kmMax < initialFilterState.kmMax) {
       console.log('[checkActiveFilters] Filtro de rango activo encontrado.');
       return true;
     }
     
-    // Filtros de equipamiento
-    if (Object.values(currentFiltros.equipamiento).some(v => v)) {
+    // Filtros de equipamiento (ahora como array)
+    if (currentFiltros.equipamiento && currentFiltros.equipamiento.length > 0) {
       console.log('[checkActiveFilters] Filtro de equipamiento activo encontrado.');
       return true;
     }
@@ -512,185 +332,204 @@ export default function VehiculosPage() {
   }, []); // Dependencia vacía porque initialFilterState es constante
 
   // Función para aplicar filtros (ahora recibe filtros como argumento)
-  const aplicarFiltros = useCallback((currentFiltros: typeof initialFilterState): Vehiculo[] => {
+  const aplicarFiltros = useCallback((currentFiltros: typeof initialFilterState): Vehicle[] => {
     console.log('--- Iniciando aplicarFiltros ---');
-    console.log('Filtros a aplicar:', currentFiltros);
-    if (vehiculos.length === 0) {
-        console.log('[aplicarFiltros] No hay vehículos base para filtrar.');
-        return [];
+    console.log('Filtros a aplicar:', JSON.stringify(currentFiltros, null, 2));
+    
+    // Validar los rangos
+    console.log('Rango de precios:', currentFiltros.precioMin, 'a', currentFiltros.precioMax);
+    console.log('Rango de años:', currentFiltros.añoMin, 'a', currentFiltros.añoMax);
+    console.log('Rango de kilometraje:', currentFiltros.kmMin, 'a', currentFiltros.kmMax);
+    
+    // Validar el equipamiento
+    console.log('Tipo de equipamiento:', typeof currentFiltros.equipamiento);
+    if (Array.isArray(currentFiltros.equipamiento)) {
+      console.log('Equipamiento (array):', currentFiltros.equipamiento);
+    } else if (typeof currentFiltros.equipamiento === 'object') {
+      console.log('Equipamiento (objeto):', currentFiltros.equipamiento);
     }
     
-    const vehiculosFiltrados = vehiculos.filter(vehiculo => {
-      let pasaFiltros = true; // Asumir que pasa hasta que un filtro lo descarte
-
-      // 1. Filtro de Búsqueda (marca, modelo, version)
-      if (currentFiltros.busqueda) {
-        const busquedaLower = currentFiltros.busqueda.toLowerCase();
-        if (
-          !vehiculo.marca.toLowerCase().includes(busquedaLower) &&
-          !vehiculo.modelo.toLowerCase().includes(busquedaLower) &&
-          !vehiculo.version.toLowerCase().includes(busquedaLower)
-        ) {
-          // console.log(`[Filtro Busqueda] Descartado ${vehiculo.id}: ${currentFiltros.busqueda} no encontrado`);
+    return vehiculos.filter(vehiculo => {
+      let pasaFiltros = true;
+      
+      // 1. Filtro de búsqueda
+      if (pasaFiltros && currentFiltros.searchTerm) {
+        const searchTerm = currentFiltros.searchTerm.toLowerCase();
+        const searchableText = `${vehiculo.marca} ${vehiculo.modelo} ${vehiculo.version}`.toLowerCase();
+        if (!searchableText.includes(searchTerm)) {
           pasaFiltros = false;
         }
       }
 
-      // 2. Filtro de Marca
-      if (pasaFiltros && currentFiltros.marca && vehiculo.marca.toLowerCase() !== currentFiltros.marca.toLowerCase()) {
-        // console.log(`[Filtro Marca] Descartado ${vehiculo.id}: ${vehiculo.marca} !== ${currentFiltros.marca}`);
-        pasaFiltros = false;
-      }
-
-      // 3. Filtro de Modelo
-      if (pasaFiltros && currentFiltros.modelo && vehiculo.modelo.toLowerCase() !== currentFiltros.modelo.toLowerCase()) {
-        // console.log(`[Filtro Modelo] Descartado ${vehiculo.id}: ${vehiculo.modelo} !== ${currentFiltros.modelo}`);
-        pasaFiltros = false;
-      }
-
-      // 4. Filtro de Condición (0km/Usado)
-      if (pasaFiltros && currentFiltros.condicion !== 'todo') {
-        if (currentFiltros.condicion === '0km' && vehiculo.km > 0) {
-          // console.log(`[Filtro Condicion] Descartado ${vehiculo.id}: Es usado, se busca 0km`);
+      // 2. Filtro de marca
+      if (pasaFiltros && currentFiltros.marca) {
+        const marca = vehiculo.marca || '';
+        console.log(`Filtrando por marca: "${currentFiltros.marca}" vs "${marca}" (ID: ${vehiculo.id})`);
+        // Comparación insensible a mayúsculas/minúsculas
+        if (marca.toLowerCase() !== currentFiltros.marca.toLowerCase()) {
           pasaFiltros = false;
-        }
-        if (currentFiltros.condicion === 'usado' && vehiculo.km === 0) {
-          // console.log(`[Filtro Condicion] Descartado ${vehiculo.id}: Es 0km, se busca usado`);
-          pasaFiltros = false;
+          console.log(`Vehículo ${vehiculo.id} filtrado por marca`);
         }
       }
       
-      // 5. Filtro de Tipo de Vehículo
+      // 3. Filtro de modelo
+      if (pasaFiltros && currentFiltros.modelo) {
+        const modelo = vehiculo.modelo || '';
+        console.log(`Filtrando por modelo: "${currentFiltros.modelo}" vs "${modelo}" (ID: ${vehiculo.id})`);
+        // Comparación insensible a mayúsculas/minúsculas
+        if (modelo.toLowerCase() !== currentFiltros.modelo.toLowerCase()) {
+          pasaFiltros = false;
+          console.log(`Vehículo ${vehiculo.id} filtrado por modelo`);
+        }
+      }
+      
+      // 4. Filtro de tipo de vehículo
       if (pasaFiltros && currentFiltros.tipoVehiculo) {
-         const tipoFiltro = currentFiltros.tipoVehiculo.toLowerCase().trim();
-         const tipoVehiculoActual = vehiculo.tipoVehiculo?.toLowerCase().trim(); // Usar optional chaining
-         if (!tipoVehiculoActual || tipoFiltro !== tipoVehiculoActual) {
-            // console.log(`[Filtro Tipo] Descartado ${vehiculo.id}: ${tipoVehiculoActual} !== ${tipoFiltro}`);
+        if (vehiculo.tipo !== currentFiltros.tipoVehiculo) {
             pasaFiltros = false;
          }
       }
 
-      // 6. Filtro de Combustible
-      if (pasaFiltros && currentFiltros.combustible && vehiculo.combustible.toLowerCase() !== currentFiltros.combustible.toLowerCase()) {
-        // console.log(`[Filtro Combustible] Descartado ${vehiculo.id}: ${vehiculo.combustible} !== ${currentFiltros.combustible}`);
+      // 5. Filtro de combustible
+      if (pasaFiltros && currentFiltros.combustible) {
+        if (vehiculo.combustible !== currentFiltros.combustible) {
         pasaFiltros = false;
+        }
       }
 
-      // 7. Filtro de Transmisión (CON NORMALIZACIÓN)
+      // 6. Filtro de transmisión
       if (pasaFiltros && currentFiltros.transmision) {
-        // Normalizar: convertir a minúsculas, quitar tildes y espacios extra
-        const normalizeString = (str: string) => 
-          str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
-
-        const filtroTransmisionNorm = normalizeString(currentFiltros.transmision);
-        const vehiculoTransmisionNorm = normalizeString(vehiculo.transmision);
-
-        console.log(`[Filtro Transmision] Vehiculo ${vehiculo.id}: Comparando normalizado "${vehiculoTransmisionNorm}" con filtro normalizado "${filtroTransmisionNorm}"`);
+        if (vehiculo.transmision !== currentFiltros.transmision) {
+          pasaFiltros = false;
+        }
+      }
+      
+      // 7. Filtro de color
+      if (pasaFiltros && currentFiltros.color) {
+        if (vehiculo.color !== currentFiltros.color) {
+        pasaFiltros = false;
+        }
+      }
+      
+      // 8. Filtro de condición (0km/Usado)
+      if (pasaFiltros && currentFiltros.condicion !== 'todo') {
+        // En la base de datos, 0km = nuevo, usado = usado
+        const esNuevo = (vehiculo.kilometraje === 0) || (vehiculo.condicion === '0km');
+        if (currentFiltros.condicion === 'NUEVO' && !esNuevo) {
+          console.log(`Filtrando vehículo ${vehiculo.id} porque no es nuevo:`, vehiculo.kilometraje, vehiculo.condicion);
+          pasaFiltros = false;
+        }
+        if (currentFiltros.condicion === 'USADO' && esNuevo) {
+          console.log(`Filtrando vehículo ${vehiculo.id} porque no es usado:`, vehiculo.kilometraje, vehiculo.condicion);
+          pasaFiltros = false;
+        }
+      }
+      
+      // 9. Filtro de precio
+      if (pasaFiltros && vehiculo.precio) {
+        // Usar los campos individuales en lugar del rango
+        const minPrecio = currentFiltros.precioMin !== undefined ? currentFiltros.precioMin : 0;
+        const maxPrecio = currentFiltros.precioMax !== undefined ? currentFiltros.precioMax : 100000000;
         
-        if (vehiculoTransmisionNorm !== filtroTransmisionNorm) {
-          console.log(`[Filtro Transmision] Descartado ${vehiculo.id}: "${vehiculoTransmisionNorm}" !== "${filtroTransmisionNorm}"`);
-          pasaFiltros = false;
-        }
-      }
-      
-      // 8. Filtro de Color
-      if (pasaFiltros && currentFiltros.color && vehiculo.color?.toLowerCase() !== currentFiltros.color.toLowerCase()) { // Usar optional chaining
-        // console.log(`[Filtro Color] Descartado ${vehiculo.id}: ${vehiculo.color} !== ${currentFiltros.color}`);
-        pasaFiltros = false;
-      }
-
-      // 9. Filtro de Financiación
-      if (pasaFiltros && currentFiltros.financiacion && !vehiculo.financiacion) {
-        // console.log(`[Filtro Financiacion] Descartado ${vehiculo.id}: No ofrece financiacion`);
-        pasaFiltros = false;
-      }
-
-      // 10. Filtro de Permuta
-      if (pasaFiltros && currentFiltros.permuta && !vehiculo.permuta) {
-        // console.log(`[Filtro Permuta] Descartado ${vehiculo.id}: No acepta permuta`);
-        pasaFiltros = false;
-      }
-
-      // 11. Filtros de Rango (Precio, Año, Kilometraje)
-      // Solo aplicar si el rango es diferente al inicial
-      if (pasaFiltros && (currentFiltros.precioRango[0] > initialFilterState.precioRango[0] || currentFiltros.precioRango[1] < initialFilterState.precioRango[1])) {
-        if (vehiculo.precio < currentFiltros.precioRango[0] || vehiculo.precio > currentFiltros.precioRango[1]) {
-          // console.log(`[Filtro Precio] Descartado ${vehiculo.id}: ${vehiculo.precio} fuera de [${currentFiltros.precioRango[0]}, ${currentFiltros.precioRango[1]}]`);
-          pasaFiltros = false;
-        }
-      }
-      if (pasaFiltros && (currentFiltros.añoRango[0] > initialFilterState.añoRango[0] || currentFiltros.añoRango[1] < initialFilterState.añoRango[1])) {
-        if (vehiculo.año < currentFiltros.añoRango[0] || vehiculo.año > currentFiltros.añoRango[1]) {
-          // console.log(`[Filtro Año] Descartado ${vehiculo.id}: ${vehiculo.año} fuera de [${currentFiltros.añoRango[0]}, ${currentFiltros.añoRango[1]}]`);
-          pasaFiltros = false;
-        }
-      }
-      
-      // Filtro Kilometraje (CORREGIDO)
-      const kmRangeChanged = currentFiltros.kilometrajeRango[0] > initialFilterState.kilometrajeRango[0] || currentFiltros.kilometrajeRango[1] < initialFilterState.kilometrajeRango[1];
-      
-      // Aplicar filtro KM SOLO si el rango ha cambiado desde el inicial
-      if (pasaFiltros && kmRangeChanged) {
-        const [minKm, maxKm] = currentFiltros.kilometrajeRango;
-        console.log(`[Filtro KM] Vehiculo ${vehiculo.id} (KM: ${vehiculo.km}): Verificando rango [${minKm}, ${maxKm}]. Rango cambiado: ${kmRangeChanged}`);
+        console.log(`Filtrando vehículo ${vehiculo.id} por precio: ${minPrecio} <= ${vehiculo.precio} <= ${maxPrecio}`);
         
-        // Si el KM del vehículo está FUERA del rango seleccionado
-        if (vehiculo.km < minKm || vehiculo.km > maxKm) {
-          console.log(`[Filtro KM] Descartado ${vehiculo.id}: ${vehiculo.km} fuera de rango [${minKm}, ${maxKm}].`);
+        if (vehiculo.precio < minPrecio || vehiculo.precio > maxPrecio) {
           pasaFiltros = false;
-        } else {
-          console.log(`[Filtro KM] OK ${vehiculo.id}: ${vehiculo.km} dentro de rango [${minKm}, ${maxKm}].`);
+          console.log(`Vehículo ${vehiculo.id} filtrado por precio: ${vehiculo.precio}`);
         }
-      } else if (pasaFiltros && !kmRangeChanged) {
-         // console.log(`[Filtro KM] Vehiculo ${vehiculo.id}: Rango KM no cambiado, saltando filtro.`);
       }
-
-      // 12. Filtro de Equipamiento
-      if (pasaFiltros && vehiculo.equipamiento) { // Verificar si el vehículo tiene datos de equipamiento
-        for (const key in currentFiltros.equipamiento) {
-          // Si el filtro de equipamiento está activo (true) y el vehículo no lo tiene (false o undefined)
-          if (currentFiltros.equipamiento[key as keyof typeof currentFiltros.equipamiento] && 
-              !(vehiculo.equipamiento[key as keyof typeof currentFiltros.equipamiento])) {
-            // console.log(`[Filtro Equipamiento] Descartado ${vehiculo.id}: Falta ${key}`);
-            pasaFiltros = false;
-            break; // No necesita seguir verificando equipamiento para este vehículo
+      
+      // 10. Filtro de año
+      if (pasaFiltros && vehiculo.año) {
+        // Usar los campos individuales en lugar del rango
+        const minAño = currentFiltros.añoMin !== undefined ? currentFiltros.añoMin : 1990;
+        const maxAño = currentFiltros.añoMax !== undefined ? currentFiltros.añoMax : new Date().getFullYear();
+        
+        console.log(`Filtrando vehículo ${vehiculo.id} por año: ${minAño} <= ${vehiculo.año} <= ${maxAño}`);
+        
+        if (vehiculo.año < minAño || vehiculo.año > maxAño) {
+          pasaFiltros = false;
+          console.log(`Vehículo ${vehiculo.id} filtrado por año: ${vehiculo.año}`);
+        }
+      }
+      
+      // 11. Filtro de kilometraje
+      if (pasaFiltros && vehiculo.kilometraje !== undefined) {
+        // Usar los campos individuales en lugar del rango
+        const minKm = currentFiltros.kmMin !== undefined ? currentFiltros.kmMin : 0;
+        const maxKm = currentFiltros.kmMax !== undefined ? currentFiltros.kmMax : 500000;
+        
+        console.log(`Filtrando vehículo ${vehiculo.id} por kilometraje: ${minKm} <= ${vehiculo.kilometraje} <= ${maxKm}`);
+        
+        if (vehiculo.kilometraje < minKm || vehiculo.kilometraje > maxKm) {
+          pasaFiltros = false;
+          console.log(`Vehículo ${vehiculo.id} filtrado por kilometraje: ${vehiculo.kilometraje}`);
+        }
+      }
+      
+      // 12. Filtro de financiación
+      if (pasaFiltros && currentFiltros.financiacion) {
+        if (!vehiculo.financiacion) {
+          pasaFiltros = false;
+        }
+      }
+      
+      // 13. Filtro de permuta
+      if (pasaFiltros && currentFiltros.permuta) {
+        if (!vehiculo.permuta) {
+          pasaFiltros = false;
+        }
+      }
+      
+      // 14. Filtro de equipamiento - asegurarse de que funcione con estructura de array o de objeto
+      if (pasaFiltros && vehiculo.equipamiento) {
+        // Verificar cada equipamiento seleccionado
+        if (Array.isArray(currentFiltros.equipamiento) && currentFiltros.equipamiento.length > 0) {
+          console.log(`Verificando equipamiento para vehículo ${vehiculo.id}:`, currentFiltros.equipamiento);
+          // Verificar que el vehículo tenga todos los equipamientos seleccionados
+          for (const item of currentFiltros.equipamiento) {
+            if (!vehiculo.equipamiento[item]) {
+              console.log(`Vehículo ${vehiculo.id} filtrado por equipamiento: falta ${item}`);
+              pasaFiltros = false;
+              break;
+            }
           }
         }
-      } else if (pasaFiltros && Object.values(currentFiltros.equipamiento).some(v => v)) {
-         // Si se busca equipamiento pero el vehículo no tiene datos de equipamiento, descartarlo
-         // console.log(`[Filtro Equipamiento] Descartado ${vehiculo.id}: No tiene datos de equipamiento`);
-         pasaFiltros = false;
       }
 
-      // Si llegó hasta aquí sin ser false, el vehículo pasa todos los filtros activos
       return pasaFiltros;
     });
-
-    console.log(`[aplicarFiltros] Finalizado. Vehículos encontrados: ${vehiculosFiltrados.length}`);
-    return vehiculosFiltrados;
-
-  }, [vehiculos]); // Depende solo de vehiculos
+  }, [vehiculos]);
 
   // Función para ordenar vehículos (ahora recibe vehículos y orden como argumento)
-  const ordenarVehiculos = useCallback((vehiculosToSort: Vehiculo[], orderBy: string): Vehiculo[] => {
+  const ordenarVehiculos = useCallback((vehiculosToSort: Vehicle[], orderBy: string): Vehicle[] => {
     console.log('[ordenarVehiculos] Ordenando por:', orderBy);
     const ordenados = [...vehiculosToSort];
+    
+    ordenados.sort((a, b) => {
     switch (orderBy) {
-      case 'precio_asc':
-        return ordenados.sort((a, b) => a.precio - b.precio);
-      default: // destacados
-        return ordenados.sort((a, b) => {
-          // ... lógica de destacados ...
-          return 0; // Placeholder
-        });
-    }
-    // return ordenados; // No es necesario si todos los casos retornan
-  }, []); // Sin dependencias, es una función pura
+        case 'precio-asc':
+          return (a.precio || 0) - (b.precio || 0);
+        case 'precio-desc':
+          return (b.precio || 0) - (a.precio || 0);
+        case 'año-desc':
+          return (b.año || 0) - (a.año || 0);
+        case 'año-asc':
+          return (a.año || 0) - (b.año || 0);
+        case 'destacados':
+          return ((b.is_featured || b.featured) ? 1 : 0) - ((a.is_featured || a.featured) ? 1 : 0);
+        default:
+          return 0;
+      }
+    });
+    
+    return ordenados;
+  }, []);
 
   // ---- ESTADOS DERIVADOS Y EFECTOS ----
 
   // Estado para la lista final mostrada (resultado de filtrar Y ordenar)
-  const [vehiculosMostrados, setVehiculosMostrados] = useState<Vehiculo[]>(() => ordenarVehiculos([...vehiculos], 'destacados'));
+  const [vehiculosMostrados, setVehiculosMostrados] = useState<Vehicle[]>(() => ordenarVehiculos([...vehiculos], 'destacados'));
   // Estado para indicar si hay filtros activos (calculado en el efecto)
   const [hayFiltrosActivos, setHayFiltrosActivos] = useState(() => checkActiveFilters(filtros));
   // Estado de carga
@@ -720,7 +559,7 @@ export default function VehiculosPage() {
     setHayFiltrosActivos(isActive); // Actualizar estado
 
     // 2. Aplicar filtros si es necesario
-    let vehiculosProcesados: Vehiculo[];
+    let vehiculosProcesados: Vehicle[];
     if (isActive) {
       console.log('[EFFECT Principal] Aplicando filtros...');
       vehiculosProcesados = aplicarFiltros(filtros);
@@ -762,14 +601,36 @@ export default function VehiculosPage() {
 
   // ELIMINADO: Efecto de ordenación separado
 
+  // Agregar función para loguear las pestañas y el estado actual
+  useEffect(() => {
+    // Solo ejecutar en el lado del cliente
+    if (typeof window !== 'undefined') {
+      console.log('[DEBUG TABS] Estado actual de filtros.condicion:', filtros.condicion);
+      console.log('[DEBUG TABS] Valores de filtros:', JSON.stringify(filtros, null, 2));
+    }
+  }, [filtros]);
+
   // ---- EVENTOS DE INTERACCIÓN ----
   
-  // Función para manejar cambios en los filtros - CON COMPARACIÓN MÁS ROBUSTA Y useCallback
+  // Función para manejar cambios en los filtros con procesamiento especial para condición
   const handleFiltersChange = useCallback((newFilterData: Partial<typeof initialFilterState>) => {
     console.log('[handleFiltersChange] Recibido:', newFilterData);
+    
+    // Log especial y procesamiento para condición
+    if ('condicion' in newFilterData) {
+      console.log('[handleFiltersChange] Nueva condición recibida:', newFilterData.condicion);
+      
+      // Procesar condición - asegurarnos de que se maneje correctamente
+      if (newFilterData.condicion === 'NUEVO' || newFilterData.condicion === 'nuevo') {
+        newFilterData.condicion = 'NUEVO'; // Normalizar a mayúsculas
+      } else if (newFilterData.condicion === 'USADO' || newFilterData.condicion === 'usado') {
+        newFilterData.condicion = 'USADO'; // Normalizar a mayúsculas
+      }
+    }
+    
     // Log específico para kilometraje
-    if (newFilterData.kilometrajeRango) {
-      console.log('[handleFiltersChange] Kilometraje Rango recibido:', newFilterData.kilometrajeRango);
+    if (newFilterData.kmMin || newFilterData.kmMax) {
+      console.log('[handleFiltersChange] Kilometraje Rango recibido:', newFilterData.kmMin, 'a', newFilterData.kmMax);
     }
     
     setFiltros(prevFiltros => {
@@ -779,14 +640,17 @@ export default function VehiculosPage() {
       // Lógica de reseteo de modelo si cambia la marca (corregido chequeo de undefined)
       if (newFilterData.marca !== undefined && newFilterData.marca !== prevFiltros.marca && prevFiltros.modelo) {
         console.log('[handleFiltersChange] Marca cambió. Verificando modelo.');
-      const modelosValidos = vehiculos
+        const modelosValidos = vehiculos
           .filter(v => v.marca.toLowerCase() === newFilterData.marca!.toLowerCase()) // Usar ! porque ya verificamos undefined
-        .map(v => v.modelo);
+          .map(v => v.modelo);
         if (!modelosValidos.includes(prevFiltros.modelo)) {
           console.log('[handleFiltersChange] Reseteando modelo.');
           potentialNextFiltros.modelo = ''; // Resetear modelo en el objeto potencial
         }
       }
+      
+      console.log('[handleFiltersChange] Estado filtros antiguo:', prevFiltros);
+      console.log('[handleFiltersChange] Estado filtros nuevo:', potentialNextFiltros);
       
       // Comparar JSON para decidir si actualizar (simple pero efectivo para objetos anidados)
       if (JSON.stringify(potentialNextFiltros) !== JSON.stringify(prevFiltros)) {
@@ -797,7 +661,15 @@ export default function VehiculosPage() {
         return prevFiltros; // Devolver el estado anterior
       }
     });
-  }, [vehiculos]); // Depende de vehiculos para la lógica de reseteo de modelo
+    
+    // Si se cambió la condición, forzar actualización de UI después de un pequeño retraso
+    if ('condicion' in newFilterData) {
+      setTimeout(() => {
+        console.log('[handleFiltersChange] Verificando estado después de cambio de condición:', 
+          'condición actual:', filtros.condicion);
+      }, 10);
+    }
+  }, [vehiculos, filtros.condicion]); // Depende de vehiculos para la lógica de reseteo de modelo y filtros.condicion para logs
 
   // Resetear filtros - Usar la constante
   const resetFilters = useCallback(() => {
@@ -825,25 +697,27 @@ export default function VehiculosPage() {
       .sort();
   }, [vehiculos, filtros.marca]);
 
-  // ---- CÁLCULO DE CONTADORES PARA TABS (ANTES DEL RENDER) ----
+  // Calcular conteos para las pestañas - SOLO VEHÍCULOS ACTIVOS
   const tabCounts = useMemo(() => {
-    console.log('[useMemo] Calculando tabCounts');
-    // Crear un objeto de filtros temporales sin la condición actual
-    const filtrosSinCondicion = { ...filtros, condicion: 'todo' as 'todo' }; // Forzar 'todo' para no filtrar por condición aquí
+    // Para el conteo, usamos todos los vehículos disponibles (sin filtros adicionales)
+    // excepto los filtros básicos como marca, modelo, etc.
     
-    // Aplicar todos los filtros EXCEPTO el de condición
-    // Reutilizamos aplicarFiltros pasándole el objeto modificado
-    const vehiculosPreFiltrados = aplicarFiltros(filtrosSinCondicion);
+    // Contamos todos los vehículos directamente (no usamos aplicarFiltros)
+    const countTodo = vehiculos.length;
     
-    const countTodo = vehiculosPreFiltrados.length;
-    const countNuevo = vehiculosPreFiltrados.filter(v => v.km === 0).length;
-    const countUsado = vehiculosPreFiltrados.filter(v => v.km > 0).length;
+    // Contamos nuevos y usados de todos los vehículos
+    const countNuevo = vehiculos.filter(v => ((v.kilometraje || 0) === 0) || (v.condicion === '0km')).length;
+    const countUsado = vehiculos.filter(v => ((v.kilometraje || 0) > 0) && (v.condicion !== '0km')).length;
     
-    console.log('[useMemo] tabCounts calculados:', { countTodo, countNuevo, countUsado });
+    console.log('[useMemo] tabCounts calculados (recuento directo):', { 
+      countTodo, 
+      countNuevo, 
+      countUsado, 
+      totalVehiculos: vehiculos.length
+    });
+    
     return { countTodo, countNuevo, countUsado };
-    
-  // Dependemos de 'filtros' (para recalcular si cambian otros filtros) y 'aplicarFiltros' (que depende de 'vehiculos')
-  }, [filtros, aplicarFiltros]); 
+  }, [vehiculos]);
 
   // ---- RENDERIZADO DEL COMPONENTE ----
   console.log('[VehiculosPage] Render executing JSX. State:', { isLoading, hayFiltrosActivos, vehiculosMostradosLength: vehiculosMostrados.length });
@@ -895,15 +769,30 @@ export default function VehiculosPage() {
         </div>
       );
     }
-    // Fallback si no está cargando y no hay vehículos (puede ser el estado inicial antes de que vehiculos cargue, o un error)
+    // Fallback si no está cargando y no hay vehículos
     console.log('[RENDER] DEBUG: Mostrando mensaje de carga/inicial/vacío (fallback)');
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-         <Car className="h-16 w-16 text-gray-400 mb-4" />
-         <h3 className="text-lg font-medium">
-           {vehiculos.length === 0 ? "Cargando vehículos..." : "No hay vehículos disponibles"}
-         </h3>
-       </div>
+        <Car className="h-16 w-16 text-gray-400 mb-4" />
+        <h3 className="text-lg font-medium">
+          {vehiculos.length === 0 ? "Cargando vehículos..." : "No hay vehículos disponibles"}
+        </h3>
+        {vehiculos.length > 0 && (
+          <div className="mt-4 max-w-md text-gray-500">
+            <p>No se están mostrando vehículos. Esto puede deberse a varias razones:</p>
+            <ul className="list-disc text-left mt-2 ml-6">
+              <li>No hay vehículos marcados como "Disponible" (estado activo) en la base de datos</li>
+              <li>Los vehículos pueden estar marcados como "Reservado", "Vendido" o "En pausa"</li>
+              <li>Los vehículos disponibles están filtrados por los criterios actuales</li>
+            </ul>
+            <div className="mt-4">
+              <Button onClick={resetFilters} variant="outline">
+                Limpiar filtros
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
     );
   };
 
