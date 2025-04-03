@@ -623,25 +623,25 @@ export default function VehicleFilters({
 
                 {/* Kilometraje */}
                 {filters.condicion !== 'NUEVO' && (
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">Kilometraje</Label>
-                    <div className="py-2">
-                      <RangeSlider
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Kilometraje</Label>
+                  <div className="py-2">
+                    <RangeSlider
                         key="km-slider"
                         value={[filters.kmMin || 0, filters.kmMax || 500000]}
-                        min={0}
+                      min={0}
                         max={500000}
-                        step={5000}
+                      step={5000}
                         onValueChange={handleKmChange}
                         onValueCommit={handleKmCommit}
-                        aria-label="Rango de kilometraje"
-                      />
-                    </div>
-                    <div className="flex justify-between text-sm text-gray-500">
+                      aria-label="Rango de kilometraje"
+                    />
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-500">
                       <span>{formatNumber(filters.kmMin)} km</span>
                       <span>{formatNumber(filters.kmMax)} km</span>
-                    </div>
                   </div>
+                </div>
                 )}
               </div>
               
@@ -816,14 +816,14 @@ export default function VehicleFilters({
                 <div className="py-2">
                 <RangeSlider
                     value={[filters.precioMin || 0, filters.precioMax || 100000000]}
-                    min={0}
-                    max={100000000}
-                    step={500000}
-                    defaultValue={[0, 100000000]}
+                  min={0}
+                  max={100000000}
+                  step={500000}
+                  defaultValue={[0, 100000000]}
                     onValueChange={handlePriceChange}
                     onValueCommit={handlePriceCommit}
-                    aria-label="Rango de precios"
-                  />
+                  aria-label="Rango de precios"
+                />
               </div>
               <div className="flex justify-between text-sm text-gray-500">
                   <span>${formatNumber(filters.precioMin)}</span>
@@ -836,14 +836,14 @@ export default function VehicleFilters({
                 <div className="py-2">
                 <RangeSlider
                     value={[filters.añoMin || 1990, filters.añoMax || 2025]}
-                    min={1990}
-                    max={2025}
-                    step={1}
-                    defaultValue={[1990, 2025]}
+                  min={1990}
+                  max={2025}
+                  step={1}
+                  defaultValue={[1990, 2025]}
                     onValueChange={handleYearChange}
                     onValueCommit={handleYearCommit}
-                    aria-label="Rango de años"
-                  />
+                  aria-label="Rango de años"
+                />
               </div>
               <div className="flex justify-between text-sm text-gray-500">
                   <span>{formatYear(filters.añoMin, 1990)}</span>
@@ -856,14 +856,14 @@ export default function VehicleFilters({
                 <div className="py-2">
                 <RangeSlider
                     value={[filters.kmMin || 0, filters.kmMax || 500000]}
-                    min={0}
+                  min={0}
                     max={500000}
-                    step={5000}
+                  step={5000}
                     defaultValue={[0, 500000]}
                     onValueChange={handleKmChange}
                     onValueCommit={handleKmCommit}
-                    aria-label="Rango de kilometraje"
-                  />
+                  aria-label="Rango de kilometraje"
+                />
               </div>
               <div className="flex justify-between text-sm text-gray-500">
                   <span>{formatNumber(filters.kmMin)} km</span>
@@ -1068,21 +1068,21 @@ export default function VehicleFilters({
                     console.log(`[VehicleFilters] Equipamiento ${item.value}: ${isSelected ? 'seleccionado' : 'no seleccionado'}`);
                     return (
                       <div key={item.value} className="flex items-center space-x-2">
-                        <Checkbox 
+                      <Checkbox 
                           id={item.value}
                           checked={isSelected}
                           onCheckedChange={(checked) => {
                             console.log(`[VehicleFilters] Checkbox ${item.value} cambiado a: ${checked}`);
                             handleEquipamientoChange(item.value);
                           }}
-                        />
-                        <label 
+                      />
+                      <label 
                           htmlFor={item.value} 
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
                           {item.label}
-                        </label>
-                      </div>
+                      </label>
+                    </div>
                     );
                   })}
                 </div>
