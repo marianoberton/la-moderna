@@ -273,7 +273,7 @@ export default function VehiculosAdmin() {
     if (!editingVehicle) return;
     
     try {
-      const updatedVehicle = await updateVehicle(editingVehicle.id, data);
+      const updatedVehicle = await updateVehicle(String(editingVehicle.id), data);
       setVehicles(vehicles.map(v => v.id === updatedVehicle.id ? updatedVehicle : v));
       setIsDialogOpen(false);
       setEditingVehicle(null);
