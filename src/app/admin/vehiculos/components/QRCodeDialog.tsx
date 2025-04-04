@@ -113,7 +113,7 @@ export function QRCodeDialog({ vehicleId, brandModel, variant = 'icon' }: QRCode
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-[95vw] md:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Código QR</DialogTitle>
           <DialogDescription>
@@ -123,15 +123,20 @@ export function QRCodeDialog({ vehicleId, brandModel, variant = 'icon' }: QRCode
         </DialogHeader>
         
         <div className="flex flex-col items-center py-4">
-          <div className="border border-gray-200 p-6 rounded-lg">
+          <div 
+            className="border border-gray-200 p-4 rounded-lg w-full overflow-hidden"
+            style={{
+              maxWidth: `${size + 80}px`
+            }}
+          >
             <h3 className="text-center font-semibold mb-4">La Moderna - {brandModel}</h3>
             <div 
               ref={qrCodeRef} 
-              className="bg-white rounded-lg"
-              style={{ 
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
+              className="bg-white rounded-lg flex justify-center items-center"
+              style={{
+                width: `${size}px`,
+                height: `${size}px`,
+                margin: '0 auto'
               }}
             >
               <QRCode
