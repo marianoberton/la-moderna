@@ -213,6 +213,12 @@ Aceptamos permutas y todas las formas de pago. Financiación disponible.`;
     return words.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
   };
 
+  // Función para truncar el texto y agregar puntos suspensivos
+  const truncateText = (text: string, maxLength: number) => {
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength) + '...';
+  };
+
   return (
     <>
       <div className="min-h-screen bg-background py-4 lg:py-8">
@@ -422,29 +428,24 @@ Aceptamos permutas y todas las formas de pago. Financiación disponible.`;
                     </div>
                   )}
 
-                  {/* Descripción del vehículo */}
+                  {/* Descripción */}
                   <div className="mt-8">
-                    <h3 className="font-semibold mb-4">DESCRIPCIÓN</h3>
-                    <div className="relative">
-                      <div 
-                        className={`prose prose-sm max-w-none text-muted-foreground ${
-                          !isDescriptionExpanded ? 'max-h-32 overflow-hidden' : ''
-                        }`}
-                      >
-                        <p className="whitespace-pre-line">{descripcionMostrada}</p>
+                    <h3 className="text-lg font-semibold mb-2">Descripción</h3>
+                    <div className="bg-card rounded-lg p-4 overflow-hidden">
+                      <div className="whitespace-pre-wrap break-words w-full">
+                        {isDescriptionExpanded 
+                          ? descripcionMostrada
+                          : truncateText(descripcionMostrada, 300)}
                       </div>
-                      
-                      {!isDescriptionExpanded && (
-                        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent" />
+                      {descripcionMostrada.length > 300 && (
+                        <Button
+                          variant="link"
+                          onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                          className="mt-2 p-0 h-auto font-medium hover:no-underline"
+                        >
+                          {isDescriptionExpanded ? 'Ver menos' : 'Ver más'}
+                        </Button>
                       )}
-                      
-                      <Button
-                        variant="ghost"
-                        className="w-full mt-2 text-sm hover:bg-muted/80"
-                        onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                      >
-                        {isDescriptionExpanded ? 'Ver menos' : 'Ver más'}
-                      </Button>
                     </div>
                   </div>
 
