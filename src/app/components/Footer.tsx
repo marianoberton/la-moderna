@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 export default function Footer() {
   return (
-    <footer className="bg-background text-foreground py-6 px-[5%] border-t border-border">
+    <footer id="cotiza" className="bg-background text-foreground py-6 px-[5%] border-t border-border">
       <div className="flex flex-col md:flex-row flex-wrap justify-between gap-6 max-w-7xl mx-auto">
         {/* Navegación - Primero en mobile (más importante para usuarios) */}
         <div className="w-full md:flex-1 min-w-[180px] text-center md:text-left md:order-1 order-1 mb-6 md:mb-0">

@@ -176,6 +176,8 @@ export default function UsedCars() {
           console.log('No hay vehículos usados destacados, usando datos de ejemplo');
           setUsedCars(mockUsedCars);
           setIsLoading(false);
+          // Emitir evento de carga completada
+          window.dispatchEvent(new Event('usedCarsLoaded'));
           return;
         }
         
@@ -247,6 +249,8 @@ export default function UsedCars() {
         setUsedCars(mockUsedCars);
       } finally {
         setIsLoading(false);
+        // Emitir evento de carga completada
+        window.dispatchEvent(new Event('usedCarsLoaded'));
       }
     };
     

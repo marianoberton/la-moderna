@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, BadgeDollarSign, RefreshCw, ThumbsUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 // Datos de las concesionarias
 const concesionarias = [
@@ -25,6 +25,45 @@ const concesionarias = [
 export default function CtaExchange() {
   const [showConcesionarias, setShowConcesionarias] = useState(false);
 
+  // Efecto para manejar el scroll después de que la página se cargue completamente
+  useEffect(() => {
+    // Comprobar si window está definido (solo en el cliente)
+    if (typeof window !== 'undefined') {
+      // Función para realizar el scroll al componente
+      const scrollToComponent = () => {
+        const shouldScroll = sessionStorage.getItem('scrollToCotiza');
+        if (shouldScroll === 'true') {
+          const element = document.getElementById('cotiza');
+          if (element) {
+            // Obtener la altura del navbar
+            const navbarHeight = window.innerWidth >= 768 ? 80 : 64;
+            
+            // Calcular posición y hacer scroll
+            const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+            window.scrollTo({
+              top: elementPosition - navbarHeight,
+              behavior: 'smooth'
+            });
+            
+            // Limpiar el flag después de usarlo
+            sessionStorage.removeItem('scrollToCotiza');
+          }
+        }
+      };
+      
+      // Usar una combinación de load y timeout para asegurar que todo esté cargado
+      if (document.readyState === 'complete') {
+        // Si la página ya está cargada
+        setTimeout(scrollToComponent, 1000);
+      } else {
+        // Si la página aún se está cargando
+        window.addEventListener('load', () => {
+          setTimeout(scrollToComponent, 1000);
+        });
+      }
+    }
+  }, []);
+
   const toggleConcesionarias = () => {
     setShowConcesionarias(!showConcesionarias);
   };
@@ -36,7 +75,10 @@ export default function CtaExchange() {
   };
 
   return (
-    <section className="py-10 sm:py-12">
+    <section 
+      id="cotiza" 
+      className="py-10 sm:py-12 scroll-mt-16 md:scroll-mt-20"
+    >
       <div className="container px-4 sm:px-6">
         <div className="bg-neutral-900 rounded-xl overflow-hidden border border-neutral-800 shadow-md">
           <div className="relative">

@@ -30,12 +30,30 @@ export default function Navbar() {
   const navItems = [
     { href: '/vehiculos?condicion=NUEVO', label: '0KM' },
     { href: '/vehiculos?condicion=USADO', label: 'USADOS' },
-    { href: '/sobre-nosotros', label: 'Sobre Nosotros' },
+    { href: '/#cotiza', label: 'COTIZÁ', direct: true },
+    { href: '/sobre-nosotros', label: 'NOSOTROS' },
     { href: '/contacto', label: 'Contacto' },
   ];
 
   // Función para forzar la recarga cuando estamos en la página de vehículos
-  const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>, href: string, direct?: boolean) => {
+    // Usar navegación hash nativa para el componente cotiza
+    if (href === '/#cotiza') {
+      e.preventDefault();
+      if (pathname !== '/') {
+        // Si no estamos en la página principal, redireccionar con hash
+        window.location.href = '/#cotiza';
+        return;
+      }
+      
+      // Almacenar en sessionStorage que queremos scrollear a cotiza después de la carga completa
+      sessionStorage.setItem('scrollToCotiza', 'true');
+      
+      // Recargar la página para asegurar que todo se cargue correctamente
+      window.location.href = '/#cotiza';
+      return;
+    }
+    
     if (isVehiclesPage && (href.includes('/vehiculos?condicion='))) {
       e.preventDefault();
       window.location.href = href; // Fuerza la recarga completa
@@ -117,7 +135,7 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={(e) => handleNavigation(e, item.href)}
+                onClick={(e) => handleNavigation(e, item.href, item.direct)}
                 className={`text-base font-medium uppercase transition-colors ${getLinkClasses()}`}
               >
                 {item.label}
@@ -142,7 +160,7 @@ export default function Navbar() {
                       key={item.href}
                       href={item.href}
                       onClick={(e) => {
-                        handleNavigation(e, item.href);
+                        handleNavigation(e, item.href, item.direct);
                         setIsOpen(false);
                       }}
                       className="text-lg font-medium uppercase text-foreground transition-colors hover:text-primary"

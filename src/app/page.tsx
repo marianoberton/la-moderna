@@ -21,6 +21,8 @@ export default function Home() {
         <FeaturedNew />
       </div>
       
+      <CtaExchange />
+      
       <div className="pt-4 pb-8 container">
         <div className="text-center mb-4">
           <div className="flex justify-center">
@@ -29,8 +31,6 @@ export default function Home() {
         </div>
         <UsedCars />
       </div>
-
-      <CtaExchange />
     </div>
   );
 }
