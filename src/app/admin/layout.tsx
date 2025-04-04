@@ -60,11 +60,6 @@ const menuItems = [
     href: '/admin/consultas',
   },
   {
-    title: 'Usuarios',
-    icon: Users,
-    href: '/admin/usuarios',
-  },
-  {
     title: 'Configuración',
     icon: Settings,
     href: '/admin/configuracion',
