@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 // Verificación de variables de entorno
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 // Si estás teniendo problemas con la clave anónima, puedes descomentar estas líneas
 // y agregar la clave de service role a tu .env.local (solo para desarrollo)
@@ -28,4 +29,12 @@ export const supabase = createClient(
   supabaseUrl || 'https://placeholder-url.supabase.co',
   supabaseAnonKey || 'placeholder-key'
   // useServiceRole ? serviceRoleKey || '' : supabaseAnonKey || '' // Descomentar si usas service role
-); 
+);
+
+// Cliente con privilegios de administrador (solo para desarrollo)
+export const supabaseAdmin = supabaseServiceKey 
+  ? createClient(
+      supabaseUrl || 'https://placeholder-url.supabase.co',
+      supabaseServiceKey
+    )
+  : null; 

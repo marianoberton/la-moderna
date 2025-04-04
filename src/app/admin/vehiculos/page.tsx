@@ -10,7 +10,6 @@ import { Vehicle } from '@/types/vehicle';
 import { getVehicles, createVehicle, updateVehicle, deleteVehicle } from '@/services/vehicleService';
 import { toast } from 'sonner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { SetupDatabase } from './components/SetupDatabase';
 import Link from 'next/link';
 import { CardView } from './components/CardView';
 import { FormWrapper } from './components/FormWrapper';
@@ -82,74 +81,24 @@ export default function VehiculosAdmin() {
   const [isLoading, setIsLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
-  const [showSetup, setShowSetup] = useState(false);
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
 
   // Cargar vehículos al montar el componente
   useEffect(() => {
-    let isMounted = true;
-    let timeoutId: NodeJS.Timeout;
-
-    const loadVehicles = async () => {
+    async function loadVehicles() {
       try {
         setIsLoading(true);
-        
-        // Establecer un tiempo máximo de espera para la carga
-        const timeoutPromise = new Promise<never>((_, reject) => {
-          timeoutId = setTimeout(() => {
-            reject(new Error('Tiempo de espera excedido al cargar los vehículos'));
-          }, 10000); // 10 segundos de timeout
-        });
-        
-        // Competir entre la carga real y el timeout
-        const data = await Promise.race([
-          getVehicles(false), // Parámetro false para mostrar todos excepto vendidos
-          timeoutPromise
-        ]) as Vehicle[];
-        
-        // Limpiar el timeout si la carga fue exitosa
-        clearTimeout(timeoutId);
-        
-        if (isMounted) {
-          // Ya no hace falta filtrar por estado aquí, ya que lo hace getVehicles()
-          setVehicles(data);
-          
-          // Si no hay error pero tampoco datos, podría ser que la tabla no exista
-          if (data.length === 0) {
-            setShowSetup(true);
-          }
-        }
-      } catch (error: any) {
-        clearTimeout(timeoutId);
-        
-        if (isMounted) {
-          console.error('Error al cargar los vehículos:', error);
-          
-          // Si el error indica que la tabla no existe, mostrar ayuda de configuración
-          if (error.message?.includes('does not exist') || 
-              error.message?.includes('relation') || 
-              error.message?.includes('not found')) {
-            setShowSetup(true);
-          } else if (error.message?.includes('Tiempo de espera excedido')) {
-            toast.error('La carga está tomando más tiempo del esperado. Intente actualizar la página.');
-          } else {
-            toast.error('No se pudieron cargar los vehículos');
-          }
-        }
+        const vehiclesList = await getVehicles(false);
+        setVehicles(vehiclesList);
+      } catch (error) {
+        console.error("Error al cargar vehículos:", error);
+        toast.error("No se pudieron cargar los vehículos");
       } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       }
-    };
+    }
     
     loadVehicles();
-    
-    // Limpieza al desmontar el componente
-    return () => {
-      isMounted = false;
-      clearTimeout(timeoutId);
-    };
   }, []);
 
   // Verificar si hay un ID de vehículo para editar en la URL
@@ -420,8 +369,6 @@ export default function VehiculosAdmin() {
         </div>
       </div>
 
-      {showSetup && <SetupDatabase />}
-      
       <div className="flex justify-end mb-4">
         <Link href="/admin/vendidos">
           <Button variant="outline">

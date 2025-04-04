@@ -68,7 +68,7 @@ export default function AdminDashboard() {
         // Obtener vehículos recientes
         const { data: recents, error: recentsError } = await supabase
           .from('vehicles')
-          .select('id, marca, modelo, version, imagenes, estado, precio, condicion, año:anio, tipo, created_at')
+          .select('id, marca, modelo, version, imagenes, estado, precio, condicion, año, tipo, created_at')
           .order('created_at', { ascending: false })
           .limit(5);
         
@@ -93,7 +93,7 @@ export default function AdminDashboard() {
             setRecentVehicles([]);
           }
         } else {
-          console.error('Error al obtener vehículos recientes:', recentsError);
+          console.error('Error al obtener vehículos recientes:', recentsError?.message || 'Error desconocido');
           setRecentVehicles([]);
         }
         
