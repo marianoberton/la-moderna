@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { 
   Car, 
   Users, 
@@ -136,10 +137,26 @@ export default function AdminLayout({
     <div className="flex h-screen">
       {/* Sidebar */}
       <div className={`${isSidebarOpen ? 'w-64' : 'w-20'} bg-background border-r transition-all duration-300`}>
-        <div className="p-4 flex justify-between items-center">
-          {isSidebarOpen && <h1 className="text-xl font-bold">La Moderna</h1>}
-          <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-            {isSidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+        <div className="p-4 flex items-center">
+          {isSidebarOpen ? (
+            <Link href="/admin" className="flex-1">
+              <Image 
+                src="/images/logo_full.svg"
+                alt="La Moderna"
+                width={160}
+                height={40}
+                className="h-8 w-auto dark:invert"
+                priority
+              />
+            </Link>
+          ) : null}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className={`h-10 w-10 ${!isSidebarOpen ? 'mx-auto' : ''}`}
+          >
+            {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>
         <ScrollArea className="h-[calc(100vh-4rem)]">

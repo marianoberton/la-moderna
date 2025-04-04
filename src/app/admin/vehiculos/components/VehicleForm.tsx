@@ -412,8 +412,8 @@ export function VehicleForm({ initialData = {}, onSubmit }: VehicleFormProps) {
 
   // Set initial year value based on condition
   useEffect(() => {
-    // Set year to 2025 if it's a new vehicle without existing data
-    if (!initialData?.year && form.getValues("condition") === "NUEVO") {
+    // Only set year to current year if it's a new vehicle without existing data and no year set
+    if (!initialData?.year && form.getValues("condition") === "NUEVO" && !form.getValues("year")) {
       form.setValue("year", "2025");
     }
   }, []);
@@ -423,11 +423,15 @@ export function VehicleForm({ initialData = {}, onSubmit }: VehicleFormProps) {
     const condition = form.watch("condition");
     if (condition === "NUEVO") {
       form.setValue("km", "0");
-      form.setValue("year", "2025"); // Set current year for new vehicles
-    } else if (condition === "USADO") {
-      // For used vehicles, clear the year field if it was previously set to 2025
+      // Only set year if it's not already set
       const currentYear = form.getValues("year");
-      if (currentYear === "2025") {
+      if (!currentYear) {
+        form.setValue("year", "2025");
+      }
+    } else if (condition === "USADO") {
+      // For used vehicles, clear the year field if it was previously set to 2024 or 2025
+      const currentYear = form.getValues("year");
+      if (currentYear === "2025" || currentYear === "2024") {
         form.setValue("year", "");
       }
     }
@@ -1030,18 +1034,33 @@ export function VehicleForm({ initialData = {}, onSubmit }: VehicleFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Año</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        {...field} 
-                        onChange={e => field.onChange(e.target.value)} 
-                        disabled={form.watch("condition") === "NUEVO"}
-                        readOnly={form.watch("condition") === "NUEVO"}
-                      />
-                    </FormControl>
+                    {form.watch("condition") === "NUEVO" ? (
+                      <Select 
+                        onValueChange={field.onChange} 
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleccione el año" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="2025">2025</SelectItem>
+                          <SelectItem value="2024">2024</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          {...field} 
+                          onChange={e => field.onChange(e.target.value)}
+                        />
+                      </FormControl>
+                    )}
                     {form.watch("condition") === "NUEVO" && (
                       <FormDescription>
-                        El año se establece automáticamente para vehículos nuevos
+                        Seleccione el año del modelo (actual o anterior)
                       </FormDescription>
                     )}
                     <FormMessage />
