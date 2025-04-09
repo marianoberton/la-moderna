@@ -27,7 +27,7 @@ export const branches: Branch[] = [
     email: 'tlauquen@lamoderna.com.ar',
     mapUrl: 'https://maps.app.goo.gl/zje7j5rAYgpR8y6eA',
     representatives: [
-      { name: 'Juan Pablo Franco', position: 'Asesor Comercial', phone: '+54 9 11 5464-5940' }
+      { name: 'Juan Pablo', position: 'Asesor Comercial', phone: '+54 9 11 5464-5940' }
     ]
   },
   {
@@ -39,7 +39,7 @@ export const branches: Branch[] = [
     email: 'pehuajo@lamoderna.com.ar',
     mapUrl: 'https://maps.app.goo.gl/GzocjPT9PH4EZJjK6',
     representatives: [
-      { name: 'Franco Scalise', position: 'Asesor Comercial', phone: '+54 9 2396 62-5108' }
+      { name: 'Franco', position: 'Asesor Comercial', phone: '+54 9 2396 62-5108' }
     ]
   }
 ]; 

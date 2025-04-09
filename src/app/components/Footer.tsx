@@ -7,15 +7,15 @@ export default function Footer() {
       <div className="flex flex-col md:flex-row flex-wrap justify-between gap-6 max-w-7xl mx-auto">
         {/* Navegación - Primero en mobile (más importante para usuarios) */}
         <div className="w-full md:flex-1 min-w-[180px] text-center md:text-left md:order-1 order-1 mb-6 md:mb-0">
-          <h3 className="text-sm font-semibold mb-3 uppercase text-foreground">Navegación</h3>
+          <h3 className="text-base md:text-sm font-semibold mb-3 uppercase text-foreground">Navegación</h3>
           <div className="flex flex-col gap-y-2">
-            <Link href="/vehiculos" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            <Link href="/vehiculos" className="text-base md:text-sm text-muted-foreground hover:text-primary transition-colors">
               Vehículos
             </Link>
-            <Link href="/nosotros" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            <Link href="/sobre-nosotros" className="text-base md:text-sm text-muted-foreground hover:text-primary transition-colors">
               Quienes Somos
             </Link>
-            <Link href="/contacto" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            <Link href="/contacto" className="text-base md:text-sm text-muted-foreground hover:text-primary transition-colors">
               Contacto
             </Link>
           </div>
@@ -23,19 +23,19 @@ export default function Footer() {
         
         {/* Horario de Atención - Segundo en mobile (información crítica) */}
         <div className="w-full md:flex-1 min-w-[180px] text-center md:text-left md:order-4 order-2 mb-6 md:mb-0">
-          <h3 className="text-sm font-semibold mb-3 uppercase text-foreground">Horario de Atención</h3>
-          <p className="text-sm text-muted-foreground">Lunes a Viernes: 9:00 - 18:00</p>
-          <p className="text-sm text-muted-foreground">Sábados: 9:00 - 13:00</p>
+          <h3 className="text-base md:text-sm font-semibold mb-3 uppercase text-foreground">Horario de Atención</h3>
+          <p className="text-base md:text-sm text-muted-foreground">Lunes a Viernes: 8:00 a 12:00 – 15:30 a 19:30</p>
+          <p className="text-base md:text-sm text-muted-foreground">Sábados: 8:00 – 12:00</p>
         </div>
         
         {/* La Moderna T. Lauquen - Tercero en mobile */}
         <div className="w-full md:flex-1 min-w-[180px] text-center md:text-left md:order-2 order-3 mb-6 md:mb-0">
-          <h3 className="text-sm font-semibold mb-3 uppercase text-foreground">La Moderna T. Lauquen</h3>
+          <h3 className="text-base md:text-sm font-semibold mb-3 uppercase text-foreground">La Moderna T. Lauquen</h3>
           <a 
             href="https://maps.app.goo.gl/3JNkA4hyga64zdoD9" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex justify-center md:justify-start items-center text-sm text-muted-foreground hover:text-primary transition-colors"
+            className="flex justify-center md:justify-start items-center text-base md:text-sm text-muted-foreground hover:text-primary transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -47,12 +47,12 @@ export default function Footer() {
         
         {/* La Moderna Pehuajo - Cuarto en mobile */}
         <div className="w-full md:flex-1 min-w-[180px] text-center md:text-left md:order-3 order-4 mb-6 md:mb-0">
-          <h3 className="text-sm font-semibold mb-3 uppercase text-foreground">La Moderna Pehuajo</h3>
+          <h3 className="text-base md:text-sm font-semibold mb-3 uppercase text-foreground">La Moderna Pehuajo</h3>
           <a 
             href="https://maps.app.goo.gl/yHEeBHStbsbskB5X7" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex justify-center md:justify-start items-center text-sm text-muted-foreground hover:text-primary transition-colors"
+            className="flex justify-center md:justify-start items-center text-base md:text-sm text-muted-foreground hover:text-primary transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -73,7 +73,7 @@ export default function Footer() {
               className="h-10 w-auto dark:invert"
             />
           </div>
-          <p className="text-muted-foreground text-sm mb-4 text-center md:text-right">Tu concesionaria de confianza desde 1995</p>
+          <p className="text-base md:text-sm text-muted-foreground mb-4 text-center md:text-right">Tu concesionaria de confianza desde 1995</p>
           
           <div className="flex gap-3 mb-2">
             <a 
@@ -101,7 +101,7 @@ export default function Footer() {
       </div>
       
       <div className="pt-4 mt-4 text-center border-t border-border">
-        <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} La Moderna. Todos los derechos reservados.</p>
+        <p className="text-base md:text-xs text-muted-foreground">&copy; {new Date().getFullYear()} La Moderna. Todos los derechos reservados.</p>
       </div>
     </footer>
   );

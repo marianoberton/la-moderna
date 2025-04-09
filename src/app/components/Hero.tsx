@@ -334,13 +334,10 @@ export default function Hero() {
                         <SelectValue placeholder="Rango de precio" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="0-2000000">Hasta $2.000.000</SelectItem>
-                        <SelectItem value="2000000-5000000">$2.000.000 - $5.000.000</SelectItem>
-                        <SelectItem value="5000000-10000000">$5.000.000 - $10.000.000</SelectItem>
+                        <SelectItem value="0-10000000">$0 - $10.000.000</SelectItem>
                         <SelectItem value="10000000-20000000">$10.000.000 - $20.000.000</SelectItem>
-                        <SelectItem value="20000000-50000000">$20.000.000 - $50.000.000</SelectItem>
-                        <SelectItem value="50000000-100000000">$50.000.000 - $100.000.000</SelectItem>
-                        <SelectItem value="50000000+">Más de $50.000.000</SelectItem>
+                        <SelectItem value="20000000-40000000">$20.000.000 - $40.000.000</SelectItem>
+                        <SelectItem value="40000000+">Más de $40.000.000</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -351,13 +348,12 @@ export default function Hero() {
                         <SelectValue placeholder="Año" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="2025+">2025 o posterior</SelectItem>
-                        <SelectItem value="2020-2024">2020 - 2024</SelectItem>
-                        <SelectItem value="2015-2019">2015 - 2019</SelectItem>
-                        <SelectItem value="2010-2014">2010 - 2014</SelectItem>
-                        <SelectItem value="2005-2009">2005 - 2009</SelectItem>
-                        <SelectItem value="2000-2004">2000 - 2004</SelectItem>
-                        <SelectItem value="2000-">Anterior a 2000</SelectItem>
+                        <SelectItem value="2025+">0km</SelectItem>
+                        <SelectItem value="2023-2025">2023 - 2025</SelectItem>
+                        <SelectItem value="2020-2022">2020 - 2022</SelectItem>
+                        <SelectItem value="2016-2019">2016 - 2019</SelectItem>
+                        <SelectItem value="2010-2015">2010 - 2015</SelectItem>
+                        <SelectItem value="2000-2009">2000 - 2009</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

@@ -43,11 +43,12 @@ export default function BusinessHours() {
                 >
                   <div className="text-center">
                     <h4 className="font-medium text-white mb-2 uppercase text-sm tracking-wide">LUNES A VIERNES</h4>
-                    <p className="text-gray-300 text-2xl md:text-3xl font-medium">9:00 - 18:00</p>
+                    <p className="text-gray-300 text-2xl md:text-3xl font-medium">8:00 - 12:00</p>
+                    <p className="text-gray-300 text-2xl md:text-3xl font-medium">15:30 - 19:30</p>
                   </div>
                   <div className="text-center">
                     <h4 className="font-medium text-white mb-2 uppercase text-sm tracking-wide">SÁBADOS</h4>
-                    <p className="text-gray-300 text-2xl md:text-3xl font-medium">9:00 - 13:00</p>
+                    <p className="text-gray-300 text-2xl md:text-3xl font-medium">8:00 - 12:00</p>
                   </div>
                 </motion.div>
               </div>

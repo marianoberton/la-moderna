@@ -137,7 +137,7 @@ export default function CtaExchange() {
                     </div>
                     <div>
                       <h4 className="font-medium text-white uppercase text-sm tracking-wide">Proceso simple y rápido</h4>
-                      <p className="text-sm text-gray-300">Sin papeleos innecesarios ni demoras</p>
+                      <p className="text-sm text-gray-300">Servicio de Gestoría</p>
                     </div>
                   </div>
                   
