@@ -28,7 +28,7 @@ import {
 
 // Tipos de datos
 interface Vehiculo {
-  id: number;
+  id: string;
   marca: string;
   modelo: string;
   version: string;
@@ -58,7 +58,7 @@ interface Concesionaria {
 }
 
 interface VehiculoDetalleClientProps {
-  vehiculo: Vehiculo;
+  vehiculo: Vehiculo | null;
   concesionarias: Concesionaria[];
   errorMessage?: string;
 }
@@ -91,7 +91,9 @@ export default function VehiculoDetalleClient({ vehiculo, concesionarias, errorM
   const [loading, setLoading] = useState(true);
   const [showCopyMessage, setShowCopyMessage] = useState(false);
 
-  if (errorMessage) {
+  if (errorMessage || !vehiculo) {
+    const displayMessage = errorMessage || "El vehículo que buscas no está disponible o no existe.";
+    
     return (
       <div className="min-h-screen bg-background py-12">
         <div className="container mx-auto px-4">
@@ -101,7 +103,7 @@ export default function VehiculoDetalleClient({ vehiculo, concesionarias, errorM
             </div>
             <h1 className="text-2xl font-bold mb-4">No se pudo cargar el vehículo</h1>
             <p className="text-muted-foreground mb-6">
-              {errorMessage}
+              {displayMessage}
             </p>
             <Button asChild>
               <Link href="/vehiculos">
