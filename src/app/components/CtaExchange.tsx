@@ -94,28 +94,37 @@ export default function CtaExchange() {
             <div className="absolute inset-0 bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 opacity-90" />
             
             {/* Pestañas de navegación */}
-            <div className="relative z-10 flex justify-center border-b border-neutral-800 px-4 pt-4">
-              <div className="inline-flex bg-neutral-800/50 rounded-t-lg p-1 mb-[-1px]">
-                <button
-                  onClick={() => setActiveTab('cambio')}
-                  className={`px-4 py-2 text-sm font-medium rounded-t-md transition-all ${
-                    activeTab === 'cambio'
-                      ? 'bg-[var(--color-gold)] text-black'
-                      : 'text-gray-300 hover:text-white hover:bg-neutral-700/50'
-                  }`}
-                >
-                  Cambio de Vehículo
-                </button>
-                <button
-                  onClick={() => setActiveTab('consigna')}
-                  className={`px-4 py-2 text-sm font-medium rounded-t-md transition-all ${
-                    activeTab === 'consigna'
-                      ? 'bg-[var(--color-gold)] text-black'
-                      : 'text-gray-300 hover:text-white hover:bg-neutral-700/50'
-                  }`}
-                >
-                  Consigna de Vehículo
-                </button>
+            <div className="relative z-10 flex justify-center px-4 pt-4">
+              <div className="w-full max-w-md">
+                {/* Tabs container */}
+                <div className="flex border-2 border-neutral-700 rounded-lg overflow-hidden shadow-lg">
+                  <button
+                    onClick={() => setActiveTab('cambio')}
+                    className={`flex-1 px-5 py-3.5 text-sm font-medium transition-all relative ${
+                      activeTab === 'cambio'
+                        ? 'bg-neutral-800 text-white font-semibold'
+                        : 'bg-neutral-800 text-gray-300 hover:bg-neutral-700 hover:text-white'
+                    }`}
+                  >
+                    Cotizá tu Vehículo
+                    {activeTab === 'cambio' && (
+                      <div className="absolute bottom-0 left-0 w-full h-1.5 bg-[var(--color-gold)]"></div>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('consigna')}
+                    className={`flex-1 px-5 py-3.5 text-sm font-medium transition-all relative ${
+                      activeTab === 'consigna'
+                        ? 'bg-neutral-800 text-white font-semibold'
+                        : 'bg-neutral-800 text-gray-300 hover:bg-neutral-700 hover:text-white'
+                    }`}
+                  >
+                    Consigná tu Vehículo
+                    {activeTab === 'consigna' && (
+                      <div className="absolute bottom-0 left-0 w-full h-1.5 bg-[var(--color-gold)]"></div>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
             
