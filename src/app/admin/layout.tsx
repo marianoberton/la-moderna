@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { contarConsultasNoLeidas } from '@/services/consultaService';
 
 const menuItems = [
   {
@@ -43,6 +45,7 @@ const menuItems = [
     title: 'Consultas',
     icon: MessageSquare,
     href: '/admin/consultas',
+    hasNotification: true,
   },
   {
     title: 'Configuración',
@@ -58,7 +61,43 @@ export default function AdminLayout({
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
+  const [consultasNoLeidas, setConsultasNoLeidas] = useState(0);
+  const [cargandoNotificaciones, setCargandoNotificaciones] = useState(true);
   const pathname = usePathname();
+
+  // Función para cargar las consultas no leídas
+  const cargarConsultasNoLeidas = async () => {
+    try {
+      setCargandoNotificaciones(true);
+      const count = await contarConsultasNoLeidas();
+      setConsultasNoLeidas(count);
+    } catch (error) {
+      console.error('Error al cargar consultas no leídas:', error);
+    } finally {
+      setCargandoNotificaciones(false);
+    }
+  };
+
+  // Cargar consultas no leídas al inicio
+  useEffect(() => {
+    cargarConsultasNoLeidas();
+    
+    // Establecer un intervalo para actualizar las consultas no leídas cada minuto
+    const interval = setInterval(cargarConsultasNoLeidas, 60000);
+    
+    // Escuchar evento de consultas actualizadas
+    const handleConsultasActualizadas = () => {
+      cargarConsultasNoLeidas();
+    };
+    
+    window.addEventListener('consultas-actualizadas', handleConsultasActualizadas);
+    
+    // Limpiar el intervalo y el evento cuando el componente se desmonte
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('consultas-actualizadas', handleConsultasActualizadas);
+    };
+  }, []);
 
   const toggleSubmenu = (href: string) => {
     if (expandedMenu === href) {
@@ -137,10 +176,32 @@ export default function AdminLayout({
                   <Link href={item.href}>
                     <Button
                       variant={pathname === item.href ? "secondary" : "ghost"}
-                      className={`w-full justify-start ${!isSidebarOpen ? 'px-2' : ''}`}
+                      className={`w-full justify-start ${!isSidebarOpen ? 'px-2' : ''} relative`}
                     >
                       <item.icon className={`h-4 w-4 ${!isSidebarOpen ? 'mx-auto' : 'mr-2'}`} />
-                      {isSidebarOpen && item.title}
+                      {isSidebarOpen && (
+                        <div className="flex flex-1 items-center">
+                          <span>{item.title}</span>
+                          {item.hasNotification && consultasNoLeidas > 0 && (
+                            <Badge 
+                              variant="destructive" 
+                              className="ml-2 text-xs h-5 min-w-[20px] flex items-center justify-center"
+                            >
+                              {consultasNoLeidas}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                      
+                      {/* Notificación en modo compacto */}
+                      {!isSidebarOpen && item.hasNotification && consultasNoLeidas > 0 && (
+                        <Badge 
+                          variant="destructive" 
+                          className="absolute -top-1 -right-1 h-5 min-w-[20px] text-xs flex items-center justify-center"
+                        >
+                          {consultasNoLeidas}
+                        </Badge>
+                      )}
                     </Button>
                   </Link>
                 )}
