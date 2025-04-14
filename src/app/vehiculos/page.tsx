@@ -735,7 +735,11 @@ export default function VehiculosPage() {
       console.log('[RENDER] DEBUG: Mostrando mensaje "No se encontraron vehículos"');
       return (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <Car className="h-16 w-16 text-gray-400 mb-4" />
+          <img 
+            src="/images/logo_full.svg" 
+            alt="La Moderna" 
+            className="h-16 w-auto mb-4"
+          />
           <h3 className="text-lg font-medium">No se encontraron vehículos</h3>
            <p className="mt-1 text-gray-500">
              {filtros.marca ? (
@@ -773,7 +777,11 @@ export default function VehiculosPage() {
     console.log('[RENDER] DEBUG: Mostrando mensaje de carga/inicial/vacío (fallback)');
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <Car className="h-16 w-16 text-gray-400 mb-4" />
+        <img 
+          src="/images/logo_full.svg" 
+          alt="La Moderna" 
+          className="h-16 w-auto mb-4"
+        />
         <h3 className="text-lg font-medium">
           {vehiculos.length === 0 ? "Cargando vehículos..." : "No hay vehículos disponibles"}
         </h3>

@@ -63,6 +63,24 @@ interface VehiculoDetalleClientProps {
   errorMessage?: string;
 }
 
+// Update Facebook SDK interface
+interface FacebookSDK {
+  ui: (params: any) => void;
+  init: (params: {
+    appId: string;
+    xfbml: boolean;
+    version: string;
+  }) => void;
+}
+
+// Add global Window interface extension
+declare global {
+  interface Window {
+    FB?: FacebookSDK;
+    fbAsyncInit?: () => void;
+  }
+}
+
 export default function VehiculoDetalleClient({ vehiculo, concesionarias, errorMessage }: VehiculoDetalleClientProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showAllPhotos, setShowAllPhotos] = useState(false);
@@ -71,6 +89,7 @@ export default function VehiculoDetalleClient({ vehiculo, concesionarias, errorM
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showCopyMessage, setShowCopyMessage] = useState(false);
 
   if (errorMessage) {
     return (
@@ -136,18 +155,31 @@ export default function VehiculoDetalleClient({ vehiculo, concesionarias, errorM
   };
 
   const shareToWhatsApp = () => {
-    const message = encodeURIComponent(`Mira este ${vehiculo.marca} ${vehiculo.modelo} ${vehiculo.version} del año ${vehiculo.año}\n${window.location.href}`);
+    // Create a rich message with vehicle details
+    const vehicleDetails = `${vehiculo.marca} ${vehiculo.modelo} ${vehiculo.version}`;
+    const vehiclePrice = vehiculo.km === 0 ? 'Consultar precio' : `$${vehiculo.precio.toLocaleString()}`;
+    const vehicleSpecs = `Año: ${vehiculo.año} | ${vehiculo.km.toLocaleString()} km | ${formatText(vehiculo.combustible)} | ${formatText(vehiculo.transmision)}`;
+    const vehicleLocation = `Ubicación: ${formatText(vehiculo.ubicacion)}`;
+    
+    const message = encodeURIComponent(
+      `¡Mira este vehículo! ✨\n\n*${vehicleDetails}*\n${vehiclePrice}\n${vehicleSpecs}\n${vehicleLocation}\n\nVer más detalles: ${window.location.href}`
+    );
+    
+    // Open WhatsApp with the message
     window.open(`https://wa.me/?text=${message}`, '_blank');
   };
 
   const shareToFacebook = () => {
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank');
+    // Simplemente abrir la URL de Facebook con un enlace directo
+    window.open('https://www.facebook.com/share.php?u=' + encodeURIComponent(window.location.href), '_blank');
+    setShowShareOptions(false);
   };
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(window.location.href)
       .then(() => {
-        alert('Enlace copiado al portapapeles');
+        setShowCopyMessage(true);
+        setTimeout(() => setShowCopyMessage(false), 3000);
         setShowShareOptions(false);
       })
       .catch((err) => console.error('Error al copiar: ', err));
@@ -222,6 +254,22 @@ Aceptamos permutas y todas las formas de pago. Financiación disponible.`;
   return (
     <>
       <div className="min-h-screen bg-background py-4 lg:py-8">
+        {/* Mensaje de confirmación de copia */}
+        <AnimatePresence>
+          {showCopyMessage && (
+            <motion.div 
+              className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-neutral-900 text-white px-4 py-2 rounded-full shadow-lg z-50 flex items-center gap-2"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2 }}
+            >
+              <CheckCircle2 className="h-4 w-4 text-green-400" />
+              <span className="text-sm font-medium">Enlace copiado</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
         <div className="container mx-auto px-0 lg:px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Columna izquierda - Galería de imágenes y acciones */}
@@ -240,7 +288,7 @@ Aceptamos permutas y todas las formas de pago. Financiación disponible.`;
                 <Button 
                   variant="outline" 
                   size="icon" 
-                  className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full shadow-md hover:shadow-lg z-10 bg-background/80 backdrop-blur-sm"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full shadow-md hover:shadow-lg z-10 bg-background/40 backdrop-blur-sm"
                   onClick={prevImage}
                 >
                   <ChevronLeft className="h-5 w-5" />
@@ -248,11 +296,87 @@ Aceptamos permutas y todas las formas de pago. Financiación disponible.`;
                 <Button 
                   variant="outline" 
                   size="icon" 
-                  className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full shadow-md hover:shadow-lg z-10 bg-background/80 backdrop-blur-sm"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full shadow-md hover:shadow-lg z-10 bg-background/40 backdrop-blur-sm"
                   onClick={nextImage}
                 >
                   <ChevronRight className="h-5 w-5" />
                 </Button>
+
+                {/* Mobile share button */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="absolute right-4 bottom-4 rounded-full shadow-md hover:shadow-lg z-10 bg-background/40 backdrop-blur-sm block lg:hidden w-10 h-10 p-0 flex items-center justify-center border-0"
+                  onClick={shareVehicle}
+                >
+                  <Share2 className="h-4 w-4 transform -translate-x-[1px]" />
+                </Button>
+
+                {/* Share options popup */}
+                {showShareOptions && (
+                  <div className="absolute right-4 bottom-16 z-20 bg-background/95 backdrop-blur-sm rounded-lg shadow-lg p-2 border border-neutral-200 dark:border-neutral-800 block lg:hidden">
+                    <div className="flex flex-col gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex items-center justify-start gap-2 px-3 text-[#25D366] hover:bg-[#25D366]/10"
+                        onClick={() => {
+                          shareToWhatsApp();
+                          setShowShareOptions(false);
+                        }}
+                      >
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          viewBox="0 0 24 24" 
+                          className="h-5 w-5 fill-current"
+                        >
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.967 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        </svg>
+                        WhatsApp
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex items-center justify-start gap-2 px-3 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50"
+                        onClick={() => {
+                          shareToFacebook();
+                          setShowShareOptions(false);
+                        }}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          className="h-5 w-5 fill-current"
+                        >
+                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                        Facebook
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex items-center justify-start gap-2 px-3 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800/50"
+                        onClick={() => {
+                          copyToClipboard();
+                          setShowShareOptions(false);
+                        }}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          className="h-5 w-5 fill-none stroke-current"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        Copiar link
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Miniaturas con scroll horizontal */}
@@ -367,21 +491,21 @@ Aceptamos permutas y todas las formas de pago. Financiación disponible.`;
                   {/* Grid de características principales */}
                   <div className="grid grid-cols-2 gap-4 lg:gap-6 mt-6 lg:mt-8">
                     <div className="flex items-center gap-3">
-                      <Calendar className="h-5 w-5 text-muted-foreground" />
+                      <Calendar className="h-5 w-5 text-neutral-700 dark:text-neutral-300" />
                       <div>
                         <p className="text-sm text-muted-foreground">Año</p>
                         <p className="font-medium">{vehiculo.año}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Gauge className="h-5 w-5 text-muted-foreground" />
+                      <Gauge className="h-5 w-5 text-neutral-700 dark:text-neutral-300" />
                       <div>
                         <p className="text-sm text-muted-foreground">Kilometraje</p>
                         <p className="font-medium">{vehiculo.km.toLocaleString()} km</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Fuel className="h-5 w-5 text-muted-foreground" />
+                      <Fuel className="h-5 w-5 text-neutral-700 dark:text-neutral-300" />
                       <div>
                         <p className="text-sm text-muted-foreground">Combustible</p>
                         <p className="font-medium">{formatText(vehiculo.combustible)}</p>
@@ -391,7 +515,7 @@ Aceptamos permutas y todas las formas de pago. Financiación disponible.`;
                       <img 
                         src="/manual-transmission.svg"
                         alt="Transmisión"
-                        className="h-5 w-5 text-muted-foreground"
+                        className="h-5 w-5 text-neutral-700 dark:text-neutral-300"
                       />
                       <div>
                         <p className="text-sm text-muted-foreground">Transmisión</p>
@@ -403,7 +527,7 @@ Aceptamos permutas y todas las formas de pago. Financiación disponible.`;
                   {/* Ubicación */}
                   <div className="mt-8 p-4 bg-muted/50 rounded-lg">
                     <div className="flex items-center gap-3">
-                      <MapPin className="h-5 w-5 text-muted-foreground" />
+                      <MapPin className="h-5 w-5 text-neutral-700 dark:text-neutral-300" />
                       <div>
                         <p className="text-sm text-muted-foreground">Disponible en</p>
                         <p className="font-medium">{formatText(vehiculo.ubicacion)}</p>
@@ -413,9 +537,9 @@ Aceptamos permutas y todas las formas de pago. Financiación disponible.`;
 
                   {/* Equipamiento */}
                   {vehiculo.equipamiento && Object.keys(vehiculo.equipamiento).length > 0 && (
-                    <div className="bg-card border-0 lg:border rounded-none lg:rounded-lg p-4 lg:p-6 mt-4 lg:mt-6 mx-4 lg:mx-0">
+                    <div className="bg-card border-0 lg:border rounded-none lg:rounded-lg p-4 lg:p-6 mt-4 lg:mt-6 -mx-4 lg:mx-0">
                       <h3 className="font-semibold mb-3 lg:mb-4">EQUIPAMIENTO</h3>
-                      <div className="grid grid-cols-2 gap-y-3 gap-x-2">
+                      <div className="grid grid-cols-2 gap-y-3 gap-x-4">
                         {Object.entries(vehiculo.equipamiento).map(([key, value]) => (
                           value && (
                             <div key={key} className="flex items-start gap-2">
@@ -449,7 +573,7 @@ Aceptamos permutas y todas las formas de pago. Financiación disponible.`;
                     </div>
                   </div>
 
-                  {/* Mobile contact section - place after description */}
+                  {/* Mobile contact section - visible only on mobile */}
                   <div className="block lg:hidden mt-8">
                     {concesionariaActual && (
                       <div className="bg-muted/50 rounded-lg p-4">
@@ -488,36 +612,58 @@ Aceptamos permutas y todas las formas de pago. Financiación disponible.`;
                     )}
                   </div>
 
-                  {/* Compartir */}
-                  <div className="mt-6 lg:mt-8 bg-muted/50 rounded-lg p-4 lg:p-6">
+                  {/* Compartir - solo visible en desktop */}
+                  <div className="mt-6 lg:mt-8 bg-muted/50 rounded-lg p-4 lg:p-6 hidden lg:block">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Share2 className="h-4 w-4" />
+                      <h3 className="font-semibold text-sm">COMPARTIR</h3>
+                    </div>
                     <div className="flex justify-center gap-4">
                       <Button 
                         variant="outline" 
-                        className="flex-1 bg-background hover:bg-[#25D366] hover:border-[#25D366] transition-colors text-[#25D366] hover:text-white h-12 lg:h-10"
+                        className="flex-1 bg-background hover:bg-[#25D366] hover:border-[#25D366] transition-colors text-[#25D366] hover:text-white h-10"
                         onClick={shareToWhatsApp}
                       >
                         <svg 
                           xmlns="http://www.w3.org/2000/svg" 
                           viewBox="0 0 24 24" 
-                          className="h-5 w-5 lg:h-4 lg:w-4 lg:mr-2 fill-current"
+                          className="h-4 w-4 mr-2 fill-current"
                         >
                           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.967 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                         </svg>
-                        <span className="hidden lg:inline">Compartir en WhatsApp</span>
+                        WhatsApp
                       </Button>
                       <Button 
                         variant="outline" 
-                        className="flex-1 bg-background hover:bg-[#1877F2] hover:border-[#1877F2] transition-colors text-[#1877F2] hover:text-white h-12 lg:h-10"
+                        className="flex-1 bg-background hover:bg-[#1877F2] hover:border-[#1877F2] transition-colors text-[#1877F2] hover:text-white h-10"
                         onClick={shareToFacebook}
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 24 24"
-                          className="h-5 w-5 lg:h-4 lg:w-4 lg:mr-2 fill-current"
+                          className="h-4 w-4 mr-2 fill-current"
                         >
                           <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                         </svg>
-                        <span className="hidden lg:inline">Compartir en Facebook</span>
+                        Facebook
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="flex-1 bg-background hover:bg-neutral-700 hover:border-neutral-700 transition-colors text-neutral-700 hover:text-white h-10"
+                        onClick={copyToClipboard}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          className="h-4 w-4 mr-2 fill-none stroke-current"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        Copiar link
                       </Button>
                     </div>
                   </div>
