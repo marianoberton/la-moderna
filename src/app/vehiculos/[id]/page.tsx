@@ -3,8 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import type { Metadata } from 'next';
 import { Button } from '@/components/ui/button';
-// Restaurar importación con alias - Asumiendo tsconfig.json está correcto
-import { Database } from '@/types/supabase';
+// Eliminar la importación de Database
+// import { Database } from '@/types/supabase';
 
 // Marcar como dinámica para asegurar que siempre busque datos frescos
 export const dynamic = 'force-dynamic';
@@ -21,8 +21,31 @@ type PageParams = {
   id: string;
 };
 
-// Usar el tipo Row directamente de Supabase
-type VehiculoDbRow = Database['public']['Tables']['vehicles']['Row'];
+// Usar un tipo inline en vez de la referencia a Database
+type VehiculoDbRow = {
+  id: string;
+  marca: string;
+  modelo: string;
+  version: string;
+  precio?: number;
+  año?: number;
+  kilometraje?: number;
+  combustible?: string;
+  transmision?: string;
+  color?: string;
+  puertas?: number;
+  pasajeros?: number;
+  ubicacion?: string;
+  imagenes?: string[];
+  caracteristicas?: string[];
+  equipamiento?: Record<string, boolean>;
+  selected_highlights?: string[];
+  condicion?: string;
+  descripcion?: string;
+  tipo?: string;
+  created_at?: string;
+  updated_at?: string;
+};
 
 // Interfaz para el componente cliente (asegúrate que coincida con la definición en VehiculoDetalleClient.tsx)
 interface Vehiculo {
@@ -48,6 +71,7 @@ interface Vehiculo {
   tipo: string;
 }
 
+
 interface Concesionaria {
   id: number;
   nombre: string;
@@ -71,9 +95,9 @@ export async function generateMetadata({ params }: { params: Promise<PageParams>
       };
     }
     
-    // Crear cliente de Supabase
+    // Crear cliente de Supabase (sin el tipo genérico Database)
     const cookieStore = cookies();
-    const supabase = createClient<Database>(
+    const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL || '',
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
       {
@@ -84,7 +108,7 @@ export async function generateMetadata({ params }: { params: Promise<PageParams>
     );
     
     // Consultar el vehículo seleccionando los campos necesarios
-    const { data, error: queryError } = await supabase
+    const { data: rawData, error: queryError } = await supabase
       .from('vehicles')
       .select('marca, modelo, version, precio, año, kilometraje, combustible, transmision, ubicacion, imagenes') // Seleccionar solo los necesarios
       .eq('id', id)
@@ -96,13 +120,27 @@ export async function generateMetadata({ params }: { params: Promise<PageParams>
        throw new Error(`Error al obtener datos del vehículo: ${queryError.message}`);
     }
     
-    if (!data) {
+    if (!rawData) {
       console.warn('Vehicle not found for metadata:', id);
       return {
         title: 'Vehículo no encontrado - La Moderna',
         description: 'El vehículo solicitado no se encuentra disponible.'
       };
     }
+    
+    // Casteamos explícitamente los datos para evitar errores de tipo
+    const data = rawData as {
+      marca?: string;
+      modelo?: string;
+      version?: string;
+      precio?: number;
+      año?: number;
+      kilometraje?: number;
+      combustible?: string;
+      transmision?: string;
+      ubicacion?: string;
+      imagenes?: string[];
+    };
     
     // Formatear información del vehículo para metadatos
     const title = `${data.marca || 'Vehículo'} ${data.modelo || ''} ${data.version || ''} - La Moderna`;
@@ -168,9 +206,9 @@ export default async function VehiculoDetallePage({ params }: { params: Promise<
       throw new Error(`ID de vehículo inválido: "${id}". Se esperaba un UUID válido.`);
     }
 
-    // Crear cliente de Supabase en el servidor
+    // Crear cliente de Supabase en el servidor (sin el tipo genérico Database)
     const cookieStore = cookies();
-    const supabase = createClient<Database>(
+    const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL || '',
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
       {
@@ -181,11 +219,11 @@ export default async function VehiculoDetallePage({ params }: { params: Promise<
     );
     
     // Consultar el vehículo por su ID, seleccionando todos los campos
-    const { data: vehicleDbData, error: supabaseError } = await supabase
+    const { data: vehicleRawData, error: supabaseError } = await supabase
       .from('vehicles')
       .select('*') // Seleccionar todo para mapear al cliente
       .eq('id', id)
-      .single<VehiculoDbRow>(); // Especificar el tipo de retorno esperado
+      .single(); // Dejar que TS infiera el tipo
     
     if (supabaseError) {
       // No lanzar error si es "No rows found", eso lo manejamos después
@@ -195,10 +233,13 @@ export default async function VehiculoDetallePage({ params }: { params: Promise<
       }
     }
     
-    if (!vehicleDbData) {
+    if (!vehicleRawData) {
       // Si no hay datos (o el error fue PGRST116), marcar como no encontrado
       errorMessage = 'Vehículo no encontrado. Es posible que el ID no exista o haya sido eliminado.';
     } else {
+      // Casteamos los datos crudos a un tipo conocido para evitar errores de TS
+      const vehicleDbData = vehicleRawData as VehiculoDbRow;
+      
       // Mapear datos de Supabase (VehiculoDbRow) a la interfaz del cliente (Vehiculo)
       vehiculoClient = {
         id: vehicleDbData.id, // Mantener como string (UUID)
