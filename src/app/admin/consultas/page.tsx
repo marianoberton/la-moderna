@@ -27,17 +27,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-// Definir un evento personalizado para actualizar el contador de notificaciones
-export const emitConsultasActualizadas = () => {
-  const event = new CustomEvent('consultas-actualizadas');
-  window.dispatchEvent(event);
-};
-
 export default function ConsultasPage() {
   const [consultas, setConsultas] = useState<Consulta[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedConsulta, setSelectedConsulta] = useState<Consulta | null>(null);
+
+  // Definir un evento personalizado para actualizar el contador de notificaciones
+  const emitConsultasActualizadas = () => {
+    const event = new CustomEvent('consultas-actualizadas');
+    window.dispatchEvent(event);
+  };
 
   // Cargar las consultas cuando se monta el componente
   useEffect(() => {
